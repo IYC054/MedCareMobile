@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medcaremobile/UI/Home/Homepage.dart';
 import 'package:medcaremobile/UI/Login/Button.dart';
 import 'package:medcaremobile/UI/Login/InputField.dart';
 import 'package:medcaremobile/UI/Register/RegisterPage.dart';
@@ -68,7 +69,33 @@ class Inputwrapper extends StatelessWidget {
           SizedBox(
             height: 40,
           ),
-          Button()
+          Button(),
+          ElevatedButton(
+              onPressed: () => {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            Homepage(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(0.0, 1.0);
+                          const end = Offset.zero;
+                          const curve = Curves.ease;
+
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                      ),
+                    )
+                  },
+              child: Text("Go home"))
         ],
       ),
     );

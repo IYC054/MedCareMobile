@@ -10,7 +10,7 @@ class Registerpage extends StatelessWidget {
         resizeToAvoidBottomInset: true,
         body: SingleChildScrollView(
           child: Container(
-            width: double.maxFinite,
+            width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                   colors: [Colors.cyan, Colors.blueAccent],
