@@ -88,8 +88,8 @@ class HomepageState extends State<Homepage> {
                                 children: [
                                   SvgPicture.asset(
                                     imagePath,
-                                    width: 24,
-                                    height: 24,
+                                    width: 30,
+                                    height: 30,
                                   ),
                                   SizedBox(width: 10),
                                   Text(

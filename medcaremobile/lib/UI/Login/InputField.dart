@@ -20,7 +20,7 @@ class Inputfield extends StatelessWidget {
           child: TextField(
             controller: phoneController,
             decoration: InputDecoration(
-                hintText: "Enter your phone number",
+                hintText: "Nhập số điện thoại ",
                 hintStyle: TextStyle(color: Colors.grey),
                 border: InputBorder.none),
           ),
@@ -33,7 +33,7 @@ class Inputfield extends StatelessWidget {
             controller: passwordController,
             obscureText: true,
             decoration: InputDecoration(
-                hintText: "Enter your password",
+                hintText: "Nhập mật khẩu",
                 hintStyle: TextStyle(color: Colors.grey),
                 border: InputBorder.none),
           ),

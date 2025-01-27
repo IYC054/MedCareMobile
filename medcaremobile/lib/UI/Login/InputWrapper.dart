@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:medcaremobile/UI/Home/Homepage.dart';
+import 'package:medcaremobile/UI/Home/Home.dart';
 import 'package:medcaremobile/UI/Login/Button.dart';
 import 'package:medcaremobile/UI/Login/InputField.dart';
 import 'package:medcaremobile/UI/Register/RegisterPage.dart';
@@ -76,7 +76,7 @@ class Inputwrapper extends StatelessWidget {
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            Homepage(),
+                            Home(),
                         transitionsBuilder:
                             (context, animation, secondaryAnimation, child) {
                           const begin = Offset(0.0, 1.0);

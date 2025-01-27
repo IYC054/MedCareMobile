@@ -12,12 +12,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      routes: {
+      '/news': (context) => Loginpage(),
+      // '/promo': (context) => PromoScreen(),
+      // '/guide': (context) => GuideScreen(),
+    },
       debugShowCheckedModeBanner: false,
       // title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      
       home: Loginpage()
     );
   }
