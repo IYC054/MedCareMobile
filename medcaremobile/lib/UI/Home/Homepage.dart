@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:medcaremobile/UI/Appointment/ApptbyDoctor.dart';
+import 'package:medcaremobile/UI/Appointment/ApptbySpecialty.dart';
 import 'package:medcaremobile/UI/Home/Footer.dart';
 
 class Homepage extends StatefulWidget {
@@ -10,6 +12,165 @@ class Homepage extends StatefulWidget {
 }
 
 class HomepageState extends State<Homepage> {
+  Future<void> Showdialogappointment() async {
+    return showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (_) => Dialog(
+          backgroundColor: Colors.transparent,
+          child: TweenAnimationBuilder(
+            duration: Duration(milliseconds: 700),
+            tween: Tween<double>(begin: -30, end: 0),
+            builder: (context, double value, child) {
+              return Transform.translate(
+                offset: Offset(0, value),
+                child: Opacity(
+                  opacity: (30 + value) / 30,
+                  child: child,
+                ),
+              );
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Hàng đầu tiên
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            Apptbyspecialty(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(0.0, 1.0);
+                          const end = Offset.zero;
+                          const curve = Curves.ease;
+
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        width: 1.0,
+                        color: Color.fromRGBO(194, 194, 194, 0.8),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          "image/appointment.svg",
+                          width: 30,
+                          height: 30,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          "Khám theo chuyên khoa",
+                          style: TextStyle(
+                            color: Color.fromRGBO(42, 0, 83, 1),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                SizedBox(
+                  height: 10,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            Apptbydoctor(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(0.0, 1.0);
+                          const end = Offset.zero;
+                          const curve = Curves.ease;
+
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        width: 1.0,
+                        color: Color.fromRGBO(194, 194, 194, 0.8),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          "image/doctor.svg",
+                          width: 30,
+                          height: 30,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          "Khám với bác sĩ",
+                          style: TextStyle(
+                            color: Color.fromRGBO(42, 0, 83, 1),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Hàng thứ hai
+
+                SizedBox(height: 10), // Khoảng cách với nút X
+
+                // Nút đóng (nằm dưới cùng)
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: CircleBorder(),
+                    padding: EdgeInsets.all(12),
+                    backgroundColor: Colors.red,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                  child: Icon(Icons.close, color: Colors.white, size: 24),
+                ),
+              ],
+            ),
+          )),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,55 +214,62 @@ class HomepageState extends State<Homepage> {
                           ),
                           itemBuilder: (context, index) {
                             String text = "";
-                            IconData icon = Icons.help;
+                            // IconData icon = Icons.help;
                             String imagePath = "";
+
                             switch (index) {
                               case 0:
                                 text = "Đặt Khám";
-                                icon = Icons.calendar_month;
+                                // icon = Icons.calendar_month;
                                 imagePath = "image/appointment.svg";
                                 break;
                               case 1:
                                 text = "Lịch sử đặt khám";
-                                icon = Icons.accessible_sharp;
+                                // icon = Icons.accessible_sharp;
                                 imagePath = "image/appointmentlist.svg";
                                 break;
                               case 2:
                                 text = "Hồ sơ sức khoẻ";
-                                icon = Icons.accessible_sharp;
+                                // icon = Icons.accessible_sharp;
                                 imagePath = "image/patientclipboard.svg";
                                 break;
                             }
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  width: 1.0,
-                                  style: BorderStyle.solid,
-                                  color: Color.fromRGBO(194, 194, 194, 0.8),
-                                ),
-                              ),
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SvgPicture.asset(
-                                    imagePath,
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                  SizedBox(width: 10),
-                                  Text(
-                                    text,
-                                    style: TextStyle(
-                                      color: Color.fromRGBO(42, 0, 83, 1),
-                                      fontWeight: FontWeight.bold,
+                            return GestureDetector(
+                                onTap: () {
+                                  if (index == 0) {
+                                    Showdialogappointment();
+                                  }
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      width: 1.0,
+                                      style: BorderStyle.solid,
+                                      color: Color.fromRGBO(194, 194, 194, 0.8),
                                     ),
                                   ),
-                                ],
-                              ),
-                            );
+                                  alignment: Alignment.center,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SvgPicture.asset(
+                                        imagePath,
+                                        width: 30,
+                                        height: 30,
+                                      ),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        text,
+                                        style: TextStyle(
+                                          color: Color.fromRGBO(42, 0, 83, 1),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ));
                           },
                           itemCount: 3,
                         ),
