@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Home/CameraPage.dart';
 import 'package:medcaremobile/UI/Home/Homepage.dart';
 import 'package:medcaremobile/UI/Login/LoginPage.dart';
+import 'package:medcaremobile/UI/News/Newspage.dart';
 import 'package:medcaremobile/UI/Profile/ProfilePage.dart';
 import 'package:medcaremobile/UI/Register/RegisterPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -16,21 +18,27 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int pageIndex = 0;
+  bool isLoggedIn = false;
+  Future<void> checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    });
+  }
 
   final pages = [
     Homepage(),
-    Loginpage(),
     CameraPage(),
-    Registerpage(),
+    Newspage(),
     Profilepage(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: pages[pageIndex],
+        body: (pageIndex == 3 && !isLoggedIn) ? Loginpage() : pages[pageIndex],
         bottomNavigationBar: CurvedNavigationBar(
-          index: pageIndex,
+          index: pageIndex < pages.length ? pageIndex : 0,
           onTap: (index) {
             setState(() {
               pageIndex = index;
@@ -42,16 +50,12 @@ class _HomeState extends State<Home> {
               label: 'Trang chủ',
             ),
             CurvedNavigationBarItem(
-              child: Icon(Icons.medical_information),
-              label: 'Đặt lịch',
-            ),
-            CurvedNavigationBarItem(
-              child: Icon(Icons.camera_alt),
+              child: Icon(Icons.qr_code_scanner),
               label: 'Quét QR',
             ),
             CurvedNavigationBarItem(
               child: Icon(Icons.newspaper),
-              label: 'News',
+              label: 'Tin tức',
             ),
             CurvedNavigationBarItem(
               child: Icon(Icons.perm_identity),

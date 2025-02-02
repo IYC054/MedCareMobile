@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medcaremobile/UI/Home/Home.dart';
 import 'package:medcaremobile/UI/Login/LoginPage.dart';
 
 void main() {
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       // title: 'Flutter Demo',
       
-      home: Loginpage()
+      home: Home()
     );
   }
 }
