@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Home/Home.dart';
+import 'package:medcaremobile/UI/Home/Homepage.dart';
 import 'package:medcaremobile/UI/Login/LoginPage.dart';
+import 'package:medcaremobile/UI/News/Newspage.dart';
+import 'package:medcaremobile/UI/News/NotificationPage.dart';
+import 'package:medcaremobile/UI/Profile/Profilepage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,7 +25,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       // title: 'Flutter Demo',
       
-      home: Home()
+      home: NotificationPage(),
     );
   }
 }
