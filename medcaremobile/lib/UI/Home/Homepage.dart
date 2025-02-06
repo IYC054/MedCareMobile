@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:medcaremobile/UI/Appointment/ApptbyDoctor.dart';
+import 'package:medcaremobile/UI/Appointment/Doctor/ChooseProfile.dart';
 import 'package:medcaremobile/UI/Appointment/ApptbySpecialty.dart';
 import 'package:medcaremobile/UI/Home/Footer.dart';
 
@@ -100,7 +100,7 @@ class HomepageState extends State<Homepage> {
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            Apptbydoctor(),
+                            ChooseProfile(),
                         transitionsBuilder:
                             (context, animation, secondaryAnimation, child) {
                           const begin = Offset(0.0, 1.0);
