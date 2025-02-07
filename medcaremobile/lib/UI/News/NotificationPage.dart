@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -8,6 +10,34 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
+  List<dynamic> newsList = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchNews();
+  }
+
+  Future<void> fetchNews() async {
+    try {
+     final response = await http.get(Uri.parse('http://192.168.1.17:8080/api/news'));
+      if (response.statusCode == 200) {
+        setState(() {
+          newsList = json.decode(response.body);
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load news');
+      }
+    } catch (e) {
+      print('Error fetching news: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,7 +45,9 @@ class _NotificationPageState extends State<NotificationPage> {
         backgroundColor: Colors.blue,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
         title: Text('Danh sách thông báo'),
         actions: [
@@ -25,78 +57,21 @@ class _NotificationPageState extends State<NotificationPage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildTab('Phiếu khám (0)', false),
-                _buildTab('Tin tức (59)', true),
-                _buildTab('Thông báo', false),
-              ],
-            ),
-          ),
-          Divider(),
-          _buildSectionTitle('Hôm nay'),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text('Không có thông báo mới',
-                style: TextStyle(color: Colors.black54)),
-          ),
-          _buildSectionTitle('Trước đó'),
-          Expanded(
-            child: ListView(
-              children: [
-                _buildNotificationItem(
-                    '👨‍⚕️ Danh sách bác sĩ trực Tết',
-                    'Tết an tâm, sức khỏe tốt! Xem ngay danh sách bác sĩ trực Tết và gọi video tư vấn khi cần trên Medpro.',
-                    '4 ngày trước'),
-                _buildNotificationItem(
-                    '⚡ Danh sách bệnh viện trực Tết',
-                    'Dễ dàng tra cứu các bệnh viện hoạt động xuyên Tết để kịp thời chăm sóc sức khỏe.',
-                    '4 ngày trước'),
-                _buildNotificationItem(
-                    '🎉 Chào năm mới 2025!',
-                    'Medpro kính chúc quý khách một năm mới sức khỏe dồi dào, vạn sự như ý.',
-                    '5 ngày trước'),
-                _buildNotificationItem(
-                    '🔥 Lịch nghỉ tết các bệnh viện',
-                    'Medpro xin thông báo lịch nghỉ Tết Nguyên đán 2025 và các bệnh viện trực Tết.',
-                    '6 ngày trước'),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTab(String title, bool isActive) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: isActive ? Colors.blue : Colors.grey[200],
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        title,
-        style: TextStyle(
-          color: isActive ? Colors.white : Colors.black,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Text(
-        title,
-        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
-      ),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : newsList.isEmpty
+              ? Center(child: Text('Không có thông báo'))
+              : ListView.builder(
+                  itemCount: newsList.length,
+                  itemBuilder: (context, index) {
+                    final news = newsList[index];
+                    return _buildNotificationItem(
+                      news['title'] ?? 'Không có tiêu đề',
+                      news['description'] ?? 'Không có nội dung',
+                      news['date'] ?? 'Không rõ ngày',
+                    );
+                  },
+                ),
     );
   }
 
@@ -104,7 +79,7 @@ class _NotificationPageState extends State<NotificationPage> {
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: Colors.blue,
-        child: Icon(Icons.email, color: Colors.white),
+        child: Icon(Icons.notifications, color: Colors.white),
       ),
       title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Column(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medcaremobile/UI/Profile/PersonalProfile.dart';
 import 'package:medcaremobile/UI/Profile/PrivacyPolicyPage.dart';
 import 'package:medcaremobile/UI/Profile/ProfilePage.dart';
 import 'package:medcaremobile/UI/Profile/RegulationsPage.dart';
@@ -37,11 +38,11 @@ class _ProfilepageState extends State<Profilepage> {
             "nguyễn anh tuấn",
             style: TextStyle(color: Colors.white, fontSize: 20),
           ),
-          TextButton(
-            onPressed: () {},
-            style: TextButton.styleFrom(foregroundColor: Colors.white),
-            child: const Text("Đăng xuất"),
+           const Text(
+            "079*****04",
+            style: TextStyle(color: Colors.white, fontSize: 16),
           ),
+          
           const SizedBox(height: 40),
           Expanded(
             child: Container(
@@ -69,6 +70,11 @@ class _ProfilepageState extends State<Profilepage> {
                   Divider(
                       color: const Color.fromARGB(255, 209, 209, 209),
                       thickness: 3),
+                  buildListTile(
+                      Icons.person_outlined, "Thông tin cá nhân", context),
+                  Divider(
+                      color: const Color.fromARGB(255, 209, 209, 209),
+                      thickness: 3),
                   buildListTile(Icons.phone, "Tổng đài CSKH 19002115", context),
                   Divider(
                       color: const Color.fromARGB(255, 209, 209, 209),
@@ -80,8 +86,7 @@ class _ProfilepageState extends State<Profilepage> {
                       thickness: 3),
                   buildListTile(
                       Icons.help, "Một số câu hỏi thường gặp", context),
-                  buildListTile(
-                      Icons.logout_outlined, "Đăng xuất", context),
+                  buildListTile(Icons.logout_outlined, "Đăng xuất", context),
                 ],
               ),
             ),
@@ -92,10 +97,38 @@ class _ProfilepageState extends State<Profilepage> {
   }
 
   ListTile buildListTile(IconData icon, String title, BuildContext context) {
+    Color iconColor = Colors.blue; // Mặc định là màu blue
+
+    if (title == "Quy định sử dụng") {
+      iconColor = Colors.green;
+    } else if (title == "Chính sách bảo mật") {
+      iconColor = Colors.orange;
+    } else if (title == "Điều khoản dịch vụ") {
+      iconColor = Colors.red;
+    } else if (title == "Thông tin cá nhân") {
+      iconColor = Colors.purple;
+    } else if (title == "Tổng đài CSKH 19002115") {
+      iconColor = Colors.teal;
+    } else if (title == "Đánh giá ứng dụng") {
+      iconColor = Colors.amber;
+    } else if (title == "Chia sẻ ứng dụng") {
+      iconColor = Colors.indigo;
+    } else if (title == "Một số câu hỏi thường gặp") {
+      iconColor = Colors.brown;
+    } else if (title == "Đăng xuất") {
+      iconColor = Colors.redAccent;
+    }
     return ListTile(
-      leading: Icon(icon, color: Colors.blue),
+      leading: Icon(
+        icon,
+        color: iconColor, 
+      ),
       title: Text(title),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      trailing: (title != "Tổng đài CSKH 19002115" &&
+              title != "Đánh giá ứng dụng" &&
+              title != "Chia sẻ ứng dụng")
+          ? const Icon(Icons.arrow_forward_ios, size: 16)
+          : null,
       onTap: () async {
         if (title == "Quy định sử dụng") {
           Navigator.push(
@@ -127,6 +160,14 @@ class _ProfilepageState extends State<Profilepage> {
             MaterialPageRoute(
                 builder: (context) => const FAQPage(
                       title: "Một số câu hỏi thường gặp",
+                    )),
+          );
+        } else if (title == "Thông tin cá nhân") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const PersonalProfile(
+                      title: "Thông tin cá nhân",
                     )),
           );
         }
