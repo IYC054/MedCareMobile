@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medcaremobile/UI/Appointment/Doctor/ChoosePaymentScreen.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
 
 class Chooseinformation extends StatelessWidget {
@@ -148,7 +149,10 @@ class Chooseinformation extends StatelessWidget {
               width: double.infinity, // Full-width button
               child: ElevatedButton(
                 onPressed: () {
-                  // Handle continue action
+                   Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChoosePaymentScreen()),
+                );
                 },
                 child: Text('Tiếp tục', style: TextStyle(color: Colors.white),),
                 style: ElevatedButton.styleFrom(
