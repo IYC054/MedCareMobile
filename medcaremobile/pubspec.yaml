@@ -38,7 +38,6 @@ dependencies:
   shared_preferences: ^2.2.0
   flutter_stepindicator: ^0.1.7
   url_launcher: ^6.1.5
-
   table_calendar: ^3.0.9
 
   # The following adds the Cupertino Icons font to your application.
