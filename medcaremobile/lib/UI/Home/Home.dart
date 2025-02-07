@@ -6,6 +6,7 @@ import 'package:medcaremobile/UI/Home/Homepage.dart';
 import 'package:medcaremobile/UI/Login/LoginPage.dart';
 import 'package:medcaremobile/UI/News/Newspage.dart';
 import 'package:medcaremobile/UI/Profile/ProfilePage.dart';
+import 'package:medcaremobile/UI/Register/RegisterPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
@@ -17,20 +18,28 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int pageIndex = 0;
-  bool isLoggedIn = true;
 
+  bool isLoggedIn = false;
+  // Future<void> checkLoginStatus() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  //   });
+  // }
   @override
   void initState() {
     super.initState();
     checkLoginStatus();
   }
 
+  /// Kiểm tra trạng thái đăng nhập
   Future<void> checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool storedLoginStatus = prefs.getBool('isLoggedIn') ?? false;
-    print("Trạng thái đăng nhập từ SharedPreferences: $storedLoginStatus");
+    String? token = prefs.getString('auth_token');
+    print("login $isLoggedIn");
     setState(() {
-      isLoggedIn = storedLoginStatus;
+      // isLoggedIn = token != null && token.isNotEmpty;
+      // isLoggedIn = true;
     });
   }
 
@@ -44,33 +53,32 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: (pageIndex == 3 && !isLoggedIn) ? Loginpage() : pages[pageIndex],
-      bottomNavigationBar: CurvedNavigationBar(
-        index: pageIndex < pages.length ? pageIndex : 0,
-        onTap: (index) {
-          setState(() {
-            pageIndex = index;
-          });
-        },
-        items: [
-          CurvedNavigationBarItem(
-            child: Icon(Icons.home_outlined),
-            label: 'Trang chủ',
-          ),
-          CurvedNavigationBarItem(
-            child: Icon(Icons.qr_code_scanner),
-            label: 'Quét QR',
-          ),
-          CurvedNavigationBarItem(
-            child: Icon(Icons.newspaper),
-            label: 'Tin tức',
-          ),
-          CurvedNavigationBarItem(
-            child: Icon(Icons.perm_identity),
-            label: 'Cá nhân',
-          ),
-        ],
-      ),
-    );
+        body: (pageIndex == 3 && !isLoggedIn) ? LoginPage() : pages[pageIndex],
+        bottomNavigationBar: CurvedNavigationBar(
+          index: pageIndex < pages.length ? pageIndex : 0,
+          onTap: (index) {
+            setState(() {
+              pageIndex = index;
+            });
+          },
+          items: [
+            CurvedNavigationBarItem(
+              child: Icon(Icons.home_outlined),
+              label: 'Trang chủ',
+            ),
+            CurvedNavigationBarItem(
+              child: Icon(Icons.qr_code_scanner),
+              label: 'Quét QR',
+            ),
+            CurvedNavigationBarItem(
+              child: Icon(Icons.newspaper),
+              label: 'Tin tức',
+            ),
+            CurvedNavigationBarItem(
+              child: Icon(Icons.perm_identity),
+              label: 'Cá nhân',
+            ),
+          ],
+        ));
   }
 }

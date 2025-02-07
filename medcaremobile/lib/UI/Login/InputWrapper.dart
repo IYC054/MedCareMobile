@@ -4,13 +4,13 @@ import 'package:medcaremobile/UI/Login/Button.dart';
 import 'package:medcaremobile/UI/Login/InputField.dart';
 import 'package:medcaremobile/UI/Register/RegisterPage.dart';
 
-class Inputwrapper extends StatelessWidget {
-  final TextEditingController phoneController;
+class InputWrapper extends StatelessWidget {
+  final TextEditingController emailController;
   final TextEditingController passwordController;
 
-  const Inputwrapper({
+  const InputWrapper({
     super.key,
-    required this.phoneController,
+    required this.emailController,
     required this.passwordController,
   });
   @override
@@ -25,8 +25,8 @@ class Inputwrapper extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
                 color: Colors.white, borderRadius: BorderRadius.circular(10)),
-            child: Inputfield(
-              phoneController: phoneController,
+            child: InputField(
+              emailController: emailController,
               passwordController: passwordController,
             ),
           ),
@@ -69,7 +69,10 @@ class Inputwrapper extends StatelessWidget {
           SizedBox(
             height: 40,
           ),
-          Button(),
+          Button(
+            emailController: emailController,
+            passwordController: passwordController
+          ),
         ],
       ),
     );

@@ -1,13 +1,52 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Login/Header.dart';
 import 'package:medcaremobile/UI/Login/InputWrapper.dart';
 
-class Loginpage extends StatelessWidget {
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+class LoginPage extends StatefulWidget{
 
-  Loginpage({super.key});
+  const LoginPage({super.key});
 
+  @override
+  State<StatefulWidget> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage>{
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  // bool _isLoading = false;
+  //
+  // Future<void> _login() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+  //
+  //   final response = await http.post(
+  //     Uri.parse("http://173.16.16.52:8080/api/account/token"),
+  //     headers: {"Content-Type": "application/json"},
+  //     body: jsonEncode({
+  //       'email': _emailController.text,
+  //       'password': _passwordController.text,
+  //     }),
+  //   );
+  //
+  //   setState(() {
+  //     _isLoading = false;
+  //   });
+  //
+  //   if (response.statusCode == 200) {
+  //     final data = jsonDecode(response.body);
+  //     final token = data['token'];
+  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+  //       content: Text("Login successful! Token: $token"),
+  //     ));
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+  //       content: Text("Login failed. Check your credentials."),
+  //     ));
+  //   }
+  // }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,14 +71,19 @@ class Loginpage extends StatelessWidget {
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(50),
                         topRight: Radius.circular(50))),
-                child: Inputwrapper(
-                    phoneController: phoneController,
-                    passwordController: passwordController),
+                child: InputWrapper(
+                    emailController: _emailController,
+                    passwordController: _passwordController,
+
+                ),
               ),
+
             ],
           ),
         ),
       ),
     );
   }
+
 }
+

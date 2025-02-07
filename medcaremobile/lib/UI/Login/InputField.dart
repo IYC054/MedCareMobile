@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class Inputfield extends StatelessWidget {
-  final TextEditingController phoneController;
+class InputField extends StatelessWidget {
+  final TextEditingController emailController;
   final TextEditingController passwordController;
 
-  const Inputfield({
+  const InputField({
     super.key,
-    required this.phoneController,
+    required this.emailController,
     required this.passwordController,
   });
   @override
@@ -18,9 +18,9 @@ class Inputfield extends StatelessWidget {
           decoration: BoxDecoration(
               border: Border(bottom: BorderSide(color: Colors.grey))),
           child: TextField(
-            controller: phoneController,
+            controller: emailController,
             decoration: InputDecoration(
-                hintText: "Nhập số điện thoại ",
+                hintText: "Nhập email ",
                 hintStyle: TextStyle(color: Colors.grey),
                 border: InputBorder.none),
           ),
