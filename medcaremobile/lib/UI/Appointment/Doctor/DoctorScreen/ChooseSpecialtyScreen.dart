@@ -1,9 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
+import 'package:medcaremobile/services/GetSpecialtyApi.dart';
 
-class Choosespecialtyscreen extends StatelessWidget {
-  const Choosespecialtyscreen({super.key});
+class Choosespecialtyscreen extends StatefulWidget {
+  const Choosespecialtyscreen({super.key, required this.id});
+  final int id;
+  @override
+  State<StatefulWidget> createState() => ChoosespecialtyscreenState();
+}
 
+class ChoosespecialtyscreenState extends State<Choosespecialtyscreen> {
+  List<dynamic> specialty = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchspecialty();
+  }
+
+  void fetchspecialty() async {
+    final fetchedspecialty =
+        await Getspecialtyapi.getSpecialtyByDoctorid(widget.id);
+    print("specialty: $fetchedspecialty"); // Kiểm tra dữ liệu từ API
+    if (fetchedspecialty != null) {
+      setState(() {
+        specialty = fetchedspecialty;
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,20 +62,19 @@ class Choosespecialtyscreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: ListView(
-                children: [
-                  _buildDoctorCard(
-                    context,
-                    specialtyid: 1,
-                    specialty: 'Trị liệu',
-                  ),
-                  _buildDoctorCard(
-                    context,
-                    specialtyid: 2,
-                    specialty: 'Thần kinh',
-                  ),
-                ],
-              ),
+              child: isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      itemCount: specialty.length,
+                      itemBuilder: (context, index) {
+                        final specialtys = specialty[index];
+                        return _buildDoctorCard(
+                          context,
+                          specialtyid: specialtys['id'],
+                          specialty: specialtys['name'],
+                        );
+                      },
+                    ),
             ),
           ],
         ),

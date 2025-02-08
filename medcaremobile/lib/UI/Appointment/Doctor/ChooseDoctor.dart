@@ -19,6 +19,8 @@ class ChoosedoctorState extends State<Choosedoctor> {
   String? selectedSpecialtyName;
   int? selectedSpecialtyId;
   DateTime? selectDate;
+  int? selectedWorkId;
+
   String? selectTime;
   void _selectDoctor() async {
     final result = await Navigator.push(
@@ -37,7 +39,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
   void _selectSpecialty() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Choosespecialtyscreen()),
+      MaterialPageRoute(builder: (context) => Choosespecialtyscreen(id: selectedDoctorId!,)),
     );
 
     if (result != null && result is Map<String, dynamic>) {
@@ -51,12 +53,14 @@ class ChoosedoctorState extends State<Choosedoctor> {
   void _selectDate() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Choosedatescreen()),
+      MaterialPageRoute(builder: (context) => Choosedatescreen(id: selectedDoctorId!,)),
     );
 
     if (result != null && result is Map<String, dynamic>) {
       setState(() {
         selectDate = result['selectDate'];
+        selectedWorkId = result['workId'];
+        print("Workid: $selectedWorkId");
       });
     }
   }
@@ -64,7 +68,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
   void _selectTime() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ChooseTimeScreen()),
+      MaterialPageRoute(builder: (context) => ChooseTimeScreen(id: selectedWorkId!,)),
     );
 
     if (result != null && result is Map<String, dynamic>) {

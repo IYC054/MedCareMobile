@@ -1,7 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
+import 'package:medcaremobile/services/GetDoctorWorking.dart';
 
-class ChooseTimeScreen extends StatelessWidget {
+class ChooseTimeScreen extends StatefulWidget {
+  const ChooseTimeScreen({super.key, required this.id});
+  final int id;
+  @override
+  State<StatefulWidget> createState() => ChooseTimeScreenState();
+}
+
+class ChooseTimeScreenState extends State<ChooseTimeScreen> {
+  List<dynamic> doctors = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDoctors();
+  }
+
+  void fetchDoctors() async {
+    final fetchedDoctors = await Getdoctorworking.fetchDoctorsTime(widget.id);
+
+    if (fetchedDoctors is List) {
+      setState(() {
+        doctors = fetchedDoctors.map<Map<String, dynamic>>((doctor) {
+          return {
+            "id": doctor["id"],
+            "startTime": doctor["startTime"] ?? "00:00:00",
+            "endTime": doctor["endTime"] ?? "00:00:00",
+          };
+        }).toList();
+        isLoading = false;
+      });
+    } else {
+      print("⚠️ Dữ liệu API không hợp lệ: $fetchedDoctors");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,12 +71,6 @@ class ChooseTimeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('ThS BS. Lê Trịnh Ngọc An',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 4),
-                    Text('Phòng 11 - Lầu 1 khu A - Buổi sáng',
-                        style: TextStyle(color: Colors.grey[600])),
                     SizedBox(height: 16),
                     Divider(),
                     SizedBox(height: 8),
@@ -47,13 +80,11 @@ class ChooseTimeScreen extends StatelessWidget {
                     Wrap(
                       spacing: 8.0,
                       runSpacing: 8.0,
-                      children: [
-                        _buildTimeSlot(context, '06:00 - 07:00', true),
-                        _buildTimeSlot(context, '07:00 - 08:00', false),
-                        _buildTimeSlot(context, '08:00 - 09:00', false),
-                        _buildTimeSlot(context, '09:00 - 10:00', false),
-                        _buildTimeSlot(context, '10:00 - 11:00', false),
-                      ],
+                      children: doctors.map((doctor) {
+                        String timeSlot =
+                            "${doctor["startTime"]} - ${doctor["endTime"]}";
+                        return _buildTimeSlot(context, timeSlot, false);
+                      }).toList(),
                     ),
                   ],
                 ),
@@ -64,7 +95,6 @@ class ChooseTimeScreen extends StatelessWidget {
       ),
     );
   }
-
 
   Widget _buildTimeSlot(BuildContext context, String time, bool isSelected) {
     return GestureDetector(
