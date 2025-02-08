@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
+import 'package:http/http.dart' as http;
+import 'package:medcaremobile/UI/Viewpayment/PaymentWebView.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChoosePaymentScreen extends StatefulWidget {
   const ChoosePaymentScreen({super.key});
@@ -17,7 +20,36 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
     });
   }
 
+  Future<void> _handlePayment() async {
+    // Thay thế bằng API backend của bạn
+    String apiUrl = 'http://192.168.1.13:8080/api/payments/create-payment';
 
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        body: {
+          'amount': '150000',
+          'orderInfo': 'Thanh toán đặt lịch khám bệnh',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        String paymentUrl = response.body;
+        print("🔗 URL thanh toán nhận được: $paymentUrl"); // Debug
+        if (paymentUrl.isNotEmpty) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => PaymentWebView(paymentUrl: paymentUrl)),
+          );
+        } else {
+          throw 'Không thể mở đường dẫn: URL rỗng!';
+        }
+      }
+    } catch (e) {
+      print('Lỗi khi gọi API thanh toán: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,10 +139,8 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
                   child: Text('Quay lại'),
                 ),
                 ElevatedButton(
-                  onPressed: () async {
-                    
-                  },
-                  child: Text('Tiếp tục'),
+                  onPressed: _handlePayment,
+                  child: Text('Thanh toán'),
                 ),
               ],
             ),
@@ -119,8 +149,6 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
       ),
     );
   }
-
-
 }
 
 class PaymentOption extends StatelessWidget {

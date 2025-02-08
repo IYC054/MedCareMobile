@@ -1,8 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
+import 'package:medcaremobile/services/GetDoctorApi.dart';
 
-class ChooseDoctorScreen extends StatelessWidget {
+class ChooseDoctorScreen extends StatefulWidget {
   const ChooseDoctorScreen({Key? key}) : super(key: key);
+
+  @override
+  _ChooseDoctorScreenState createState() => _ChooseDoctorScreenState();
+}
+
+class _ChooseDoctorScreenState extends State<ChooseDoctorScreen> {
+  List<dynamic> doctors = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDoctors();
+  }
+
+  void fetchDoctors() async {
+    final fetchedDoctors = await Getdoctorapi.fetchDoctors();
+    print(fetchedDoctors); // Kiểm tra dữ liệu từ API
+    if (fetchedDoctors != null) {
+      setState(() {
+        doctors = fetchedDoctors;
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,28 +63,26 @@ class ChooseDoctorScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: ListView(
-                children: [
-                  _buildDoctorCard(
-                    context,
-                    name: 'TS BS. Phan Huỳnh An',
-                    id: 1,
-                    gender: 'Nam',
-                    specialty: 'Phẫu thuật hàm mặt - RHM',
-                    schedule: 'Sáng thứ 4',
-                    price: '150.000đ',
-                  ),
-                  _buildDoctorCard(
-                    context,
-                    name: 'ThS BS. Lê Thụy Minh An',
-                    id: 2,
-                    gender: 'Nữ',
-                    specialty: 'Thần kinh',
-                    schedule: 'Chiều thứ 5',
-                    price: '150.000đ',
-                  ),
-                ],
-              ),
+              child: isLoading
+                  ? Center(
+                      child: CircularProgressIndicator()) // Hiển thị loading
+                  : ListView.builder(
+                      itemCount: doctors.length,
+                      itemBuilder: (context, index) {
+                        final doctor = doctors[index];
+                        return _buildDoctorCard(
+                          context,
+                          id: doctor['id'] ?? 0, // Nếu null thì mặc định là 0
+                          name: doctor['account']?['name'] ?? "Không có tên",
+                          gender: doctor['gender'] == "Female" ? "Nữ" : "Nam",
+                          specialty: (doctor['specialties'] != null &&
+                                  doctor['specialties'].isNotEmpty)
+                              ? doctor['specialties'][0]['name'] ??
+                                  "Không có chuyên khoa"
+                              : "Không có chuyên khoa",
+                        );
+                      },
+                    ),
             ),
           ],
         ),
@@ -68,8 +96,6 @@ class ChooseDoctorScreen extends StatelessWidget {
     required int id,
     required String gender,
     required String specialty,
-    required String schedule,
-    required String price,
   }) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -83,9 +109,6 @@ class ChooseDoctorScreen extends StatelessWidget {
             SizedBox(height: 4),
             Text('Giới tính: $gender'),
             Text('Chuyên khoa: $specialty'),
-            Text('Buổi khám: $schedule', style: TextStyle(color: Colors.green)),
-            Text('Giá khám: $price',
-                style: TextStyle(fontWeight: FontWeight.bold)),
             SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,
