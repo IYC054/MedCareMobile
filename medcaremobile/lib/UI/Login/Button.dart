@@ -57,10 +57,10 @@ class _ButtonState extends State<Button>{
           data['result'].containsKey('token') &&
           data['result']['token'] != null) {
 
-        final String token = data['result']['token'] as String;
-
-        // Lưu token vào SharedPreferences
-        await StorageService.saveToken(token);
+        // final String token = data['result']['token'] as String;
+        //
+        // // Lưu token vào SharedPreferences
+        // await StorageService.saveToken(token);
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Login successful!")),
