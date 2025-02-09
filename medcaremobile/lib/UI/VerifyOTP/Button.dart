@@ -48,7 +48,7 @@ class _ButtonState extends State<Button>{
           context,
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
-                Registerpage(emailController: widget.emailController),
+                RegisterPage(emailController: widget.emailController),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               const begin = Offset(0.0, 1.0);

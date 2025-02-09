@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:medcaremobile/models/Account.dart';
 import './StorageService.dart';
@@ -33,6 +34,39 @@ class AccountAPIService{
       }
     } catch (e) {
       throw Exception("Error: $e");
+    }
+  }
+
+  Future<Map<String, dynamic>> register(Map<String, dynamic> data, File? image) async {
+    try {
+      var uri = Uri.parse("$url/register");
+      var request = http.MultipartRequest("POST", uri);
+
+      // ✅ Thêm dữ liệu vào request
+      data.forEach((key, value) {
+        request.fields[key] = value.toString();
+      });
+
+      // ✅ Nếu có ảnh, thêm vào request
+      if (image != null) {
+        request.files.add(await http.MultipartFile.fromPath("avatar", image.path));
+      }
+
+      // Gửi request và xử lý phản hồi
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return {"success": true, "data": jsonDecode(response.body)};
+      } else {
+        return {
+          "success": false,
+          "message": "Lỗi ${response.statusCode}: ${response.reasonPhrase}",
+          "error": jsonDecode(response.body),
+        };
+      }
+    } catch (error) {
+      return {"success": false, "message": "Lỗi kết nối đến server: $error"};
     }
   }
 
