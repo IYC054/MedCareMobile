@@ -38,33 +38,33 @@ class AccountAPIService{
 
 
   Future<bool?> checkEmailExist(String email) async {
-    //lay token
-    final data = await checkLogin(
-      "admin@gmail.com",
-      "admin"
-    );
+    // //lay token
+    // final data = await checkLogin(
+    //   "admin@gmail.com",
+    //   "admin"
+    // );
+    //
+    // if (data != null &&
+    //     data.containsKey('result') &&
+    //     data['result'] != null &&
+    //     data['result'].containsKey('token') &&
+    //     data['result']['token'] != null) {
+    //   final String token = data['result']['token'] as String;
+    //
+    //   // Lưu token vào SharedPreferences
+    //   await StorageService.saveToken(token);
+    // }
 
-    if (data != null &&
-        data.containsKey('result') &&
-        data['result'] != null &&
-        data['result'].containsKey('token') &&
-        data['result']['token'] != null) {
-      final String token = data['result']['token'] as String;
-
-      // Lưu token vào SharedPreferences
-      await StorageService.saveToken(token);
-    }
-
-    final String? token = await StorageService.getToken();
-    if (token == null) {
-      throw Exception("Không tìm thấy token, vui lòng đăng nhập lại.");
-    }
+    // final String? token = await StorageService.getToken();
+    // if (token == null) {
+    //   throw Exception("Không tìm thấy token, vui lòng đăng nhập lại.");
+    // }
     //check email
     try {
       final response = await http.get(
         Uri.parse("$url/find?email=${Uri.encodeComponent(email)}"),
         headers: {
-          "Authorization": "Bearer $token",
+          // "Authorization": "Bearer $token",
           "Content-Type": "application/json",
         },
       );

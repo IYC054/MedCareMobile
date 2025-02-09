@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Register/InputWrapper.dart';
 import 'package:medcaremobile/UI/Register/Header.dart';
 class Registerpage extends StatelessWidget {
-  Registerpage({super.key});
+  final TextEditingController emailController;
+  Registerpage({super.key, required this.emailController});
   @override
   Widget build(BuildContext context) {
     return Scaffold(

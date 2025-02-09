@@ -21,24 +21,24 @@ class Button extends StatefulWidget{
 }
 class _ButtonState extends State<Button>{
   bool _isLoading = false;
-  bool isLoggedIn = false;
   final AccountAPIService apiService = AccountAPIService();
 
   @override
   void initState() {
     super.initState();
-    checkLoginStatus();
+
   }
 
-  /// Kiểm tra trạng thái đăng nhập
-  Future<void> checkLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('auth_token');
-
-    setState(() {
-      isLoggedIn = token != null && token.isNotEmpty;
-    });
-  }
+  // /// Kiểm tra trạng thái đăng nhập
+  // Future<void> checkLoginStatus() async {
+  //   StorageService.clearToken();
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? token = prefs.getString('auth_token');
+  //
+  //   setState(() {
+  //     isLoggedIn = token != null && token.isNotEmpty;
+  //   });
+  // }
 
   Future<void> _login() async {
     setState(() {
@@ -63,7 +63,7 @@ class _ButtonState extends State<Button>{
         // await StorageService.saveToken(token);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Login successful!")),
+          const SnackBar(content: Text("Login successfully!")),
         );
 
         // Điều hướng đến màn hình chính

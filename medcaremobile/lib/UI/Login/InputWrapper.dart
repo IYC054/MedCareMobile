@@ -3,6 +3,7 @@ import 'package:medcaremobile/UI/Home/Home.dart';
 import 'package:medcaremobile/UI/Login/Button.dart';
 import 'package:medcaremobile/UI/Login/InputField.dart';
 import 'package:medcaremobile/UI/Register/RegisterPage.dart';
+import 'package:medcaremobile/UI/VerifyEmail/VerifyEmailPage.dart';
 class InputWrapper extends StatefulWidget{
   final TextEditingController emailController;
   final TextEditingController passwordController;
@@ -46,7 +47,7 @@ class _InputWrapperState extends State<InputWrapper> {
                 context,
                 PageRouteBuilder(
                   pageBuilder: (context, animation, secondaryAnimation) =>
-                      Registerpage(),
+                      VerifyEmailPage(),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
                     const begin = Offset(0.0, 1.0);

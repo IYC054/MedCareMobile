@@ -12,9 +12,9 @@ class _PersonalProfileState extends State<PersonalProfile> {
   final TextEditingController _phoneController =
       TextEditingController(text: "0799951104");
   final TextEditingController _firstNameController =
-      TextEditingController(text: "Nguyễn anh");
+      TextEditingController(text: "Nguyễn Anh");
   final TextEditingController _lastNameController =
-      TextEditingController(text: "tuấn");
+      TextEditingController(text: "Tuấn");
   final TextEditingController _emailController =
       TextEditingController(text: "tuann300724@gmail.com");
 
@@ -54,7 +54,7 @@ class _PersonalProfileState extends State<PersonalProfile> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    "Nguyễn anh tuấn",
+                    "Nguyễn Anh Tuấn",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   Text("079****104", style: TextStyle(color: Colors.grey[600])),
@@ -65,7 +65,7 @@ class _PersonalProfileState extends State<PersonalProfile> {
 
             // Các trường thông tin
             buildTextField("Số điện thoại", _phoneController, isReadOnly: true),
-            buildTextField("Họ và tên lót", _firstNameController),
+            buildTextField("Họ và tên đệm", _firstNameController),
             buildTextField("Tên", _lastNameController),
 
             // Chọn ngày sinh + giới tính
