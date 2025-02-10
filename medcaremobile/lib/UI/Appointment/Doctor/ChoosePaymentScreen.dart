@@ -2,16 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:medcaremobile/UI/Viewpayment/PaymentWebView.dart';
+import 'package:medcaremobile/services/IpNetwork.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ChoosePaymentScreen extends StatefulWidget {
-  const ChoosePaymentScreen({super.key});
+  const ChoosePaymentScreen(
+      {super.key,
+      required this.specialtyname,
+      required this.profileId,
+      this.selectedDoctorId,
+      this.selectedSpecialtyId,
+      this.selectedWorkTimeId,
+      this.patientName,
+      this.selectDate,
+      this.selectTime,
+      this.Doctorname, this.selectedSpecialtyName});
+  final String specialtyname;
+  final int profileId;
+  final int? selectedDoctorId;
+  final String? Doctorname;
+  final String? selectedSpecialtyName;
 
+  final int? selectedSpecialtyId;
+  final int? selectedWorkTimeId;
+  final String? patientName;
+  final DateTime? selectDate;
+  final String? selectTime;
   @override
   State<ChoosePaymentScreen> createState() => _ChoosePaymentScreenState();
 }
 
 class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
+  static const ip = Ipnetwork.ip;
+
   String selectedPayment = ''; // Phương thức mặc định
 
   void selectPayment(String payment) {
@@ -22,7 +46,7 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
 
   Future<void> _handlePayment() async {
     // Thay thế bằng API backend của bạn
-    String apiUrl = 'http://192.168.1.13:8080/api/payments/create-payment';
+    String apiUrl = 'http://192.168.1.44:8080/api/payments/create-payment';
 
     try {
       final response = await http.post(
@@ -40,7 +64,18 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => PaymentWebView(paymentUrl: paymentUrl)),
+                builder: (context) => PaymentWebView(
+                      paymentUrl: paymentUrl,
+                      profileId: widget.profileId,
+                      patientName: widget.patientName,
+                      selectedDoctorId: widget.selectedDoctorId,
+                      selectedSpecialtyId: widget.selectedSpecialtyId,
+                      selectedWorkTimeId: widget.selectedWorkTimeId,
+                      selectDate: widget.selectDate,
+                      selectTime: widget.selectTime,
+                      Doctorname: widget.Doctorname,
+                      selectedSpecialtyName: widget.specialtyname,
+                    )),
           );
         } else {
           throw 'Không thể mở đường dẫn: URL rỗng!';
@@ -86,9 +121,10 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
             ),
             ListTile(
               leading: Icon(Icons.health_and_safety, color: Colors.red),
-              title: Text('PHẪU THUẬT HÀM MẶT - RHM'),
+              title: Text(widget.specialtyname,
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               trailing: Text('150.000đ',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             ),
             Divider(height: 32),
             Text(
@@ -99,16 +135,11 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
                   color: Colors.blue),
             ),
             PaymentOption(
-              title: 'Ví điện tử MoMo',
-              icon: Icons.account_balance_wallet,
-              selected: selectedPayment == 'Ví điện tử MoMo',
-              onTap: () => selectPayment('Ví điện tử MoMo'),
-            ),
-            PaymentOption(
-              title: 'Ứng dụng Mobile Banking',
-              icon: Icons.mobile_friendly,
-              selected: selectedPayment == 'Ứng dụng Mobile Banking',
-              onTap: () => selectPayment('Ứng dụng Mobile Banking'),
+              title: 'Thanh toán VNPAY',
+              imagepath:
+                  "https://vinadesign.vn/uploads/thumbnails/800/2023/05/vnpay-logo-vinadesign-25-12-59-16.jpg",
+              selected: selectedPayment == 'VNPAY',
+              onTap: () => selectPayment('VNPAY'),
             ),
             Spacer(),
             Row(
@@ -153,13 +184,13 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
 
 class PaymentOption extends StatelessWidget {
   final String title;
-  final IconData icon;
+  final String imagepath;
   final bool selected;
   final VoidCallback onTap;
 
   const PaymentOption({
     required this.title,
-    required this.icon,
+    required this.imagepath,
     required this.selected,
     required this.onTap,
   });
@@ -171,7 +202,11 @@ class PaymentOption extends StatelessWidget {
       children: [
         ListTile(
           onTap: onTap,
-          leading: Icon(icon, color: selected ? Colors.green : Colors.grey),
+          leading: Image.network(
+            imagepath,
+            width: 30,
+            height: 30,
+          ),
           title: Text(title),
           trailing: selected
               ? Icon(Icons.check_circle, color: Colors.green)

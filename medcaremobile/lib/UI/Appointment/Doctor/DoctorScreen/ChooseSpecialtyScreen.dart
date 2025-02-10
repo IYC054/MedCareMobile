@@ -104,7 +104,7 @@ class ChoosespecialtyscreenState extends State<Choosespecialtyscreen> {
               alignment: Alignment.centerRight,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context, {'specialty': specialty});
+                  Navigator.pop(context, {'specialty': specialty, 'specialtyid': specialtyid});
                 },
                 child: Text('Chọn'),
               ),

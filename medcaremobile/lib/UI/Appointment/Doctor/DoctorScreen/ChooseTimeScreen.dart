@@ -81,9 +81,7 @@ class ChooseTimeScreenState extends State<ChooseTimeScreen> {
                       spacing: 8.0,
                       runSpacing: 8.0,
                       children: doctors.map((doctor) {
-                        String timeSlot =
-                            "${doctor["startTime"]} - ${doctor["endTime"]}";
-                        return _buildTimeSlot(context, timeSlot, false);
+                        return _buildTimeSlot(context, doctor);
                       }).toList(),
                     ),
                   ],
@@ -96,21 +94,25 @@ class ChooseTimeScreenState extends State<ChooseTimeScreen> {
     );
   }
 
-  Widget _buildTimeSlot(BuildContext context, String time, bool isSelected) {
+  Widget _buildTimeSlot(BuildContext context, Map<String, dynamic> doctor) {
+    String timeSlot = "${doctor["startTime"]} - ${doctor["endTime"]}";
     return GestureDetector(
       onTap: () {
-        Navigator.pop(context, {"selectTime": time});
+        Navigator.pop(context, {
+          "worktimeid": doctor["id"],
+          "selectTime": timeSlot,
+        });
       },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.blue : Colors.white,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.blue),
         ),
         child: Text(
-          time,
-          style: TextStyle(color: isSelected ? Colors.white : Colors.blue),
+          timeSlot,
+          style: TextStyle(color: Colors.blue),
         ),
       ),
     );

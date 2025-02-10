@@ -2,12 +2,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:medcaremobile/services/IpNetwork.dart';
 
-class Getspecialtyapi {
+class Getprofileapi {
   static const ip = Ipnetwork.ip;
-  static const String baseUrl = "http://$ip:8080/api/specialty";
-  static Future<List<dynamic>> getSpecialtyByDoctorid(int id) async {
+  static const String baseUrl = "http://$ip:8080/api/patientsprofile";
+  static Future<List<dynamic>> getProfileByUserid(int id) async {
     try {
-      final url = Uri.parse("$baseUrl/doctor/$id");
+      final url = Uri.parse("$baseUrl/account/$id");
       final response = await http.get(url);
 
       if (response.statusCode == 200) {

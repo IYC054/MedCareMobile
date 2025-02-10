@@ -7,8 +7,9 @@ import 'package:medcaremobile/UI/Appointment/Doctor/DoctorScreen/ChooseTimeScree
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
 
 class Choosedoctor extends StatefulWidget {
-  const Choosedoctor({super.key});
-
+  const Choosedoctor({super.key, required this.profileId, required this.patientname});
+  final int profileId;
+  final String patientname;
   @override
   State<StatefulWidget> createState() => ChoosedoctorState();
 }
@@ -20,7 +21,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
   int? selectedSpecialtyId;
   DateTime? selectDate;
   int? selectedWorkId;
-
+  int? selectedWorkTimeId;
   String? selectTime;
   void _selectDoctor() async {
     final result = await Navigator.push(
@@ -39,7 +40,10 @@ class ChoosedoctorState extends State<Choosedoctor> {
   void _selectSpecialty() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Choosespecialtyscreen(id: selectedDoctorId!,)),
+      MaterialPageRoute(
+          builder: (context) => Choosespecialtyscreen(
+                id: selectedDoctorId!,
+              )),
     );
 
     if (result != null && result is Map<String, dynamic>) {
@@ -47,20 +51,24 @@ class ChoosedoctorState extends State<Choosedoctor> {
         selectedSpecialtyId = result['specialtyid'];
         selectedSpecialtyName = result['specialty'];
       });
+            print("selectedWorkTimeId $selectedSpecialtyId");
+
     }
   }
 
   void _selectDate() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Choosedatescreen(id: selectedDoctorId!,)),
+      MaterialPageRoute(
+          builder: (context) => Choosedatescreen(
+                id: selectedDoctorId!,
+              )),
     );
 
     if (result != null && result is Map<String, dynamic>) {
       setState(() {
         selectDate = result['selectDate'];
         selectedWorkId = result['workId'];
-        print("Workid: $selectedWorkId");
       });
     }
   }
@@ -68,14 +76,24 @@ class ChoosedoctorState extends State<Choosedoctor> {
   void _selectTime() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ChooseTimeScreen(id: selectedWorkId!,)),
+      MaterialPageRoute(
+          builder: (context) => ChooseTimeScreen(
+                id: selectedWorkId!,
+              )),
     );
 
     if (result != null && result is Map<String, dynamic>) {
       setState(() {
         selectTime = result['selectTime'];
+        selectedWorkTimeId = result['worktimeid'];
       });
     }
+  }
+
+  void _showWarning(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: Duration(seconds: 2)),
+    );
   }
 
   String formatDate(DateTime date) {
@@ -121,20 +139,32 @@ class ChoosedoctorState extends State<Choosedoctor> {
                     onTap: _selectDoctor,
                   ),
                   _buildOptionCard(
-                      icon: Icons.health_and_safety_outlined,
-                      title: selectedSpecialtyName ?? 'Chuyên khoa',
-                      onTap: _selectSpecialty),
+                    icon: Icons.health_and_safety_outlined,
+                    title: selectedSpecialtyName ?? 'Chuyên khoa',
+                    onTap: selectedDoctorId != null
+                        ? _selectSpecialty
+                        : () => _showWarning("Vui lòng chọn bác sĩ trước!"),
+                    enabled: selectedDoctorId !=
+                        null, // Không nhấn được nếu chưa có bác sĩ
+                  ),
                   _buildOptionCard(
                     icon: Icons.calendar_today,
                     title: selectDate != null
                         ? formatDate(selectDate!)
                         : 'Ngày khám',
-                    onTap: _selectDate,
+                    onTap: selectedDoctorId != null
+                        ? _selectDate
+                        : () => _showWarning("Vui lòng chọn bác sĩ trước!"),
+                    enabled: selectedDoctorId != null && selectedSpecialtyId != null,
                   ),
                   _buildOptionCard(
-                      icon: Icons.access_time,
-                      title: selectTime ?? 'Giờ khám',
-                      onTap: _selectTime),
+                    icon: Icons.access_time,
+                    title: selectTime ?? 'Giờ khám',
+                    onTap: selectedDoctorId != null
+                        ? _selectTime
+                        : () => _showWarning("Vui lòng chọn bác sĩ trước!"),
+                    enabled: selectedDoctorId != null && selectedSpecialtyId != null && selectedWorkId != null,
+                  ),
                 ],
               ),
             ),
@@ -149,7 +179,23 @@ class ChoosedoctorState extends State<Choosedoctor> {
                 child: ElevatedButton(
                   onPressed: () {
                     // Navigate to the next step
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => Chooseinformation()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Chooseinformation(
+                                  specialtyname: selectedSpecialtyName!,
+                                  exminationdate: selectDate!,
+                                  clinicdate: selectTime!,
+                                  profileId: widget.profileId,
+                                  patientName: widget.patientname,
+                                  selectedDoctorId: selectedDoctorId,
+                                  selectedSpecialtyId: selectedSpecialtyId,
+                                  selectedWorkTimeId: selectedWorkTimeId,
+                                  selectDate: selectDate,
+                                  Doctorname: selectedDoctorName,
+                                  selectTime: selectTime,
+                                  selectedSpecialtyName: selectedSpecialtyName,
+                                )));
                   },
                   child: const Text('Tiếp theo'),
                 ),
@@ -163,28 +209,41 @@ class ChoosedoctorState extends State<Choosedoctor> {
   Widget _buildOptionCard({
     required IconData icon,
     required String title,
-    required VoidCallback onTap,
+    required VoidCallback? onTap, // Cho phép nhận null
+    bool enabled = true, // Thêm trạng thái có thể nhấn hay không
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: enabled ? onTap : null, // Vô hiệu hóa nếu `enabled = false`
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
+          color: enabled
+              ? Colors.white
+              : Colors.grey.shade200, // Làm mờ nếu disabled
+          border: Border.all(
+            color: enabled ? Colors.grey.shade300 : Colors.grey.shade400,
+          ),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 24, color: Colors.grey),
+            Icon(icon,
+                size: 24, color: enabled ? Colors.grey : Colors.grey.shade500),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: enabled
+                      ? Colors.black
+                      : Colors.grey.shade600, // Làm mờ text nếu disabled
+                ),
               ),
             ),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+            Icon(Icons.arrow_forward_ios,
+                size: 16, color: enabled ? Colors.grey : Colors.grey.shade500),
           ],
         ),
       ),

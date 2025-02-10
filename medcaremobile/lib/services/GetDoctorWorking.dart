@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:medcaremobile/services/IpNetwork.dart';
 
 class Getdoctorworking {
-  static const String baseUrl = "http://192.168.1.22:8080/api/workinghours";
+  static const ip = Ipnetwork.ip;
+  static const String baseUrl = "http://$ip:8080/api/workinghours";
   static Future<List<dynamic>> fetchDoctorsWorking(int id) async {
     try {
       final url = Uri.parse("$baseUrl/doctor/$id");

@@ -2,8 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ChoosePaymentScreen.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
 
-class Chooseinformation extends StatelessWidget {
-  const Chooseinformation({super.key});
+class Chooseinformation extends StatefulWidget {
+  const Chooseinformation(
+      {super.key,
+      required this.specialtyname,
+      required this.exminationdate,
+      required this.clinicdate,
+      required this.profileId,
+      this.selectedDoctorId,
+      this.selectedSpecialtyId,
+      this.selectedWorkTimeId,
+      this.patientName,
+      this.selectDate,
+      this.selectTime, this.Doctorname, this.selectedSpecialtyName});
+  final String specialtyname;
+  final DateTime exminationdate;
+  final String clinicdate;
+  final String? Doctorname;
+  final String? selectedSpecialtyName;
+  final int profileId;
+  final int? selectedDoctorId;
+  final int? selectedSpecialtyId;
+  final int? selectedWorkTimeId;
+  final String? patientName;
+  final DateTime? selectDate;
+  final String? selectTime;
+  @override
+  State<StatefulWidget> createState() => ChooseinformationState();
+}
+
+class ChooseinformationState extends State<Chooseinformation> {
+  String formatDate(DateTime date) {
+    return "${date.day}/${date.month}/${date.year}";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +79,7 @@ class Chooseinformation extends StatelessWidget {
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          "TIÊU HOÁ GAN MẬT",
+                          widget.specialtyname,
                           style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -63,7 +94,7 @@ class Chooseinformation extends StatelessWidget {
                         Text('Ngày khám:',
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text('19/02/2025',
+                        Text(formatDate(widget.exminationdate),
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16)),
                       ],
@@ -73,12 +104,12 @@ class Chooseinformation extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Phòng - Giờ khám:',
+                        Text('Giờ khám:',
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16)),
                         Flexible(
                           child: Text(
-                            '07:00 - 08:00, Phòng 11 - Lầu 1 khu A',
+                            widget.clinicdate,
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16),
                             textAlign: TextAlign.right,
@@ -100,29 +131,29 @@ class Chooseinformation extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('BHYT:',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text('Không',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('BLVP:',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text('Không',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
-                      ],
-                    ),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //   children: [
+                    //     Text('BHYT:',
+                    //         style: TextStyle(
+                    //             fontWeight: FontWeight.bold, fontSize: 16)),
+                    //     Text('Không',
+                    //         style: TextStyle(
+                    //             fontWeight: FontWeight.bold, fontSize: 16)),
+                    //   ],
+                    // ),
+                    // SizedBox(height: 8),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //   children: [
+                    //     Text('BLVP:',
+                    //         style: TextStyle(
+                    //             fontWeight: FontWeight.bold, fontSize: 16)),
+                    //     Text('Không',
+                    //         style: TextStyle(
+                    //             fontWeight: FontWeight.bold, fontSize: 16)),
+                    //   ],
+                    // ),
                   ],
                 ),
               ),
@@ -149,12 +180,27 @@ class Chooseinformation extends StatelessWidget {
               width: double.infinity, // Full-width button
               child: ElevatedButton(
                 onPressed: () {
-                   Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ChoosePaymentScreen()),
-                );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ChoosePaymentScreen(
+                              specialtyname: widget.specialtyname,
+                              profileId: widget.profileId,
+                              patientName: widget.patientName,
+                              selectedDoctorId: widget.selectedDoctorId,
+                              selectedSpecialtyId: widget.selectedSpecialtyId,
+                              selectedWorkTimeId: widget.selectedWorkTimeId,
+                              selectDate: widget.selectDate,
+                              selectTime: widget.selectTime,
+                              Doctorname: widget.Doctorname,
+
+                            )),
+                  );
                 },
-                child: Text('Tiếp tục', style: TextStyle(color: Colors.white),),
+                child: Text(
+                  'Tiếp tục',
+                  style: TextStyle(color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   textStyle: TextStyle(color: Colors.white),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ChooseDoctor.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
+import 'package:medcaremobile/services/GetProfileApi.dart';
 
 class ChooseProfile extends StatefulWidget {
   const ChooseProfile({super.key});
@@ -10,6 +11,35 @@ class ChooseProfile extends StatefulWidget {
 }
 
 class ChooseProfileState extends State<ChooseProfile> {
+  List<dynamic> profiles = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProfiles();
+  }
+
+  void fetchProfiles() async {
+    try {
+      final fetchedProfiles = await Getprofileapi.getProfileByUserid(1);
+      print(
+          "Dữ liệu nhận được từ API: $fetchedProfiles"); // Kiểm tra dữ liệu API trả về
+      if (fetchedProfiles != null && fetchedProfiles is List) {
+        setState(() {
+          profiles = fetchedProfiles;
+        });
+        print(
+            "Danh sách hồ sơ sau khi cập nhật: $profiles"); // Kiểm tra danh sách sau khi setState
+      }
+    } catch (e) {
+      print("Lỗi khi lấy dữ liệu hồ sơ: $e");
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,30 +49,50 @@ class ChooseProfileState extends State<ChooseProfile> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ProgressBar(currentStep: 1), // Sử dụng ProgressBar
+            ProgressBar(currentStep: 1),
             SizedBox(height: 24),
             Text(
               'Đặt khám',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildAddCard(),
-                SizedBox(width: 16),
-                _buildProfileCard(),
+                SizedBox(
+                    height: 16), // Khoảng cách giữa "Thêm" và danh sách hồ sơ
+                isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                        shrinkWrap: true, // Để tránh lỗi chiếm hết không gian
+                        physics:
+                            NeverScrollableScrollPhysics(), // Không cần cuộn riêng
+                        itemCount: profiles.length,
+                        itemBuilder: (context, index) {
+                          var profile = profiles[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                                bottom: 20), // Khoảng cách giữa các profile
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Choosedoctor(profileId: profile['id'], patientname: profile['fullname'],)),
+                                );
+                              },
+                              child: _buildProfileCard(
+                                profile['fullname'],
+                                profile['phone'],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
               ],
             ),
             SizedBox(height: 24),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Choosedoctor()),
-                );
-              }, // Khi bấm vào UserInfoCard, chuyển trang
-              child: _buildUserInfoCard(),
-            ),
             Spacer(),
             Center(
               child: ElevatedButton.icon(
@@ -50,7 +100,10 @@ class ChooseProfileState extends State<ChooseProfile> {
                   Navigator.pop(context);
                 },
                 icon: Icon(Icons.home, color: Colors.white),
-                label: Text('Quay lại', style: TextStyle(color: Colors.white),),
+                label: Text(
+                  'Quay lại',
+                  style: TextStyle(color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -87,30 +140,7 @@ class ChooseProfileState extends State<ChooseProfile> {
     );
   }
 
-  Widget _buildProfileCard() {
-    return Container(
-      width: 100,
-      height: 120,
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: Colors.grey,
-            child: Icon(Icons.person, color: Colors.white),
-          ),
-          SizedBox(height: 8),
-          Text('PHONG', style: TextStyle(fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUserInfoCard() {
+  Widget _buildProfileCard(String name, String phone) {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -131,8 +161,7 @@ class ChooseProfileState extends State<ChooseProfile> {
             children: [
               Icon(Icons.info, color: Colors.blue),
               SizedBox(width: 8),
-              Text('THANH PHONG',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
             ],
           ),
           SizedBox(height: 8),
@@ -140,7 +169,7 @@ class ChooseProfileState extends State<ChooseProfile> {
             children: [
               Icon(Icons.phone, color: Colors.grey),
               SizedBox(width: 8),
-              Text('035****696'),
+              Text(phone),
             ],
           ),
         ],
