@@ -4,16 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Login/Header.dart';
 import 'package:medcaremobile/UI/Login/InputWrapper.dart';
 
-class LoginPage extends StatefulWidget{
-
-  const LoginPage({super.key});
+class LoginPage extends StatefulWidget {
+  final TextEditingController emailController;
+  const LoginPage({super.key, required this.emailController,});
 
   @override
   State<StatefulWidget> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage>{
-  final TextEditingController _emailController = TextEditingController();
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   // bool _isLoading = false;
   //
@@ -72,18 +71,14 @@ class _LoginPageState extends State<LoginPage>{
                         topLeft: Radius.circular(50),
                         topRight: Radius.circular(50))),
                 child: InputWrapper(
-                    emailController: _emailController,
-                    passwordController: _passwordController,
-
+                  emailController: widget.emailController,
+                  passwordController: _passwordController,
                 ),
               ),
-
             ],
           ),
         ),
       ),
     );
   }
-
 }
-

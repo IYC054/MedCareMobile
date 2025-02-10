@@ -3,8 +3,8 @@ import 'package:medcaremobile/UI/Home/Home.dart';
 import 'package:medcaremobile/UI/Login/Button.dart';
 import 'package:medcaremobile/UI/Login/InputField.dart';
 import 'package:medcaremobile/UI/Register/RegisterPage.dart';
-
-class InputWrapper extends StatelessWidget {
+import 'package:medcaremobile/UI/VerifyEmail/VerifyEmailPage.dart';
+class InputWrapper extends StatefulWidget{
   final TextEditingController emailController;
   final TextEditingController passwordController;
 
@@ -13,6 +13,12 @@ class InputWrapper extends StatelessWidget {
     required this.emailController,
     required this.passwordController,
   });
+  @override
+  State<StatefulWidget> createState() => _InputWrapperState();
+
+}
+class _InputWrapperState extends State<InputWrapper> {
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -26,8 +32,8 @@ class InputWrapper extends StatelessWidget {
             decoration: BoxDecoration(
                 color: Colors.white, borderRadius: BorderRadius.circular(10)),
             child: InputField(
-              emailController: emailController,
-              passwordController: passwordController,
+              emailController: widget.emailController,
+              passwordController: widget.passwordController,
             ),
           ),
           SizedBox(height: 40),
@@ -41,7 +47,7 @@ class InputWrapper extends StatelessWidget {
                 context,
                 PageRouteBuilder(
                   pageBuilder: (context, animation, secondaryAnimation) =>
-                      Registerpage(),
+                      VerifyEmailPage(),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
                     const begin = Offset(0.0, 1.0);
@@ -70,8 +76,8 @@ class InputWrapper extends StatelessWidget {
             height: 40,
           ),
           Button(
-            emailController: emailController,
-            passwordController: passwordController
+            emailController: widget.emailController,
+            passwordController: widget.passwordController
           ),
         ],
       ),

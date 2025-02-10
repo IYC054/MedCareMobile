@@ -6,6 +6,9 @@ import 'package:medcaremobile/UI/Profile/RegulationsPage.dart';
 import 'package:medcaremobile/UI/Profile/TermsOfServicePage.dart';
 
 import 'package:medcaremobile/UI/Profile/FAQPage.dart';
+import 'package:medcaremobile/services/StorageService.dart';
+
+import '../Home/Home.dart';
 
 class Profilepage extends StatefulWidget {
   const Profilepage({super.key});
@@ -15,6 +18,51 @@ class Profilepage extends StatefulWidget {
 }
 
 class _ProfilepageState extends State<Profilepage> {
+
+
+  //xu ly logout
+  void _logout(BuildContext context) {
+    StorageService.clearToken();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Đăng xuất thành công!")),
+    );
+
+    // Điều hướng về màn hình chính
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => Home()),
+    );
+  }
+  //show diaglog confirm logout
+  Future<void> _showLogoutDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // Người dùng phải chọn Yes/No
+      builder: (BuildContext context) {
+        return AlertDialog(
+          icon: Icon(Icons.logout_outlined, color: Colors.red,),
+          title: Text('Xác nhận đăng xuất', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),),
+          content: Text('Bạn có chắc chắn muốn đăng xuất không?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Hủy', style: TextStyle(color: Colors.grey)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Đóng Dialog
+              },
+            ),
+            TextButton(
+              child: Text('Đăng xuất', style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Đóng Dialog
+                _logout(context); // Gọi hàm xử lý đăng xuất
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,7 +83,7 @@ class _ProfilepageState extends State<Profilepage> {
             child: Icon(Icons.person, size: 50, color: Colors.grey),
           ),
           const Text(
-            "nguyễn anh tuấn",
+            "Nguyễn Anh Tuấn",
             style: TextStyle(color: Colors.white, fontSize: 20),
           ),
            const Text(
@@ -54,7 +102,7 @@ class _ProfilepageState extends State<Profilepage> {
               child: ListView(
                 children: [
                   const Text(
-                    "Điều khoản sử dụng",
+                    "Điều khoản và quy định",
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 20,
@@ -104,17 +152,15 @@ class _ProfilepageState extends State<Profilepage> {
     } else if (title == "Chính sách bảo mật") {
       iconColor = Colors.orange;
     } else if (title == "Điều khoản dịch vụ") {
-      iconColor = Colors.red;
+      iconColor = Colors.indigoAccent;
     } else if (title == "Thông tin cá nhân") {
       iconColor = Colors.purple;
     } else if (title == "Tổng đài CSKH 19002115") {
-      iconColor = Colors.teal;
+      iconColor = Colors.grey;
     } else if (title == "Đánh giá ứng dụng") {
       iconColor = Colors.amber;
-    } else if (title == "Chia sẻ ứng dụng") {
-      iconColor = Colors.indigo;
     } else if (title == "Một số câu hỏi thường gặp") {
-      iconColor = Colors.brown;
+      iconColor = Colors.black;
     } else if (title == "Đăng xuất") {
       iconColor = Colors.redAccent;
     }
@@ -170,6 +216,8 @@ class _ProfilepageState extends State<Profilepage> {
                       title: "Thông tin cá nhân",
                     )),
           );
+        } else if (title == "Đăng xuất") {
+          _showLogoutDialog(context); // Gọi dialog xác nhận
         }
       },
     );

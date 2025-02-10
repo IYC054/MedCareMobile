@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-class InputField extends StatelessWidget {
+class InputField extends StatefulWidget{
   final TextEditingController emailController;
   final TextEditingController passwordController;
 
@@ -9,20 +8,36 @@ class InputField extends StatelessWidget {
     required this.emailController,
     required this.passwordController,
   });
+
+  @override
+  State<StatefulWidget> createState() => _InputFieldState();
+}
+class _InputFieldState extends State<InputField> {
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
         Container(
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.grey))),
+          padding: EdgeInsets.all(5),
+          // decoration: BoxDecoration(
+          //     border: Border(bottom: BorderSide(color: Colors.grey))),
           child: TextField(
-            controller: emailController,
+            style: TextStyle(color: Colors.black87),
+            controller: widget.emailController,
+            enabled: false,
+            // decoration: InputDecoration(
+            //     hintText: "Nhập email ",
+            //     hintStyle: TextStyle(color: Colors.grey),
+            //     border: InputBorder.none
+            // ),
             decoration: InputDecoration(
-                hintText: "Nhập email ",
-                hintStyle: TextStyle(color: Colors.grey),
-                border: InputBorder.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              filled: true,
+              fillColor: Colors.grey[200],  // Màu nền giống ảnh mẫu
+            ),
           ),
         ),
         Container(
@@ -30,7 +45,7 @@ class InputField extends StatelessWidget {
           decoration: BoxDecoration(
               border: Border(bottom: BorderSide(color: Colors.grey))),
           child: TextField(
-            controller: passwordController,
+            controller: widget.passwordController,
             obscureText: true,
             decoration: InputDecoration(
                 hintText: "Nhập mật khẩu",

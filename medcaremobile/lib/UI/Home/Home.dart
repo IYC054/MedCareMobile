@@ -7,6 +7,8 @@ import 'package:medcaremobile/UI/Login/LoginPage.dart';
 import 'package:medcaremobile/UI/News/Newspage.dart';
 import 'package:medcaremobile/UI/Profile/ProfilePage.dart';
 import 'package:medcaremobile/UI/Register/RegisterPage.dart';
+import 'package:medcaremobile/UI/VerifyEmail/VerifyEmailPage.dart';
+import 'package:medcaremobile/services/StorageService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
@@ -29,18 +31,19 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    print("🔹 isLoggedIn: $isLoggedIn");
     checkLoginStatus();
   }
 
   /// Kiểm tra trạng thái đăng nhập
   Future<void> checkLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('auth_token');
-    print("login $isLoggedIn");
+    String? token = await StorageService.getToken(); // 🔹 Dùng `await` để lấy giá trị thực
     setState(() {
-      // isLoggedIn = token != null && token.isNotEmpty;
-      // isLoggedIn = true;
+      isLoggedIn = token != null && token.isNotEmpty;
     });
+
+    print("🔹 Token nhận được: $token"); // ✅ Debug token
+    print("🔹 isLoggedIn: $isLoggedIn");
   }
 
   final pages = [
@@ -53,12 +56,13 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: (pageIndex == 3 && !isLoggedIn) ? LoginPage() : pages[pageIndex],
+        body: (pageIndex == 3 && !isLoggedIn) ? VerifyEmailPage() : pages[pageIndex],
         bottomNavigationBar: CurvedNavigationBar(
           index: pageIndex < pages.length ? pageIndex : 0,
           onTap: (index) {
             setState(() {
               pageIndex = index;
+              checkLoginStatus();
             });
           },
           items: [

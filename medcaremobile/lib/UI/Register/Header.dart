@@ -12,7 +12,7 @@ class Header extends StatelessWidget {
             Center(
               child: Text(
                 "Đăng ký",
-                style: TextStyle(color: Colors.white, fontSize: 40),
+                style: TextStyle(color: Colors.white, fontSize: 30),
               ),
             ),
           ],
