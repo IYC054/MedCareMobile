@@ -41,6 +41,12 @@ class _ButtonState extends State<Button>{
   // }
 
   Future<void> _login() async {
+    if (widget.passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Vui lòng nhập mật khẩu"), backgroundColor: Colors.yellow,),
+      );
+      return; // Không tiếp tục nếu mật khẩu không hợp lệ
+    }
     setState(() {
       _isLoading = true;
     });
@@ -63,7 +69,7 @@ class _ButtonState extends State<Button>{
         // await StorageService.saveToken(token);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Login successfully!")),
+          const SnackBar(content: Text("Login successfully!"), backgroundColor: Colors.green,),
         );
 
         // Điều hướng đến màn hình chính
@@ -78,7 +84,7 @@ class _ButtonState extends State<Button>{
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login failed: $e")),
+        SnackBar(content: Text("Login failed: $e"),  backgroundColor: Colors.red,),
       );
     } finally {
       setState(() {
