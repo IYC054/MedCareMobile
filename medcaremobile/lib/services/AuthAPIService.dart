@@ -3,33 +3,13 @@ import 'package:http/http.dart' as http;
 import 'package:medcaremobile/models/Account.dart';
 import 'package:medcaremobile/services/AccountAPIService.dart';
 import './StorageService.dart';
+import 'IpNetwork.dart';
 
 class AuthAPIService{
-  String url = "http://192.168.1.211:8080/api/auth";
+  static const ip = Ipnetwork.ip;
+  String url = "http://$ip:8080/api/auth";
   AccountAPIService accountAPIService = AccountAPIService();
   Future<bool> sendOTP(String email) async {
-    // //lay token
-    // final data = await accountAPIService.checkLogin(
-    //     "admin@gmail.com",
-    //     "admin"
-    // );
-    //
-    // if (data != null &&
-    //     data.containsKey('result') &&
-    //     data['result'] != null &&
-    //     data['result'].containsKey('token') &&
-    //     data['result']['token'] != null) {
-    //   final String token = data['result']['token'] as String;
-    //
-    //   // Lưu token vào SharedPreferences
-    //   await StorageService.saveToken(token);
-    // }
-    //
-    // final String? token = await StorageService.getToken();
-    // if (token == null) {
-    //   throw Exception("Không tìm thấy token, vui lòng đăng nhập lại.");
-    // }
-
     try {
       final response = await http.post(
         Uri.parse("$url/send?email=$email"), // 🟢 Giữ nguyên @RequestParam

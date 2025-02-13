@@ -55,7 +55,7 @@ class _ButtonState extends State<Button>{
         if (otpSent) {
           setState(() => success = "OTP đã được gửi.");
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("OTP sent successful!")),
+            const SnackBar(content: Text("Gửi OTP thành công!"), backgroundColor: Colors.green),
           );
           if (mounted) {
             Navigator.push(
@@ -84,7 +84,7 @@ class _ButtonState extends State<Button>{
         } else {
           setState(() => error = "Lỗi gửi OTP!");
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Failed to send OTP!")),
+            const SnackBar(content: Text("Gửi OTP thất bại!"), backgroundColor: Colors.red),
           );
         }
       } else{

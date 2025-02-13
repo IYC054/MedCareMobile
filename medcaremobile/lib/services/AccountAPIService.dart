@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
 import 'package:medcaremobile/models/Account.dart';
 import './StorageService.dart';
+import 'IpNetwork.dart';
 //173.16.16.52
 class AccountAPIService{
-  String url = "http://192.168.1.211:8080/api/account";
+  static const ip = Ipnetwork.ip;
+  String url = "http://$ip:8080/api/account";
   // final String token = StorageService.getToken() as String;
 
   Future<Map<String, dynamic>?> checkLogin(String email, String password) async {
@@ -37,63 +40,63 @@ class AccountAPIService{
     }
   }
 
-  Future<Map<String, dynamic>> register(Map<String, dynamic> data, File? image) async {
+  Future<Map<String, dynamic>> registerAccount({
+    required String email,
+    required String name,
+    required String password,
+    required String phone,
+    required String gender,
+    required String birthdate,
+    required List<String> roles,
+    File? avatar, // Avatar có thể null
+  }) async {
     try {
       var uri = Uri.parse("$url/register");
       var request = http.MultipartRequest("POST", uri);
 
-      // ✅ Thêm dữ liệu vào request
-      data.forEach((key, value) {
-        request.fields[key] = value.toString();
-      });
+      // Thêm dữ liệu vào request
+      request.fields["email"] = email;
+      request.fields["name"] = name;
+      request.fields["password"] = password;
+      request.fields["phone"] = phone;
+      request.fields["gender"] = gender;
+      request.fields["birthdate"] = birthdate;
 
-      // ✅ Nếu có ảnh, thêm vào request
-      if (image != null) {
-        request.files.add(await http.MultipartFile.fromPath("avatar", image.path));
+      // Chuyển danh sách roles thành chuỗi
+      for (var role in roles) {
+        request.fields["role"] = role;
       }
 
-      // Gửi request và xử lý phản hồi
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
+      // Nếu có ảnh đại diện, thêm vào request
+      if (avatar != null) {
+        var imageStream = http.ByteStream(avatar.openRead());
+        var length = await avatar.length();
+        var multipartFile = http.MultipartFile(
+          'avatar',
+          imageStream,
+          length,
+          filename: basename(avatar.path),
+        );
+        request.files.add(multipartFile);
+      }
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return {"success": true, "data": jsonDecode(response.body)};
+      // Gửi request
+      var response = await request.send();
+
+      // Xử lý phản hồi
+      if (response.statusCode == 200) {
+        var responseBody = await response.stream.bytesToString();
+        return json.decode(responseBody);
       } else {
-        return {
-          "success": false,
-          "message": "Lỗi ${response.statusCode}: ${response.reasonPhrase}",
-          "error": jsonDecode(response.body),
-        };
+        return {"error": "Failed with status code ${response.statusCode}"};
       }
-    } catch (error) {
-      return {"success": false, "message": "Lỗi kết nối đến server: $error"};
+    } catch (e) {
+      return {"error": e.toString()};
     }
   }
 
 
   Future<bool?> checkEmailExist(String email) async {
-    // //lay token
-    // final data = await checkLogin(
-    //   "admin@gmail.com",
-    //   "admin"
-    // );
-    //
-    // if (data != null &&
-    //     data.containsKey('result') &&
-    //     data['result'] != null &&
-    //     data['result'].containsKey('token') &&
-    //     data['result']['token'] != null) {
-    //   final String token = data['result']['token'] as String;
-    //
-    //   // Lưu token vào SharedPreferences
-    //   await StorageService.saveToken(token);
-    // }
-
-    // final String? token = await StorageService.getToken();
-    // if (token == null) {
-    //   throw Exception("Không tìm thấy token, vui lòng đăng nhập lại.");
-    // }
-    //check email
     try {
       final response = await http.get(
         Uri.parse("$url/find?email=${Uri.encodeComponent(email)}"),
