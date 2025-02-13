@@ -186,7 +186,7 @@ class HomepageState extends State<Homepage> {
                   padding: EdgeInsets.all(20),
                   child: Column(
                     children: [
-                      SizedBox(height: 30),
+                      SizedBox(height: 50),
                       RichText(
                         text: TextSpan(
                           style: TextStyle(fontSize: 20, color: Colors.black),

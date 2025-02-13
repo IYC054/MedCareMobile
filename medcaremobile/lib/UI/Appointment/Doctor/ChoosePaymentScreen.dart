@@ -3,8 +3,7 @@ import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:medcaremobile/UI/Viewpayment/PaymentWebView.dart';
 import 'package:medcaremobile/services/IpNetwork.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:convert';
 
 class ChoosePaymentScreen extends StatefulWidget {
   const ChoosePaymentScreen(
@@ -17,18 +16,24 @@ class ChoosePaymentScreen extends StatefulWidget {
       this.patientName,
       this.selectDate,
       this.selectTime,
-      this.Doctorname, this.selectedSpecialtyName});
+      this.Doctorname,
+      this.selectedSpecialtyName,
+      this.isVIP,
+      this.startTime,
+      this.endTime});
   final String specialtyname;
   final int profileId;
   final int? selectedDoctorId;
   final String? Doctorname;
   final String? selectedSpecialtyName;
-
+  final bool? isVIP;
   final int? selectedSpecialtyId;
   final int? selectedWorkTimeId;
   final String? patientName;
   final DateTime? selectDate;
   final String? selectTime;
+  final String? startTime;
+  final String? endTime;
   @override
   State<ChoosePaymentScreen> createState() => _ChoosePaymentScreenState();
 }
@@ -45,21 +50,19 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
   }
 
   Future<void> _handlePayment() async {
-    // Thay thế bằng API backend của bạn
-    String apiUrl = 'http://192.168.1.44:8080/api/payments/create-payment';
+    const ip = Ipnetwork.ip;
+    const token =
+        "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJuZ2hpbWF0aGl0LmNvbSIsInN1YiI6Im5naGltYXRoaXRAZXhhbXBsZS5jb20iLCJpZCI6MSwiZXhwIjoxNzM5NDY1OTMzLCJpYXQiOjE3Mzk0Mjk5MzMsInNjb3BlIjoiUEFUSUVOVFMgVklFV19QQVRJRU5UIEVESVRfUEFUSUVOVCJ9.OegU67T2g4_nBcotlsxCuT72UpBdFGYnZPyGst7FqtwaBZrYMrH4dkoclq8AJxostiy_Ul_7xpHgkAj6Snox_g";
+    String apiUrl = 'http://$ip:8080/api/payments/create-payment';
 
     try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        body: {
-          'amount': '150000',
-          'orderInfo': 'Thanh toán đặt lịch khám bệnh',
-        },
-      );
-
+      final response = await http.post(Uri.parse("$apiUrl?amount=${widget.isVIP! ? 300000 : 150000}&orderInfo=thanh toán medcare"), headers: {
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json",
+      });
+      print("Phản hồi từ API: ${response.statusCode}, body: ${response.body}");
       if (response.statusCode == 200) {
         String paymentUrl = response.body;
-        print("🔗 URL thanh toán nhận được: $paymentUrl"); // Debug
         if (paymentUrl.isNotEmpty) {
           Navigator.push(
             context,
@@ -75,6 +78,9 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
                       selectTime: widget.selectTime,
                       Doctorname: widget.Doctorname,
                       selectedSpecialtyName: widget.specialtyname,
+                      isVIP: widget.isVIP,
+                      startTime: widget.startTime,
+                      endTime: widget.endTime,
                     )),
           );
         } else {
@@ -123,7 +129,7 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
               leading: Icon(Icons.health_and_safety, color: Colors.red),
               title: Text(widget.specialtyname,
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              trailing: Text('150.000đ',
+              trailing: Text(widget.isVIP! ? '300.000 đ' : '150.000 đ',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             ),
             Divider(height: 32),
@@ -150,7 +156,7 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '150.000đ',
+                  widget.isVIP! ? '300.000đ' : '150.000đ',
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -170,7 +176,8 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
                   child: Text('Quay lại'),
                 ),
                 ElevatedButton(
-                  onPressed: _handlePayment,
+                  onPressed: () =>
+                      {print("Nút Thanh toán đã được nhấn!"), _handlePayment()},
                   child: Text('Thanh toán'),
                 ),
               ],

@@ -5,7 +5,9 @@ import 'package:medcaremobile/services/IpNetwork.dart';
 class GetAppointmentApi {
   static const ip = Ipnetwork.ip;
   static const String baseUrl = "http://$ip:8080/api/appointment";
-
+  static const String baseUrlVip = "http://$ip:8080/api/vip-appointments";
+  static const token =
+      "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJuZ2hpbWF0aGl0LmNvbSIsInN1YiI6Im5naGltYXRoaXRAZXhhbXBsZS5jb20iLCJpZCI6MSwiZXhwIjoxNzM5NDY4NzM1LCJpYXQiOjE3Mzk0MzI3MzUsInNjb3BlIjoiUEFUSUVOVFMgVklFV19QQVRJRU5UIEVESVRfUEFUSUVOVCJ9.JDfiC11WWmV-UL7gIaSDeqgocbrYeitUf7nRGFONQxoPsRQ1bZZ7bJkYgTQa6Whz0GY52y2vok5eE9NI-jxaPw";
   static Future<int> createAppointment({
     required int patientId,
     required int doctorId,
@@ -15,9 +17,13 @@ class GetAppointmentApi {
   }) async {
     try {
       final url = Uri.parse(baseUrl);
+      print(
+          "doctoId: ${doctorId} \n specialty: ${specialty} \n patientprofile: ${patientProfileId} \n worktime: ${worktimeId} \n patientID: ${patientId}");
+
       final response = await http.post(
         url,
         headers: {
+          "Authorization": "Bearer $token",
           "Content-Type": "application/json",
         },
         body: jsonEncode({
@@ -34,10 +40,10 @@ class GetAppointmentApi {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final utf8Decoded = utf8.decode(response.bodyBytes);
         final Map<String, dynamic> responseData = jsonDecode(utf8Decoded);
-        
+
         int bookingId = responseData["id"]; // Lấy bookingId từ API
         print("✅ Đặt lịch thành công! Booking ID: $bookingId");
-        
+
         return bookingId;
       } else {
         print("❌ Lỗi khi đặt lịch: ${response.body}");
@@ -48,4 +54,74 @@ class GetAppointmentApi {
       return 0;
     }
   }
+
+  static Future<int> createVIPAppointment({
+    required int patientId,
+    required int doctorId,
+    required String specialty,
+    required DateTime worktime,
+    required String startTime,
+    required String endTime,
+    required int patientProfileId,
+  }) async {
+    try {
+      final url = Uri.parse(baseUrlVip);
+      print(
+          "doctoId: ${doctorId} \n specialty: ${specialty} \n patientprofile: ${patientProfileId} \n starttime: ${startTime} \n endtine: ${endTime} \n worktime: ${worktime.toIso8601String()} \n patientID: ${patientId}");
+
+      final response = await http.post(
+        url,
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "patientId": patientId,
+          "doctorId": doctorId,
+          "profileId": patientProfileId,
+          "type": "Khám $specialty",
+          "workDate": worktime.toIso8601String(),
+          "startTime": startTime,
+          "endTime": endTime,
+          "status": "Chờ xử lý",
+          "amount": 300000
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final utf8Decoded = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> responseData = jsonDecode(utf8Decoded);
+
+        int bookingId = responseData["id"];
+        print("✅ Đặt lịch thành công! Booking ID: $bookingId");
+
+
+        return bookingId;
+      } else {
+        print("❌ Lỗi khi đặt lịch: ${response.body}");
+        return 0;
+      }
+    } catch (e) {
+      print("⚠️ Lỗi khi gọi API: $e");
+      return 0;
+    }
+  }
+    static Future<List<dynamic>> fetchVipAppointment() async {
+    try {
+      final url = Uri.parse(baseUrlVip);
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final utf8Decoded = utf8.decode(response.bodyBytes); // Fix encoding
+        final List<dynamic> data = jsonDecode(utf8Decoded);
+        return data.isNotEmpty ? data : [];
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print("Lỗi khi gọi API: $e");
+      return [];
+    }
+  }
+
 }

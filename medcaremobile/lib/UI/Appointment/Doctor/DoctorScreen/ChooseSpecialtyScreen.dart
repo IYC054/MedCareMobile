@@ -20,18 +20,33 @@ class ChoosespecialtyscreenState extends State<Choosespecialtyscreen> {
   }
 
   void fetchspecialty() async {
-    final fetchedspecialty =
-        await Getspecialtyapi.getSpecialtyByDoctorid(widget.id);
-    print("specialty: $fetchedspecialty"); // Kiểm tra dữ liệu từ API
-    if (fetchedspecialty != null) {
-      setState(() {
-        specialty = fetchedspecialty;
-        isLoading = false;
-      });
+    if (widget.id != 0) {
+      final fetchedspecialty =
+          await Getspecialtyapi.getSpecialtyByDoctorid(widget.id);
+      print("specialty: $fetchedspecialty"); // Kiểm tra dữ liệu từ API
+      if (fetchedspecialty != null) {
+        setState(() {
+          specialty = fetchedspecialty;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
     } else {
-      setState(() {
-        isLoading = false;
-      });
+      final fetchedspecialty = await Getspecialtyapi.getAllSpecialty();
+      print("specialty: $fetchedspecialty"); // Kiểm tra dữ liệu từ API
+      if (fetchedspecialty != null) {
+        setState(() {
+          specialty = fetchedspecialty;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -104,7 +119,8 @@ class ChoosespecialtyscreenState extends State<Choosespecialtyscreen> {
               alignment: Alignment.centerRight,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context, {'specialty': specialty, 'specialtyid': specialtyid});
+                  Navigator.pop(context,
+                      {'specialty': specialty, 'specialtyid': specialtyid});
                 },
                 child: Text('Chọn'),
               ),
