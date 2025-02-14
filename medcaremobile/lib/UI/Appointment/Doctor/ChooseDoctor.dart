@@ -5,9 +5,12 @@ import 'package:medcaremobile/UI/Appointment/Doctor/DoctorScreen/ChooseDoctorScr
 import 'package:medcaremobile/UI/Appointment/Doctor/DoctorScreen/ChooseSpecialtyScreen.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/DoctorScreen/ChooseTimeScreen.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
+import 'package:medcaremobile/services/GetDoctorApi.dart';
+import 'dart:math';
 
 class Choosedoctor extends StatefulWidget {
-  const Choosedoctor({super.key, required this.profileId, required this.patientname});
+  const Choosedoctor(
+      {super.key, required this.profileId, required this.patientname});
   final int profileId;
   final String patientname;
   @override
@@ -23,6 +26,27 @@ class ChoosedoctorState extends State<Choosedoctor> {
   int? selectedWorkId;
   int? selectedWorkTimeId;
   String? selectTime;
+  String? startTime;
+  String? endTime;
+
+  bool isVIP = false;
+
+  // Thêm phương thức này để gán cho CustomCheckbox
+  void _toggleVIP(bool value) {
+    setState(() {
+      isVIP = value;
+      selectedDoctorName = null;
+      selectedDoctorId = null;
+      selectedSpecialtyName = null;
+      selectedSpecialtyId = null;
+      selectDate = null;
+      selectedWorkId = null;
+      selectedWorkTimeId = null;
+      selectTime = null;
+    });
+    print("Khám VIP: $isVIP");
+  }
+
   void _selectDoctor() async {
     final result = await Navigator.push(
       context,
@@ -41,9 +65,10 @@ class ChoosedoctorState extends State<Choosedoctor> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => Choosespecialtyscreen(
-                id: selectedDoctorId!,
-              )),
+        builder: (context) => Choosespecialtyscreen(
+          id: isVIP ? selectedDoctorId! : 0,
+        ),
+      ),
     );
 
     if (result != null && result is Map<String, dynamic>) {
@@ -51,8 +76,50 @@ class ChoosedoctorState extends State<Choosedoctor> {
         selectedSpecialtyId = result['specialtyid'];
         selectedSpecialtyName = result['specialty'];
       });
-            print("selectedWorkTimeId $selectedSpecialtyId");
+      print("selectedSpecialtyId $selectedSpecialtyId");
+    }
+    if (!isVIP) {
+      _autoSelectDoctor(selectedSpecialtyId!);
+    }
+  }
 
+  void _autoSelectDoctor(int specialtyId) async {
+    final fetchedDoctors = await Getdoctorapi.fetchDoctors();
+    print("Fetched Doctors: $fetchedDoctors"); // Debug xem API trả về gì
+
+    if (fetchedDoctors.isEmpty) {
+      print("Danh sách bác sĩ rỗng");
+      return;
+    }
+
+    try {
+      final filteredDoctors = fetchedDoctors.where((doctor) {
+        if (doctor.containsKey('specialties') &&
+            doctor['specialties'] is List) {
+          return doctor['specialties']
+              .any((specialty) => specialty['id'] == specialtyId);
+        }
+        return false;
+      }).toList();
+
+      print("filteredDoctors: $filteredDoctors");
+
+      if (filteredDoctors.isNotEmpty) {
+        final randomDoctor =
+            filteredDoctors[Random().nextInt(filteredDoctors.length)];
+        print("randomDoctor: ${randomDoctor['account']['name']}");
+
+        setState(() {
+          selectedDoctorId = randomDoctor['id'];
+          selectedDoctorName = randomDoctor['account']['name'];
+        });
+
+        return;
+      } else {
+        print("Không có bác sĩ nào với specialtyId này.");
+      }
+    } catch (e) {
+      print("Lỗi khi lọc bác sĩ: $e");
     }
   }
 
@@ -78,15 +145,25 @@ class ChoosedoctorState extends State<Choosedoctor> {
       context,
       MaterialPageRoute(
           builder: (context) => ChooseTimeScreen(
+                selectedDate: selectDate!,
+                isVIP: isVIP,
                 id: selectedWorkId!,
               )),
     );
+
+    print("📢 Dữ liệu nhận được từ ChooseTimeScreen: $result"); // Debug
 
     if (result != null && result is Map<String, dynamic>) {
       setState(() {
         selectTime = result['selectTime'];
         selectedWorkTimeId = result['worktimeid'];
+        startTime = result['startTime'];
+        endTime = result['endTime'];
       });
+
+      print("✅ Gán thành công: $startTime - $endTime"); // Debug
+    } else {
+      print("⚠️ Không nhận được dữ liệu hợp lệ!"); // Debug
     }
   }
 
@@ -102,6 +179,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
 
   @override
   Widget build(BuildContext context) {
+    print("CHECHK CHECK $startTime - $endTime");
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chọn thông tin khám'),
@@ -128,42 +206,54 @@ class ChoosedoctorState extends State<Choosedoctor> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Khám VIP",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                CustomCheckbox(onChanged: _toggleVIP)
+              ],
+            ),
             const SizedBox(height: 16),
             // Options
             Expanded(
               child: ListView(
                 children: [
-                  _buildOptionCard(
-                    icon: Icons.person,
-                    title: selectedDoctorName ?? 'Bác sĩ',
-                    onTap: _selectDoctor,
-                  ),
+                  if (isVIP)
+                    _buildOptionCard(
+                      icon: Icons.person,
+                      title: selectedDoctorName ?? 'Bác sĩ',
+                      onTap: _selectDoctor,
+                    ),
                   _buildOptionCard(
                     icon: Icons.health_and_safety_outlined,
                     title: selectedSpecialtyName ?? 'Chuyên khoa',
-                    onTap: selectedDoctorId != null
-                        ? _selectSpecialty
-                        : () => _showWarning("Vui lòng chọn bác sĩ trước!"),
-                    enabled: selectedDoctorId !=
-                        null, // Không nhấn được nếu chưa có bác sĩ
+                    onTap: isVIP && selectedDoctorId == null
+                        ? null
+                        : _selectSpecialty, // Nếu VIP mà chưa chọn bác sĩ -> Không cho chọn chuyên khoa
+                    enabled: isVIP
+                        ? selectedDoctorId != null
+                        : true, // Nếu VIP thì phải chọn bác sĩ trước
                   ),
                   _buildOptionCard(
                     icon: Icons.calendar_today,
                     title: selectDate != null
                         ? formatDate(selectDate!)
                         : 'Ngày khám',
-                    onTap: selectedDoctorId != null
-                        ? _selectDate
-                        : () => _showWarning("Vui lòng chọn bác sĩ trước!"),
-                    enabled: selectedDoctorId != null && selectedSpecialtyId != null,
+                    onTap: _selectDate,
+                    enabled: isVIP
+                        ? selectedDoctorId != null
+                        : selectedSpecialtyId != null,
                   ),
                   _buildOptionCard(
                     icon: Icons.access_time,
                     title: selectTime ?? 'Giờ khám',
-                    onTap: selectedDoctorId != null
-                        ? _selectTime
-                        : () => _showWarning("Vui lòng chọn bác sĩ trước!"),
-                    enabled: selectedDoctorId != null && selectedSpecialtyId != null && selectedWorkId != null,
+                    onTap: _selectTime,
+                    enabled:
+                        isVIP ? selectDate != null : selectedWorkId != null,
                   ),
                 ],
               ),
@@ -195,6 +285,9 @@ class ChoosedoctorState extends State<Choosedoctor> {
                                   Doctorname: selectedDoctorName,
                                   selectTime: selectTime,
                                   selectedSpecialtyName: selectedSpecialtyName,
+                                  isVIP: isVIP,
+                                  startTime: startTime,
+                                  endTime: endTime,
                                 )));
                   },
                   child: const Text('Tiếp theo'),
@@ -245,6 +338,49 @@ class ChoosedoctorState extends State<Choosedoctor> {
             Icon(Icons.arrow_forward_ios,
                 size: 16, color: enabled ? Colors.grey : Colors.grey.shade500),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class CustomCheckbox extends StatefulWidget {
+  @override
+  const CustomCheckbox({super.key, required this.onChanged});
+  final ValueChanged<bool> onChanged;
+
+  _CustomCheckboxState createState() => _CustomCheckboxState();
+}
+
+class _CustomCheckboxState extends State<CustomCheckbox> {
+  bool isChecked = false;
+  bool isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => isHovered = true),
+      onExit: (_) => setState(() => isHovered = false),
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            isChecked = !isChecked;
+          });
+          widget.onChanged(isChecked); // Sử dụng giá trị đã cập nhật
+        },
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+                color: isHovered ? Colors.blue : Colors.grey, width: 2),
+            color: isChecked ? Colors.blue : Colors.white,
+          ),
+          child: isChecked
+              ? Icon(Icons.check, color: Colors.white, size: 24)
+              : null,
         ),
       ),
     );

@@ -14,10 +14,13 @@ class Chooseinformation extends StatefulWidget {
       this.selectedWorkTimeId,
       this.patientName,
       this.selectDate,
-      this.selectTime, this.Doctorname, this.selectedSpecialtyName});
+      this.selectTime,
+      this.Doctorname,
+      this.selectedSpecialtyName, this.isVIP, this.startTime, this.endTime});
   final String specialtyname;
   final DateTime exminationdate;
   final String clinicdate;
+  final bool? isVIP;
   final String? Doctorname;
   final String? selectedSpecialtyName;
   final int profileId;
@@ -27,6 +30,8 @@ class Chooseinformation extends StatefulWidget {
   final String? patientName;
   final DateTime? selectDate;
   final String? selectTime;
+  final String? startTime;
+  final String? endTime;
   @override
   State<StatefulWidget> createState() => ChooseinformationState();
 }
@@ -167,7 +172,7 @@ class ChooseinformationState extends State<Chooseinformation> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
                 Text(
-                  '150.000đ',
+                  widget.isVIP! ? '300.000 đ': '150.000 đ',
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -193,7 +198,9 @@ class ChooseinformationState extends State<Chooseinformation> {
                               selectDate: widget.selectDate,
                               selectTime: widget.selectTime,
                               Doctorname: widget.Doctorname,
-
+                              isVIP: widget.isVIP,
+                              startTime: widget.startTime,
+                              endTime: widget.endTime,
                             )),
                   );
                 },
