@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:medcaremobile/UI/Profile/HistoryPage.dart';
+import 'package:medcaremobile/UI/Profile/PatientFilePage.dart';
 import 'package:medcaremobile/UI/Profile/PersonalProfile.dart';
 import 'package:medcaremobile/UI/Profile/PrivacyPolicyPage.dart';
 import 'package:medcaremobile/UI/Profile/ProfilePage.dart';
@@ -7,7 +9,8 @@ import 'package:medcaremobile/UI/Profile/TermsOfServicePage.dart';
 
 import 'package:medcaremobile/UI/Profile/FAQPage.dart';
 import 'package:medcaremobile/services/StorageService.dart';
-
+import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 import '../Home/Home.dart';
 
 class Profilepage extends StatefulWidget {
@@ -18,8 +21,6 @@ class Profilepage extends StatefulWidget {
 }
 
 class _ProfilepageState extends State<Profilepage> {
-
-
   //xu ly logout
   void _logout(BuildContext context) {
     StorageService.clearToken();
@@ -34,6 +35,29 @@ class _ProfilepageState extends State<Profilepage> {
       MaterialPageRoute(builder: (context) => Home()),
     );
   }
+
+  void _callCustomerService() async {
+    const phoneNumber = "tel:19002115";
+    if (await canLaunchUrl(Uri.parse(phoneNumber))) {
+      await launchUrl(Uri.parse(phoneNumber));
+    } else {
+      debugPrint("Không thể mở trình quay số.");
+    }
+  }
+  void _shareApp() {
+  Share.share("Hãy thử ngay ứng dụng này: https://play.google.com/store/apps/details?id=vn.com.medpro");
+}
+
+  void _openAppReview() async {
+  const url = "https://play.google.com/store/apps/details?id=vn.com.medpro"; // Thay bằng link ứng dụng của bạn
+  if (await canLaunchUrl(Uri.parse(url))) {
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  } else {
+    debugPrint("Không thể mở trang đánh giá.");
+  }
+}
+
+
   //show diaglog confirm logout
   Future<void> _showLogoutDialog(BuildContext context) async {
     return showDialog<void>(
@@ -41,8 +65,14 @@ class _ProfilepageState extends State<Profilepage> {
       barrierDismissible: false, // Người dùng phải chọn Yes/No
       builder: (BuildContext context) {
         return AlertDialog(
-          icon: Icon(Icons.logout_outlined, color: Colors.red,),
-          title: Text('Xác nhận đăng xuất', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),),
+          icon: Icon(
+            Icons.logout_outlined,
+            color: Colors.red,
+          ),
+          title: Text(
+            'Xác nhận đăng xuất',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+          ),
           content: Text('Bạn có chắc chắn muốn đăng xuất không?'),
           actions: <Widget>[
             TextButton(
@@ -63,6 +93,7 @@ class _ProfilepageState extends State<Profilepage> {
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,11 +117,10 @@ class _ProfilepageState extends State<Profilepage> {
             "Nguyễn Anh Tuấn",
             style: TextStyle(color: Colors.white, fontSize: 20),
           ),
-           const Text(
+          const Text(
             "079*****04",
             style: TextStyle(color: Colors.white, fontSize: 16),
           ),
-          
           const SizedBox(height: 40),
           Expanded(
             child: Container(
@@ -120,6 +150,10 @@ class _ProfilepageState extends State<Profilepage> {
                       thickness: 3),
                   buildListTile(
                       Icons.person_outlined, "Thông tin cá nhân", context),
+                        buildListTile(
+                      Icons.personal_injury, "Lịch khám", context),
+                        buildListTile(
+                      Icons.payment, "Lịch sử thanh toán", context),
                   Divider(
                       color: const Color.fromARGB(255, 209, 209, 209),
                       thickness: 3),
@@ -149,6 +183,10 @@ class _ProfilepageState extends State<Profilepage> {
 
     if (title == "Quy định sử dụng") {
       iconColor = Colors.green;
+    }else if (title == "Lịch sử thanh toán") {
+      iconColor = Colors.green;
+    } else if (title == "Lịch khám") {
+      iconColor = Colors.red;
     } else if (title == "Chính sách bảo mật") {
       iconColor = Colors.orange;
     } else if (title == "Điều khoản dịch vụ") {
@@ -167,7 +205,7 @@ class _ProfilepageState extends State<Profilepage> {
     return ListTile(
       leading: Icon(
         icon,
-        color: iconColor, 
+        color: iconColor,
       ),
       title: Text(title),
       trailing: (title != "Tổng đài CSKH 19002115" &&
@@ -176,7 +214,13 @@ class _ProfilepageState extends State<Profilepage> {
           ? const Icon(Icons.arrow_forward_ios, size: 16)
           : null,
       onTap: () async {
-        if (title == "Quy định sử dụng") {
+        if (title == "Tổng đài CSKH 19002115") {
+          _callCustomerService();
+        } else if (title == "Đánh giá ứng dụng") {
+          _openAppReview();
+        } else if (title == "Chia sẻ ứng dụng") {
+          _shareApp();
+        } else if (title == "Quy định sử dụng") {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -192,7 +236,24 @@ class _ProfilepageState extends State<Profilepage> {
                       title: "Chính sách bảo mật",
                     )),
           );
-        } else if (title == "Điều khoản dịch vụ") {
+        }else if (title == "Lịch khám") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const PatientFilePage(
+                      title: "Lịch khám",
+                    )),
+          );
+        } else if (title == "Lịch sử thanh toán") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const HistoryPage(
+                      title: "Lịch sử thanh toán",
+                    )),
+          );
+        } 
+        else if (title == "Điều khoản dịch vụ") {
           Navigator.push(
             context,
             MaterialPageRoute(
