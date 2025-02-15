@@ -55,6 +55,35 @@ class AuthAPIService{
     }
   }
 
+  Future<Map<String, dynamic>> resetPassword(String email, String newPassword) async {
+
+    try {
+      final response = await http.post(
+        Uri.parse('$url/reset-password'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "email": email,
+          "newPassword": newPassword,
+        }),
+      );
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return {"success": true, "message": "Password has been reset successfully."};
+      } else {
+        // Nếu API trả về lỗi, parse message từ response body
+        final responseBody = jsonDecode(response.body);
+        return {
+          "success": false,
+          "message": responseBody["message"] ?? "Failed to reset password."
+        };
+      }
+    } catch (e) {
+      return {"success": false, "message": "Server error. Please try again later."};
+    }
+  }
+
   Future<bool> forgotPassword(String email) async {
     try {
       final response = await http.post(
@@ -76,4 +105,6 @@ class AuthAPIService{
       throw Exception("Lỗi gửi OTP: $e");
     }
   }
+
+
 }

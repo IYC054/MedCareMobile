@@ -1,3 +1,3 @@
 class Ipnetwork {
-  static const ip = "192.168.1.244";
+  static const ip = "192.168.1.18";
 }

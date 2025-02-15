@@ -76,10 +76,9 @@ class _InputWrapperState extends State<InputWrapper> {
             widget.emailController.text);
         if (otpForgotPassSent) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Gửi OTP thành công!"),
+            const SnackBar(content: Text("Gửi OTP để đổi mật khẩu thành công!"),
                 backgroundColor: Colors.green),
           );
-
           if (mounted) {
             setState(() {
               secondsRemaining = 60; // Reset lại thời gian đếm ngược
@@ -138,6 +137,7 @@ class _InputWrapperState extends State<InputWrapper> {
           Button(
             emailController: widget.emailController,
             otp: otp, // Truyền OTP vào Button
+            forgotPass: widget.forgotPass
           ),
         ],
       ),

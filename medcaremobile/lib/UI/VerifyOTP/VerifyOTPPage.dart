@@ -39,7 +39,7 @@ class _VerifyOTPPageState extends State<VerifyOTPPage>{
                         topRight: Radius.circular(50))),
                 child: InputWrapper(
                   emailController: widget.emailController,
-                    forgotPass: widget.forgotPass
+                  forgotPass: widget.forgotPass
                 ),
               ),
             ],

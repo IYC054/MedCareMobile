@@ -79,7 +79,7 @@ class _InputWrapperState extends State<InputWrapper> {
             ),
           ),
           SizedBox(height: 40),
-          TextButton(onPressed: handleSendOTP, child: Text("Quên mật khẩu? Gửi OTP", style: TextStyle(
+          TextButton(onPressed: handleSendOTP, child: _isLoading ? CircularProgressIndicator() : Text("Quên mật khẩu? Gửi OTP", style: TextStyle(
             color: Colors.blue,
             fontSize: 15,
             fontWeight: FontWeight.bold,

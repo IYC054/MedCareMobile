@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:medcaremobile/UI/Login/LoginPage.dart';
 import 'package:medcaremobile/services/AccountAPIService.dart';
+import 'package:medcaremobile/services/AuthAPIService.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../Register/Header.dart';
@@ -27,7 +28,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   AccountAPIService accountAPIService = AccountAPIService();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
-
+  AuthAPIService authAPIService = AuthAPIService();
   @override
   void dispose() {
     _passwordController.dispose();
@@ -42,39 +43,29 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         // Xử lý đăng ký ở đây
         print("Password: ${_passwordController.text}");
         print("Confirm Password: ${_confirmPasswordController.text}");
-      }
-      // try {
+
         setState(() => _isLoading = true);
 
-        // var response = await accountAPIService.registerAccount(
-        //   email: widget.emailController.text,
-        //   password: _passwordController.text,
-        // );
+        final response = await authAPIService.resetPassword(
+          widget.emailController.text,
+          _passwordController.text.trim(),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response["message"]),
+            backgroundColor: response["success"] ? Colors.green : Colors.red,
+          ),
+        );
 
-        // print("API Response: $response");
-
-        // if (response.containsKey('result') && response['result'] != null) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text("Thay đổi mật khẩu thành công!"), backgroundColor: Colors.green),
-        //   );
-
+        if (response["success"]) {
+          // Chuyển về trang Login nếu thành công
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => LoginPage(emailController: widget.emailController)),
+            MaterialPageRoute(builder: (context) =>
+                LoginPage(emailController: widget.emailController,)),
           );
-      //   } else {
-      //     ScaffoldMessenger.of(context).showSnackBar(
-      //       SnackBar(content: Text(response['message'] ?? "Thay đổi mật khẩu thất bại!"), backgroundColor: Colors.red),
-      //     );
-      //   }
-      // } catch (e) {
-      //   print("Error: $e");
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text("Lỗi kết nối đến server!"), backgroundColor: Colors.red),
-      //   );
-      // } finally {
-      //   setState(() => _isLoading = false);
-      // }
+        }
+      }
     }
   }
 
@@ -94,7 +85,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             child: Column(
               children: <Widget>[
                 SizedBox(
-                  height: 30,
+                  height: 50,
                 ),
                 Header(),
                 Container(
@@ -209,7 +200,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                         ? CircularProgressIndicator(
                                         color: Colors.white)
                                         : Text(
-                                      "Đăng ký",
+                                      "Xác nhận",
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 15,

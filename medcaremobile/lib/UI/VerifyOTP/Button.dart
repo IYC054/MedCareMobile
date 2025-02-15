@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:medcaremobile/UI/ForgotPassword/ForgotPasswordPage.dart';
 import 'package:medcaremobile/UI/Register/RegisterPage.dart';
 import 'package:medcaremobile/services/AccountAPIService.dart';
 import 'package:medcaremobile/services/AuthAPIService.dart';
@@ -11,8 +12,8 @@ import '../Home/Home.dart';
 class Button extends StatefulWidget {
   final TextEditingController emailController;
   final String otp; // Nhận OTP từ InputWrapper
-
-  const Button({Key? key, required this.emailController, required this.otp}) : super(key: key);
+  final forgotPass;
+  const Button({Key? key, required this.emailController, required this.otp, required this.forgotPass}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _ButtonState();
@@ -44,28 +45,54 @@ class _ButtonState extends State<Button>{
           SnackBar(content: Text("Xác thực thành công!"), backgroundColor: Colors.green),
         );
         // Điều hướng đến trang đăng kí
-        Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                RegisterPage(emailController: widget.emailController),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              const begin = Offset(0.0, 1.0);
-              const end = Offset.zero;
-              const curve = Curves.ease;
+        if(widget.forgotPass){
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  ForgotPasswordPage(emailController: widget.emailController),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                const begin = Offset(0.0, 1.0);
+                const end = Offset.zero;
+                const curve = Curves.ease;
 
-              var tween = Tween(begin: begin, end: end)
-                  .chain(CurveTween(curve: curve));
-              var offsetAnimation = animation.drive(tween);
+                var tween = Tween(begin: begin, end: end)
+                    .chain(CurveTween(curve: curve));
+                var offsetAnimation = animation.drive(tween);
 
-              return SlideTransition(
-                position: offsetAnimation,
-                child: child,
-              );
-            },
-          ),
-        );
+                return SlideTransition(
+                  position: offsetAnimation,
+                  child: child,
+                );
+              },
+            ),
+          );
+        }
+        else{
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  RegisterPage(emailController: widget.emailController),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                const begin = Offset(0.0, 1.0);
+                const end = Offset.zero;
+                const curve = Curves.ease;
+
+                var tween = Tween(begin: begin, end: end)
+                    .chain(CurveTween(curve: curve));
+                var offsetAnimation = animation.drive(tween);
+
+                return SlideTransition(
+                  position: offsetAnimation,
+                  child: child,
+                );
+              },
+            ),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response['message'] ?? "Xác thực thất bại!"), backgroundColor: Colors.red),
