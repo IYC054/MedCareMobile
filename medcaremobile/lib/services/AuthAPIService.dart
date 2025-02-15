@@ -54,4 +54,26 @@ class AuthAPIService{
       throw Exception("Không thể kết nối đến server!");
     }
   }
+
+  Future<bool> forgotPassword(String email) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$url/forgot-password?email=$email'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        final responseBody = jsonDecode(response.body);
+        throw Exception("Lỗi từ server: ${responseBody['message']}");
+      }
+    } catch (e) {
+      print("Lỗi gửi OTP: $e");
+      throw Exception("Lỗi gửi OTP: $e");
+    }
+  }
 }

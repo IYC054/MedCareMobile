@@ -26,8 +26,7 @@ class _RegisterPageState extends State<RegisterPage> {
   AccountAPIService accountAPIService = AccountAPIService();
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   TextEditingController _birthdateController = TextEditingController();
   String _gender = "Male";
