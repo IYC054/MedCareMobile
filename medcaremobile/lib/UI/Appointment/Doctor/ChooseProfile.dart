@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ChooseDoctor.dart';
+import 'package:medcaremobile/UI/Appointment/Doctor/ChooseDoctorVIP.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
 import 'package:medcaremobile/services/GetPatientApi.dart';
 import 'package:medcaremobile/services/GetProfileApi.dart';
 
 class ChooseProfile extends StatefulWidget {
-  const ChooseProfile({super.key});
-
+  const ChooseProfile({super.key, required this.isVIP});
+  final bool isVIP;
   @override
   State<StatefulWidget> createState() => ChooseProfileState();
 }
@@ -84,7 +85,17 @@ class ChooseProfileState extends State<ChooseProfile> {
                                 bottom: 20), // Khoảng cách giữa các profile
                             child: GestureDetector(
                               onTap: () {
-                                Navigator.push(
+                               if(widget.isVIP){
+                                 Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Choosedoctorvip(
+                                            profileId: profile['id'],
+                                            patientname: profile['fullname'], isVIP: widget.isVIP,
+                                          )),
+                                );
+                               }else{
+                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => Choosedoctor(
@@ -92,6 +103,7 @@ class ChooseProfileState extends State<ChooseProfile> {
                                             patientname: profile['fullname'],
                                           )),
                                 );
+                               }
                               },
                               child: _buildProfileCard(
                                 profile['fullname'],

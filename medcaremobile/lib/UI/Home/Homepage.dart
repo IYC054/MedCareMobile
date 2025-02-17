@@ -40,7 +40,7 @@ class HomepageState extends State<Homepage> {
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            Apptbyspecialty(),
+                            ChooseProfile(isVIP: true),
                         transitionsBuilder:
                             (context, animation, secondaryAnimation, child) {
                           const begin = Offset(0.0, 1.0);
@@ -79,7 +79,7 @@ class HomepageState extends State<Homepage> {
                         ),
                         SizedBox(width: 10),
                         Text(
-                          "Khám theo chuyên khoa",
+                          "Khám Vip",
                           style: TextStyle(
                             color: Color.fromRGBO(42, 0, 83, 1),
                             fontWeight: FontWeight.bold,
@@ -100,7 +100,7 @@ class HomepageState extends State<Homepage> {
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            ChooseProfile(),
+                            ChooseProfile(isVIP: false,),
                         transitionsBuilder:
                             (context, animation, secondaryAnimation, child) {
                           const begin = Offset(0.0, 1.0);
@@ -139,7 +139,7 @@ class HomepageState extends State<Homepage> {
                         ),
                         SizedBox(width: 10),
                         Text(
-                          "Khám với bác sĩ",
+                          "Khám Thường",
                           style: TextStyle(
                             color: Color.fromRGBO(42, 0, 83, 1),
                             fontWeight: FontWeight.bold,

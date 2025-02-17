@@ -50,7 +50,9 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
       selectedPayment = payment;
     });
   }
+Future<void> _handlePaymentHospital() async {
 
+}
   Future<void> _handlePayment() async {
     const ip = Ipnetwork.ip;
     String? token;
@@ -158,6 +160,13 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
               selected: selectedPayment == 'VNPAY',
               onTap: () => selectPayment('VNPAY'),
             ),
+            PaymentOption(
+              title: 'Thanh toán tại bệnh viện',
+              imagepath:
+                  "https://img.freepik.com/premium-vector/hospital-logo-vector_1277164-14255.jpg?w=740",
+              selected: selectedPayment == 'Hospital',
+              onTap: () => selectPayment('Hospital'),
+            ),
             Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -188,7 +197,13 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () =>
-                      {print("Nút Thanh toán đã được nhấn!"), _handlePayment()},
+                      {
+                        if(selectedPayment == "VNPAY"){
+                          _handlePayment()
+                        }else if(selectedPayment == "Hospital"){
+
+                        }
+                      },
                   child: Text('Thanh toán'),
                 ),
               ],

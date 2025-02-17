@@ -3,8 +3,7 @@ import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
 import 'package:medcaremobile/services/GetSpecialtyApi.dart';
 
 class Choosespecialtyscreen extends StatefulWidget {
-  const Choosespecialtyscreen({super.key, required this.id});
-  final int id;
+  const Choosespecialtyscreen({super.key});
   @override
   State<StatefulWidget> createState() => ChoosespecialtyscreenState();
 }
@@ -20,33 +19,17 @@ class ChoosespecialtyscreenState extends State<Choosespecialtyscreen> {
   }
 
   void fetchspecialty() async {
-    if (widget.id != 0) {
-      final fetchedspecialty =
-          await Getspecialtyapi.getSpecialtyByDoctorid(widget.id);
-      print("specialty: $fetchedspecialty"); // Kiểm tra dữ liệu từ API
-      if (fetchedspecialty != null) {
-        setState(() {
-          specialty = fetchedspecialty;
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-      }
+    final fetchedspecialty = await Getspecialtyapi.getAllSpecialty();
+    print("specialty: $fetchedspecialty"); // Kiểm tra dữ liệu từ API
+    if (fetchedspecialty != null) {
+      setState(() {
+        specialty = fetchedspecialty;
+        isLoading = false;
+      });
     } else {
-      final fetchedspecialty = await Getspecialtyapi.getAllSpecialty();
-      print("specialty: $fetchedspecialty"); // Kiểm tra dữ liệu từ API
-      if (fetchedspecialty != null) {
-        setState(() {
-          specialty = fetchedspecialty;
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-      }
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:medcaremobile/services/IpNetwork.dart';
+
 class PatientFilePage extends StatefulWidget {
   const PatientFilePage({super.key, required this.title});
   final String title;
@@ -13,6 +15,7 @@ class PatientFilePage extends StatefulWidget {
 class _PatientFilePageState extends State<PatientFilePage> {
   List<Map<String, dynamic>> appointments = [];
   bool isLoading = true;
+  static const ip = Ipnetwork.ip;
 
   @override
   void initState() {
@@ -21,7 +24,7 @@ class _PatientFilePageState extends State<PatientFilePage> {
   }
 
   Future<void> fetchAppointments() async {
-    const String apiUrl = "http://192.168.10.142:8080/api/appointment";
+    const String apiUrl = "http://$ip:8080/api/appointment";
     try {
       final response = await http.get(Uri.parse(apiUrl));
 
