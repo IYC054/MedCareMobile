@@ -23,12 +23,7 @@ class Choosebill extends StatelessWidget {
     return Scaffold(
      appBar: AppBar(
         title: const Text('Hoá đơn thanh toán'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: EdgeInsets.all(20),

@@ -5,6 +5,8 @@ import 'package:medcaremobile/UI/Viewpayment/PaymentWebView.dart';
 import 'package:medcaremobile/services/IpNetwork.dart';
 import 'dart:convert';
 
+import 'package:medcaremobile/services/StorageService.dart';
+
 class ChoosePaymentScreen extends StatefulWidget {
   const ChoosePaymentScreen(
       {super.key,
@@ -51,15 +53,24 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
 
   Future<void> _handlePayment() async {
     const ip = Ipnetwork.ip;
-    const token =
-        "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJuZ2hpbWF0aGl0LmNvbSIsInN1YiI6Im5naGltYXRoaXRAZXhhbXBsZS5jb20iLCJpZCI6MSwiZXhwIjoxNzM5NDY1OTMzLCJpYXQiOjE3Mzk0Mjk5MzMsInNjb3BlIjoiUEFUSUVOVFMgVklFV19QQVRJRU5UIEVESVRfUEFUSUVOVCJ9.OegU67T2g4_nBcotlsxCuT72UpBdFGYnZPyGst7FqtwaBZrYMrH4dkoclq8AJxostiy_Ul_7xpHgkAj6Snox_g";
-    String apiUrl = 'http://$ip:8080/api/payments/create-payment';
+    String? token;
 
+    Future<void> init() async {
+      token = await StorageService.getToken();
+    }
+
+    String apiUrl = 'http://$ip:8080/api/payments/create-payment';
+    if (token == null) await init();
+
+    print("token: $token");
     try {
-      final response = await http.post(Uri.parse("$apiUrl?amount=${widget.isVIP! ? 300000 : 150000}&orderInfo=thanh toán medcare"), headers: {
-        "Authorization": "Bearer $token",
-        "Content-Type": "application/json",
-      });
+      final response = await http.post(
+          Uri.parse(
+              "$apiUrl?amount=${widget.isVIP! ? 300000 : 150000}&orderInfo=thanh toán medcare"),
+          headers: {
+            "Authorization": "Bearer $token",
+            "Content-Type": "application/json",
+          });
       print("Phản hồi từ API: ${response.statusCode}, body: ${response.body}");
       if (response.statusCode == 200) {
         String paymentUrl = response.body;

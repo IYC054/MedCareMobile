@@ -96,8 +96,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
           worktime: DateTime.parse(widget.selectDate.toString()));
       String? transcode =
           await Paymentapi.createPayment(appointmentid: bookingId, amount: 300000, isVIP: widget.isVIP!);
-      print("ADSADA $transcode");
-      print("ADSADAsss $bookingId");
+  
       if (bookingId != 0) {
         Navigator.pushReplacement(
           context,

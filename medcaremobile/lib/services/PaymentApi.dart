@@ -1,19 +1,25 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:medcaremobile/services/IpNetwork.dart';
+import 'package:medcaremobile/services/StorageService.dart';
 
 class Paymentapi {
   static const ip = Ipnetwork.ip;
-  static const String baseUrl = "http://$ip:8080/api/payments?isVIP=true";
-  static const token =
-      "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJuZ2hpbWF0aGl0LmNvbSIsInN1YiI6Im5naGltYXRoaXRAZXhhbXBsZS5jb20iLCJpZCI6MSwiZXhwIjoxNzM5NDY4NzM1LCJpYXQiOjE3Mzk0MzI3MzUsInNjb3BlIjoiUEFUSUVOVFMgVklFV19QQVRJRU5UIEVESVRfUEFUSUVOVCJ9.JDfiC11WWmV-UL7gIaSDeqgocbrYeitUf7nRGFONQxoPsRQ1bZZ7bJkYgTQa6Whz0GY52y2vok5eE9NI-jxaPw";
+  static const String baseUrl = "http://$ip:8080/api/payments";
+    static String? token;
 
+  static Future<void> init() async {
+    token = await StorageService.getToken();
+  }
   static Future<String?> createPayment(
       {required int appointmentid,
       required int amount,
       required bool isVIP}) async {
     try {
-      final url = Uri.parse(baseUrl);
+      print("TOKEN: $token");
+      if (token == null) await init(); 
+
+      final url = Uri.parse('$baseUrl?isVIP=$isVIP');
       final response = await http.post(
         url,
         headers: {
