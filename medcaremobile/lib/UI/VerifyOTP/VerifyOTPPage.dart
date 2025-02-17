@@ -4,7 +4,8 @@ import 'package:medcaremobile/UI/VerifyOTP/InputWrapper.dart';
 
 class VerifyOTPPage extends StatefulWidget{
   final TextEditingController emailController;
-  const VerifyOTPPage({super.key, required this.emailController});
+  final forgotPass;
+  const VerifyOTPPage({super.key, required this.emailController, required this.forgotPass});
 
   @override
   State<StatefulWidget> createState() => _VerifyOTPPageState();
@@ -38,6 +39,7 @@ class _VerifyOTPPageState extends State<VerifyOTPPage>{
                         topRight: Radius.circular(50))),
                 child: InputWrapper(
                   emailController: widget.emailController,
+                  forgotPass: widget.forgotPass
                 ),
               ),
             ],

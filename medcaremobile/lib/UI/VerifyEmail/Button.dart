@@ -62,7 +62,7 @@ class _ButtonState extends State<Button>{
               context,
               PageRouteBuilder(
                 pageBuilder: (context, animation, secondaryAnimation) =>
-                    VerifyOTPPage(emailController: widget.emailController),
+                    VerifyOTPPage(emailController: widget.emailController, forgotPass: false),
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
                   const begin = Offset(0.0, 1.0);

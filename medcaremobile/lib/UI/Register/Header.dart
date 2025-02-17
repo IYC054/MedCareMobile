@@ -11,7 +11,7 @@ class Header extends StatelessWidget {
           children: <Widget>[
             Center(
               child: Text(
-                "Đăng ký",
+                "Cập nhật mật khẩu mới",
                 style: TextStyle(color: Colors.white, fontSize: 30),
               ),
             ),

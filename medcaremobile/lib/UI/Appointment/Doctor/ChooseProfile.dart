@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ChooseDoctor.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
+import 'package:medcaremobile/services/GetPatientApi.dart';
 import 'package:medcaremobile/services/GetProfileApi.dart';
 
 class ChooseProfile extends StatefulWidget {
@@ -18,11 +19,18 @@ class ChooseProfileState extends State<ChooseProfile> {
   void initState() {
     super.initState();
     fetchProfiles();
+    fetchPatientData(); // Call the new async function
+  }
+
+  Future<void> fetchPatientData() async {
+    final fetchedProfiles =
+        await Getpatientapi.getPatientbyAccountid(); // Await the result
+    print("PATIENT $fetchedProfiles");
   }
 
   void fetchProfiles() async {
     try {
-      final fetchedProfiles = await Getprofileapi.getProfileByUserid(1);
+      final fetchedProfiles = await Getprofileapi().getProfileByUserid();
       print(
           "Dữ liệu nhận được từ API: $fetchedProfiles"); // Kiểm tra dữ liệu API trả về
       if (fetchedProfiles != null && fetchedProfiles is List) {
@@ -79,7 +87,10 @@ class ChooseProfileState extends State<ChooseProfile> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => Choosedoctor(profileId: profile['id'], patientname: profile['fullname'],)),
+                                      builder: (context) => Choosedoctor(
+                                            profileId: profile['id'],
+                                            patientname: profile['fullname'],
+                                          )),
                                 );
                               },
                               child: _buildProfileCard(

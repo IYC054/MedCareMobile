@@ -26,8 +26,7 @@ class _RegisterPageState extends State<RegisterPage> {
   AccountAPIService accountAPIService = AccountAPIService();
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   TextEditingController _birthdateController = TextEditingController();
   String _gender = "Male";
@@ -104,15 +103,51 @@ class _RegisterPageState extends State<RegisterPage> {
         print("Date of Birth: ${_birthdateController.text}");
         print("Gender: $_gender");
       }
+      // try {
+      //   setState(() => _isLoading = true);
+      //
+      //   var response = await accountAPIService.registerAccount(
+      //     email: widget.emailController.text,
+      //     name: _fullNameController.text,
+      //     password: _passwordController.text,
+      //     phone: _phoneController.text,
+      //     gender: _gender,
+      //     birthdate: _birthdateController.text,
+      //     roles: _roles,
+      //     avatar: _selectedImage,
+      //   );
+      //
+      //   print("API Response: $response");
+      //
+      //   if (response.containsKey('result') && response['result'] != null) {
+      //     ScaffoldMessenger.of(context).showSnackBar(
+      //       SnackBar(content: Text("Đăng ký thành công!"), backgroundColor: Colors.green),
+      //     );
+      //
+      //     Navigator.pushReplacement(
+      //       context,
+      //       MaterialPageRoute(builder: (context) => LoginPage(emailController: widget.emailController)),
+      //     );
+      //   } else {
+      //     ScaffoldMessenger.of(context).showSnackBar(
+      //       SnackBar(content: Text(response['message'] ?? "Đăng ký thất bại!"), backgroundColor: Colors.red),
+      //     );
+      //   }
+      // } catch (e) {
+      //   print("Error: $e");
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text("Lỗi kết nối đến server!"), backgroundColor: Colors.red),
+      //   );
+      // } finally {
+      //   setState(() => _isLoading = false);
+      // }
       try {
-        setState(() => _isLoading = true);
-
         var response = await accountAPIService.registerAccount(
-          email: widget.emailController.text,
+          email: widget.emailController.text, // Thay bằng email thực tế
           name: _fullNameController.text,
           password: _passwordController.text,
           phone: _phoneController.text,
-          gender: _gender,
+          gender: _gender!,
           birthdate: _birthdateController.text,
           roles: _roles,
           avatar: _selectedImage,
@@ -127,7 +162,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => LoginPage(emailController: widget.emailController)),
+            MaterialPageRoute(builder: (context) => LoginPage(emailController: widget.emailController,)),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
