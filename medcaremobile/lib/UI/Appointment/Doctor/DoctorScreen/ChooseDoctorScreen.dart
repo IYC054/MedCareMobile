@@ -22,7 +22,7 @@ class _ChooseDoctorScreenState extends State<ChooseDoctorScreen> {
 
   void fetchDoctors() async {
     if (widget.isVIP) {
-      final fetchedDoctors = await Getdoctorapi.fetchDoctorsbySpecialty(1);
+      final fetchedDoctors = await Getdoctorapi.fetchDoctorsbySpecialty(widget.specId);
       print(fetchedDoctors); // Kiểm tra dữ liệu từ API
       if (fetchedDoctors != null) {
         setState(() {

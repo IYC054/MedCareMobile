@@ -85,25 +85,26 @@ class ChooseProfileState extends State<ChooseProfile> {
                                 bottom: 20), // Khoảng cách giữa các profile
                             child: GestureDetector(
                               onTap: () {
-                               if(widget.isVIP){
-                                 Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Choosedoctorvip(
-                                            profileId: profile['id'],
-                                            patientname: profile['fullname'], isVIP: widget.isVIP,
-                                          )),
-                                );
-                               }else{
-                                 Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Choosedoctor(
-                                            profileId: profile['id'],
-                                            patientname: profile['fullname'],
-                                          )),
-                                );
-                               }
+                                if (widget.isVIP) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Choosedoctorvip(
+                                              profileId: profile['id'],
+                                              patientname: profile['fullname'],
+                                              isVIP: widget.isVIP,
+                                            )),
+                                  );
+                                } else {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Choosedoctor(
+                                              profileId: profile['id'],
+                                              patientname: profile['fullname'],
+                                            )),
+                                  );
+                                }
                               },
                               child: _buildProfileCard(
                                 profile['fullname'],

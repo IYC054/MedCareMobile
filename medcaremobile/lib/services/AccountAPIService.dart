@@ -22,8 +22,10 @@ class AccountAPIService {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final utf8Decoded = utf8.decode(response.bodyBytes); // Fix encoding
+        final data = jsonDecode(utf8Decoded);
         final String? token = data['result']?['token'] as String?;
+
         final Map<String, dynamic>? user = data['result']?['user'];
 
         if (token != null) {

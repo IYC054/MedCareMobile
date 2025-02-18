@@ -16,14 +16,12 @@ class Paymentapi {
       required int amount,
       required bool isVIP}) async {
     try {
-      print("TOKEN: $token");
       if (token == null) await init(); 
 
       final url = Uri.parse('$baseUrl?isVIP=$isVIP');
       final response = await http.post(
         url,
         headers: {
-          "Authorization": "Bearer $token",
           "Content-Type": "application/json",
         },
         body: jsonEncode({

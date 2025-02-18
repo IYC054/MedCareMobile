@@ -6,7 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../services/StorageService.dart';
 import '../Home/Home.dart';
-class Button extends StatefulWidget{
+import 'package:show_custom_snackbar/show_custom_snackbar.dart';
+class Button extends StatefulWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
 
@@ -17,16 +18,15 @@ class Button extends StatefulWidget{
   });
   @override
   State<StatefulWidget> createState() => _ButtonState();
-
 }
-class _ButtonState extends State<Button>{
+
+class _ButtonState extends State<Button> {
   bool _isLoading = false;
   final AccountAPIService apiService = AccountAPIService();
 
   @override
   void initState() {
     super.initState();
-
   }
 
   // /// Kiểm tra trạng thái đăng nhập
@@ -42,9 +42,17 @@ class _ButtonState extends State<Button>{
 
   Future<void> _login() async {
     if (widget.passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Vui lòng nhập mật khẩu"), backgroundColor: Colors.yellow,),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: ShowCustomSnackBar(
+          title: "Vui lòng nhập mật khẩu.",
+          label: "",
+          color: Colors.red,
+          icon: Icons.remove_circle_outline,
+        ),
+        behavior: SnackBarBehavior.floating,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ));
       return; // Không tiếp tục nếu mật khẩu không hợp lệ
     }
     setState(() {
@@ -62,15 +70,22 @@ class _ButtonState extends State<Button>{
           data['result'] != null &&
           data['result'].containsKey('token') &&
           data['result']['token'] != null) {
-
         // final String token = data['result']['token'] as String;
         //
         // // Lưu token vào SharedPreferences
         // await StorageService.saveToken(token);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Login successfully!"), backgroundColor: Colors.green,),
-        );
+         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: ShowCustomSnackBar(
+          title: "Đăng nhập thành công.",
+          label: "",
+          color: Colors.green,
+          icon: Icons.check_circle_outline,
+        ),
+        behavior: SnackBarBehavior.floating,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ));
 
         // Điều hướng đến màn hình chính
         Navigator.pushReplacement(
@@ -83,9 +98,17 @@ class _ButtonState extends State<Button>{
         throw Exception("Invalid response from server. Token not found.");
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login failed: $e"),  backgroundColor: Colors.red,),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: ShowCustomSnackBar(
+          title: "Đăng nhập thất bại.",
+          label: "",
+          color: Colors.red,
+          icon: Icons.remove_circle_outline,
+        ),
+        behavior: SnackBarBehavior.floating,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ));
     } finally {
       setState(() {
         _isLoading = false;
@@ -123,13 +146,13 @@ class _ButtonState extends State<Button>{
           child: _isLoading
               ? CircularProgressIndicator(color: Colors.white)
               : Text(
-            "Đăng nhập",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+                  "Đăng nhập",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
         ),
       ),
     );

@@ -3,7 +3,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ChooseProfile.dart';
 import 'package:medcaremobile/UI/Appointment/ApptbySpecialty.dart';
 import 'package:medcaremobile/UI/Home/Footer.dart';
-
+import 'package:medcaremobile/UI/Profile/PatientFilePage.dart';
+import 'package:medcaremobile/services/StorageService.dart';
+import 'package:show_custom_snackbar/show_custom_snackbar.dart';
 class Homepage extends StatefulWidget {
   Homepage({super.key});
 
@@ -12,6 +14,23 @@ class Homepage extends StatefulWidget {
 }
 
 class HomepageState extends State<Homepage> {
+  bool? isLoggedIn;
+  @override
+  void initState() {
+    super.initState();
+    print("🔹 isLoggedIn: $isLoggedIn");
+    checkLoginStatus();
+  }
+
+  /// Kiểm tra trạng thái đăng nhập
+  Future<void> checkLoginStatus() async {
+    String? token = await StorageService.getToken(); // 🔹 Dùng `await` để lấy giá trị thực
+    setState(() {
+      isLoggedIn = token != null && token.isNotEmpty;
+    });
+
+  }
+
   Future<void> Showdialogappointment() async {
     return showDialog(
       context: context,
@@ -100,7 +119,9 @@ class HomepageState extends State<Homepage> {
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            ChooseProfile(isVIP: false,),
+                            ChooseProfile(
+                          isVIP: false,
+                        ),
                         transitionsBuilder:
                             (context, animation, secondaryAnimation, child) {
                           const begin = Offset(0.0, 1.0);
@@ -237,7 +258,32 @@ class HomepageState extends State<Homepage> {
                             return GestureDetector(
                                 onTap: () {
                                   if (index == 0) {
-                                    Showdialogappointment();
+                                    if (isLoggedIn!) {
+                                      Showdialogappointment();
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                        content: ShowCustomSnackBar(
+                                          title: "Chưa đăng nhập!",
+                                          label:
+                                              "Hãy đăng nhập trước.",
+                                          color: Colors.red,
+                                          icon: Icons.remove_circle_outline,
+                                        ),
+                                        behavior: SnackBarBehavior.floating,
+                                        elevation: 0,
+                                        backgroundColor: Colors.transparent,
+                                      ));
+                                    }
+                                  } else if (index == 1) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const PatientFilePage(
+                                                title: "Lịch khám",
+                                              )),
+                                    );
                                   }
                                 },
                                 child: Container(

@@ -37,7 +37,7 @@ class Choosebill extends StatelessWidget {
             ),
             SizedBox(height: 20),
             Text(
-              "Thanh toán thành công!",
+              "Đặt lịch thành công!",
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),

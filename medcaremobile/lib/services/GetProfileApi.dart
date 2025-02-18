@@ -2,33 +2,32 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:medcaremobile/services/GetPatientApi.dart';
 import 'package:medcaremobile/services/IpNetwork.dart';
+import 'package:medcaremobile/services/StorageService.dart';
 
 class Getprofileapi {
   static const ip = Ipnetwork.ip;
   static const String baseUrl = "http://$ip:8080/api/patientsprofile";
 
-  List<dynamic> patientId = [];  // Initialize as an empty list
+  static Map<String, dynamic>? user;
 
-  // Constructor
-  Getprofileapi();
-
-  // Async method to load patient data
-  Future<void> loadPatientData() async {
-    // Wait for the data to be loaded before using it
-    patientId = await Getpatientapi.getPatientbyAccountid();
-    print("Patient ID loaded: $patientId");
+  // Method to load user data asynchronously
+  static Future<void> loadUserData() async {
+    user = await StorageService.getUser();
+    if (user != null) {
+      print("Lay user Data: $user");
+    } else {
+      print("No Patient data found.");
+    }
   }
 
   // Non-static method to get profile by user ID
   Future<List<dynamic>> getProfileByUserid() async {
-    if (patientId.isEmpty) {
-      // Make sure the data is loaded before accessing it
-      await loadPatientData();
+    if (user == null) {
+      await loadUserData(); // Wait for user data to be loaded
     }
-
-    if (patientId.isNotEmpty) {
+    if (user !=null) {
       try {
-        final url = Uri.parse("$baseUrl/account/${patientId[0]['id']}");
+        final url = Uri.parse("$baseUrl/account/${user?['id']}");
         final response = await http.get(url);
 
         if (response.statusCode == 200) {

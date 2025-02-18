@@ -130,7 +130,7 @@ class ChooseinformationState extends State<Chooseinformation> {
                         Text('Phí khám:',
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text('150.000đ',
+                        Text(widget.isVIP! ? '300.000đ' : '150.000đ',
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16)),
                       ],

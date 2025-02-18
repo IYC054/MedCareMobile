@@ -14,6 +14,7 @@ class StorageService {
   // Lưu thông tin user vào SharedPreferences
   static Future<void> saveUser(Map<String, dynamic> user) async {
     final prefs = await SharedPreferences.getInstance();
+    
     final userDataString = jsonEncode(user); // Chuyển đổi thành chuỗi JSON
     await prefs.setString(_userKey, userDataString);
   }

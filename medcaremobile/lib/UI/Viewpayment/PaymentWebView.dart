@@ -86,8 +86,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
 
   void _handlePaymentSuccessISVIP() async {
     try {
-      int bookingId = await GetAppointmentApi.createVIPAppointment(
-          patientId: 1,
+      int bookingId = await GetAppointmentApi().createVIPAppointment(
           doctorId: widget.selectedDoctorId!,
           specialty: widget.selectedSpecialtyName!,
           patientProfileId: widget.profileId,
@@ -122,8 +121,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
 
   void _handlePaymentSuccessNOVIP() async {
     try {
-      int bookingId = await GetAppointmentApi.createAppointment(
-        patientId: 1,
+      int bookingId = await GetAppointmentApi().createAppointment(
         doctorId: widget.selectedDoctorId!,
         specialty: widget.selectedSpecialtyName!,
         worktimeId: widget.selectedWorkTimeId!,

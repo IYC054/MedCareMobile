@@ -23,6 +23,7 @@ class Profilepage extends StatefulWidget {
 class _ProfilepageState extends State<Profilepage> {
   Map<String, dynamic>? userdata;
   bool isLoading = true;
+  bool? isLoggedIn;
   //xu ly logout
   Future<void> _loadUserData() async {
     final user = await StorageService.getUser();
@@ -40,20 +41,28 @@ class _ProfilepageState extends State<Profilepage> {
     super.initState();
     _loadUserData();
   }
+Future<void> checkLoginStatus() async {
+    String? token = await StorageService.getToken(); // 🔹 Dùng `await` để lấy giá trị thực
+    setState(() {
+      isLoggedIn = token != null && token.isNotEmpty;
+    });
 
-  void _logout(BuildContext context) {
-    StorageService.clearToken();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Đăng xuất thành công!")),
-    );
-
-    // Điều hướng về màn hình chính
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => Home()),
-    );
   }
+ void _logout(BuildContext context) async {
+  await StorageService.clearToken();  // Đảm bảo clear token trước
+  checkLoginStatus();  // Gọi lại checkLoginStatus để cập nhật lại trạng thái
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("Đăng xuất thành công!")),
+  );
+
+  // Điều hướng về màn hình chính
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => Home()),
+  );
+}
+
 
   void _callCustomerService() async {
     const phoneNumber = "tel:19002115";
