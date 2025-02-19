@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:medcaremobile/UI/Viewpayment/PaymentWebView.dart';
 import 'package:medcaremobile/services/GetAppointmentApi.dart';
 import 'package:medcaremobile/services/GetPatientApi.dart';
 import 'dart:convert';
 
 import 'package:medcaremobile/services/IpNetwork.dart';
+import 'package:medcaremobile/services/StorageService.dart';
 
 class PatientFilePage extends StatefulWidget {
   const PatientFilePage({super.key, required this.title});
@@ -29,12 +31,13 @@ class _PatientFilePageState extends State<PatientFilePage> {
   }
 
   Future<void> fetchPatientData() async {
-    final fetchedProfiles =
-        await Getpatientapi.getPatientbyAccountid(); // Await the result
+    final fetchedProfiles = await Getpatientapi.getPatientbyAccountid();
     setState(() {
       patientID = fetchedProfiles;
     });
-    print("PATIENTfile lay ra patientid $fetchedProfiles");
+    if (patientID.isNotEmpty) {
+      fetchAppointments(); // Gọi fetchAppointments sau khi có patientID
+    }
   }
 
   Future<void> fetchVipAppointments() async {
@@ -62,6 +65,40 @@ class _PatientFilePageState extends State<PatientFilePage> {
     }
   }
 
+  Future<void> _handlePayment(int paymentID) async {
+    String? token = await StorageService.getToken();
+    String apiUrl = 'http://$ip:8080/api/payments/create-payment';
+
+    try {
+      final response = await http.post(
+          Uri.parse("$apiUrl?amount=150000&orderInfo=thanh toán medcare"),
+          headers: {
+            "Content-Type": "application/json",
+          });
+      if (response.statusCode == 200) {
+        String paymentUrl = response.body;
+        if (paymentUrl.isNotEmpty) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PaymentWebView(
+                paymentUrl: paymentUrl,
+                isNormal: false,
+                PaymentID: paymentID,
+              ),
+            ),
+          );
+        } else {
+          throw 'Không thể mở đường dẫn: URL rỗng!';
+        }
+      } else {
+        throw 'Lỗi khi gọi API thanh toán';
+      }
+    } catch (e) {
+      print('Lỗi khi gọi API thanh toán: $e');
+    }
+  }
+
   Future<void> fetchAppointments() async {
     String apiUrl =
         "http://$ip:8080/api/appointment/patient/${patientID[0]['id']}";
@@ -73,12 +110,18 @@ class _PatientFilePageState extends State<PatientFilePage> {
         List<dynamic> data = jsonDecode(utf8Decoded);
         setState(() {
           appointments = data.map((item) {
-            print("NORMAL: $item['id']");
             return {
               "id": item["id"],
               "date": item["worktime"]["workDate"],
               "reason": item["type"],
-              "status": item["status"],
+              "status": item["payments"] != null && item["payments"].isNotEmpty
+                  ? item["payments"][0]
+                      ["status"] // Lấy status của payment đầu tiên
+                  : "Không có thanh toán",
+              "paymentId":
+                  item["payments"] != null && item["payments"].isNotEmpty
+                      ? item["payments"][0]["id"] // Lấy ID của payment đầu tiên
+                      : null,
             };
           }).toList();
           isLoading = false;
@@ -273,6 +316,9 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                           ),
                                         ],
                                       ),
+                                      SizedBox(
+                                        height: 15,
+                                      ),
                                       GestureDetector(
                                         onTap: () async {
                                           String base64QRCode =
@@ -330,7 +376,34 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                             ),
                                           ],
                                         ),
-                                      )
+                                      ),
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                      if (appointment['status']
+                                          .toString()
+                                          .contains("Chưa thanh toán"))
+                                        GestureDetector(
+                                          onTap: () {
+                                            _handlePayment(
+                                                appointment['paymentId']);
+                                          },
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.payment,
+                                                  size: 22,
+                                                  color: Colors.green),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                "Bấm vào để thanh toán ${appointment['paymentId']}",
+                                                style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                     ],
                                   ),
                                 ),

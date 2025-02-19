@@ -27,9 +27,43 @@ class Paymentapi {
         body: jsonEncode({
           "amount": amount,
           "paymentMethod": "VNPAY",
-          "status": "Chờ xử lý",
+          "status": "Đã thanh toán",
           isVIP ? "vipAppointmentId" : "appointmentId": appointmentid,
           "transactionDescription": "Thanh toán đặt lịch ${isVIP ? "VIP" : "Thường"}"
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final utf8Decoded = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> responseData = jsonDecode(utf8Decoded);
+
+        String bookingId = responseData["transactionCode"];
+        print("Thanh toán thành công $bookingId");
+
+        return bookingId;
+      } else {
+        print("❌ Lỗi payment: ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      print("⚠️ Lỗi khi gọi API: $e");
+      return null;
+    }
+  }
+    static Future<String?> UpdatestatusPayment(
+      {required int paymentID,
+      }) async {
+    try {
+      if (token == null) await init(); 
+
+      final url = Uri.parse('$baseUrl/status/$paymentID');
+      final response = await http.put(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "status": "Đã thanh toán",
         }),
       );
 

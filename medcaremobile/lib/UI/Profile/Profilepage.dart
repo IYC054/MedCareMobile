@@ -28,6 +28,7 @@ class _ProfilepageState extends State<Profilepage> {
   Future<void> _loadUserData() async {
     final user = await StorageService.getUser();
     if (user != null) {
+      print("USER PROFILE $user");
       setState(() {
         userdata = user;
         isLoading = false;

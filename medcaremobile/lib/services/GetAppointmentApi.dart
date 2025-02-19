@@ -105,7 +105,7 @@ class GetAppointmentApi {
           "workDate": worktime.toIso8601String(),
           "startTime": startTime,
           "endTime": endTime,
-          "status": "Chờ xử lý",
+          "status": "Đã thanh toán",
           "amount": 300000
         }),
       );
@@ -169,8 +169,7 @@ class GetAppointmentApi {
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
-        // Giả sử response trả về hình ảnh QR trực tiếp (PNG)
-        return base64Encode(response.bodyBytes); // Mã hóa ảnh thành base64
+        return base64Encode(response.bodyBytes); 
       } else {
         throw Exception("Failed to load QR code");
       }

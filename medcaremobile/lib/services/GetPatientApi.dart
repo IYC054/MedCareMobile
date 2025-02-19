@@ -21,7 +21,6 @@ class Getpatientapi {
 
   static Future<List<dynamic>> getPatientbyAccountid() async {
     try {
-      // Ensure user data is loaded before making the request
       if (user == null) {
         await loadUserData(); // Wait for user data to be loaded
       }
@@ -31,7 +30,6 @@ class Getpatientapi {
       if (response.statusCode == 200) {
         final utf8Decoded = utf8.decode(response.bodyBytes); // Fix encoding
         final List<dynamic> data = jsonDecode(utf8Decoded);
-      print("Lay patient Data: $data");
 
         return data.isNotEmpty ? data : [];
       } else {
