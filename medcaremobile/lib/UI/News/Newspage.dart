@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:medcaremobile/UI/News/NewDetailpage.dart';
 import 'dart:convert';
 import 'package:medcaremobile/services/IpNetwork.dart';
 import 'Newspage.dart'; // Import trang chi tiết
@@ -80,7 +81,7 @@ class _NewspagePageState extends State<NewspagePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => Newspage(
+                            builder: (context) => NewDetailpage(
                               title: news['title'] ?? 'Không có tiêu đề',
                               description: news['description'] ?? 'Không có nội dung',
                               date: news['date'] ?? 'Không rõ ngày',
