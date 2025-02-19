@@ -6,10 +6,7 @@ import 'package:medcaremobile/services/GetPatientApi.dart';
 import 'dart:convert';
 
 import 'package:medcaremobile/services/IpNetwork.dart';
-<<<<<<< HEAD
-=======
 import 'package:medcaremobile/services/StorageService.dart';
->>>>>>> 5f07ed3ea266efe3444c16a28a45b38852d074ea
 
 class PatientFilePage extends StatefulWidget {
   const PatientFilePage({super.key, required this.title});
@@ -103,13 +100,8 @@ class _PatientFilePageState extends State<PatientFilePage> {
   }
 
   Future<void> fetchAppointments() async {
-<<<<<<< HEAD
-     const ip = Ipnetwork.ip;
-    const String apiUrl = "http://$ip:8080/api/appointment";
-=======
     String apiUrl =
         "http://$ip:8080/api/appointment/patient/${patientID[0]['id']}";
->>>>>>> 5f07ed3ea266efe3444c16a28a45b38852d074ea
     try {
       final response = await http.get(Uri.parse(apiUrl));
 
