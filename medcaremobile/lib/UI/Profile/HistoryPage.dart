@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:medcaremobile/services/IpNetwork.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key, required this.title});
@@ -12,37 +13,38 @@ class HistoryPage extends StatefulWidget {
 }
 
 class _HistoryPageState extends State<HistoryPage> {
-
-  final String apiUrl = 'http://192.168.10.142:8080/api/payments';
+  static const ip = Ipnetwork.ip;
+  final String apiUrl = 'http://$ip:8080/api/payments';
 
   Future<List<Map<String, dynamic>>> fetchTransactions() async {
-  try {
-    final response = await http.get(Uri.parse(apiUrl));
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((transaction) {
-        return {
-          "date": transaction["transactionDate"],
-          "amount": "${transaction["amount"]} VND",
-          "method": transaction["paymentMethod"],
-          "transactionId": transaction["transactionCode"],
-          "status": transaction["status"],
-        };
-      }).toList();
-    } else {
-      throw Exception('Failed to load transactions. Status code: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final utf8Decoded = utf8.decode(response.bodyBytes); // Fix encoding
+
+        List<dynamic> data = json.decode(utf8Decoded);
+        return data.map((transaction) {
+          return {
+            "date": transaction["transactionDate"],
+            "amount": "${transaction["amount"]} VND",
+            "method": transaction["paymentMethod"],
+            "transactionId": transaction["transactionCode"],
+            "status": transaction["status"],
+          };
+        }).toList();
+      } else {
+        throw Exception(
+            'Failed to load transactions. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching transactions: $error');
+      throw Exception('Error fetching transactions: $error');
     }
-  } catch (error) {
-    print('Error fetching transactions: $error');
-    throw Exception('Error fetching transactions: $error');
   }
-}
-
-
 
   IconData getPaymentIcon(String method) {
     switch (method) {
@@ -98,7 +100,8 @@ class _HistoryPageState extends State<HistoryPage> {
               padding: const EdgeInsets.all(16.0),
               child: ListView.separated(
                 itemCount: transactions.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 16),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final transaction = transactions[index];
                   return Card(
@@ -118,12 +121,14 @@ class _HistoryPageState extends State<HistoryPage> {
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.calendar_today, size: 20, color: Colors.blue),
+                                  const Icon(Icons.calendar_today,
+                                      size: 20, color: Colors.blue),
                                   const SizedBox(width: 8),
                                   Text(
                                     transaction["date"]!,
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.bold, fontSize: 16),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
                                   ),
                                 ],
                               ),
@@ -143,7 +148,8 @@ class _HistoryPageState extends State<HistoryPage> {
                                   Text(
                                     transaction["method"]!,
                                     style: const TextStyle(
-                                        fontSize: 16, fontWeight: FontWeight.w500),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500),
                                   ),
                                 ],
                               ),
@@ -169,8 +175,8 @@ class _HistoryPageState extends State<HistoryPage> {
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  Clipboard.setData(
-                                      ClipboardData(text: transaction["transactionId"]!));
+                                  Clipboard.setData(ClipboardData(
+                                      text: transaction["transactionId"]!));
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
@@ -203,7 +209,8 @@ class _HistoryPageState extends State<HistoryPage> {
                           // Status
                           Row(
                             children: [
-                              const Icon(Icons.check_circle, size: 20, color: Colors.green),
+                              const Icon(Icons.check_circle,
+                                  size: 20, color: Colors.green),
                               const SizedBox(width: 8),
                               Text(
                                 transaction["status"]!,

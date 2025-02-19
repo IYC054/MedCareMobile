@@ -14,6 +14,7 @@ class Paymentapi {
   static Future<String?> createPayment(
       {required int appointmentid,
       required int amount,
+      required String status,
       required bool isVIP}) async {
     try {
       if (token == null) await init(); 
@@ -27,7 +28,7 @@ class Paymentapi {
         body: jsonEncode({
           "amount": amount,
           "paymentMethod": "VNPAY",
-          "status": "Đã thanh toán",
+          "status": status,
           isVIP ? "vipAppointmentId" : "appointmentId": appointmentid,
           "transactionDescription": "Thanh toán đặt lịch ${isVIP ? "VIP" : "Thường"}"
         }),

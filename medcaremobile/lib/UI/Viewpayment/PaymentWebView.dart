@@ -114,7 +114,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
           endTime: widget.endTime!,
           worktime: DateTime.parse(widget.selectDate.toString()));
       String? transcode = await Paymentapi.createPayment(
-          appointmentid: bookingId, amount: 300000, isVIP: widget.isVIP!);
+          appointmentid: bookingId, amount: 300000, isVIP: widget.isVIP!, status: "Đã thanh toán");
 
       if (bookingId != 0) {
         Navigator.pushReplacement(
@@ -148,7 +148,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
         patientProfileId: widget.profileId!,
       );
       String? transcode = await Paymentapi.createPayment(
-          appointmentid: bookingId, amount: 150000, isVIP: widget.isVIP!);
+          appointmentid: bookingId, amount: 150000, isVIP: widget.isVIP!, status: "Đã thanh toán");
       if (bookingId != 0) {
         Navigator.pushReplacement(
           context,

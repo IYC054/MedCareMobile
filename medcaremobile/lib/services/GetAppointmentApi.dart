@@ -50,7 +50,7 @@ class GetAppointmentApi {
           "patientId": patientId[0]['id'],
           "doctorId": doctorId,
           "type": "Khám $specialty",
-          "status": "Chưa thanh toán",
+          "status": "Chờ xử lý",
           "amount": 150000.0,
           "worktimeId": worktimeId,
           "patientProfileId": patientProfileId,

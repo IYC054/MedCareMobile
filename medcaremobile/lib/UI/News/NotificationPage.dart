@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:medcaremobile/services/IpNetwork.dart';
+
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
 
@@ -12,6 +14,7 @@ class NotificationPage extends StatefulWidget {
 class _NotificationPageState extends State<NotificationPage> {
   List<dynamic> newsList = [];
   bool isLoading = true;
+  static const ip = Ipnetwork.ip;
 
   @override
   void initState() {
@@ -21,10 +24,11 @@ class _NotificationPageState extends State<NotificationPage> {
 
   Future<void> fetchNews() async {
     try {
-     final response = await http.get(Uri.parse('http://192.168.1.17:8080/api/news'));
+      final response = await http.get(Uri.parse('http://$ip:8080/api/news'));
       if (response.statusCode == 200) {
         setState(() {
-          newsList = json.decode(response.body);
+          final utf8Decoded = utf8.decode(response.bodyBytes);
+          newsList = json.decode(utf8Decoded);
           isLoading = false;
         });
       } else {

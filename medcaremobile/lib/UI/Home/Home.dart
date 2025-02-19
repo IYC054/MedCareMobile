@@ -5,6 +5,7 @@ import 'package:medcaremobile/UI/Home/CameraPage.dart';
 import 'package:medcaremobile/UI/Home/Homepage.dart';
 import 'package:medcaremobile/UI/Login/LoginPage.dart';
 import 'package:medcaremobile/UI/News/Newspage.dart';
+import 'package:medcaremobile/UI/News/NotificationPage.dart';
 import 'package:medcaremobile/UI/Profile/ProfilePage.dart';
 import 'package:medcaremobile/UI/Register/RegisterPage.dart';
 import 'package:medcaremobile/UI/VerifyEmail/VerifyEmailPage.dart';
@@ -48,7 +49,7 @@ class _HomeState extends State<Home> {
 
   final pages = [
     Homepage(),
-    Newspage(),
+    NotificationPage(),
     Profilepage(),
   ];
 

@@ -117,7 +117,7 @@ class AccountAPIService {
     File? avatar, // Avatar có thể null
   }) async {
     try {
-      var uri = Uri.parse("$url/register");
+      var uri = Uri.parse("$url");
       var request = http.MultipartRequest("POST", uri);
 
       // Thêm dữ liệu vào request
@@ -129,7 +129,8 @@ class AccountAPIService {
       request.fields["birthdate"] = birthdate;
 
       // Chuyển danh sách roles thành chuỗi
-      request.fields["role"] = json.encode(roles);
+      request.fields["role"] = "PATIENTS";
+      print("ROLES ${jsonEncode(roles)}" );
 
       // Nếu có ảnh đại diện, thêm vào request
       if (avatar != null) {

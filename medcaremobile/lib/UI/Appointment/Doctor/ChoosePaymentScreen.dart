@@ -121,6 +121,7 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
           appointmentid: bookingId,
           amount: widget.isVIP! ? 300000 : 150000,
           isVIP: widget.isVIP!,
+          status: "Chưa thanh toán"
         );
 
         Navigator.pushReplacement(

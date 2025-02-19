@@ -395,7 +395,7 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                                   color: Colors.green),
                                               const SizedBox(width: 8),
                                               Text(
-                                                "Bấm vào để thanh toán ${appointment['paymentId']}",
+                                                "Bấm vào để thanh toán",
                                                 style: const TextStyle(
                                                     fontSize: 15,
                                                     fontWeight:
