@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ChooseBill.dart';
+import 'package:medcaremobile/UI/Profile/PatientFilePage.dart';
+import 'package:medcaremobile/UI/Profile/ProfilePage.dart';
 import 'package:medcaremobile/services/GetAppointmentApi.dart';
 import 'package:medcaremobile/services/PaymentApi.dart';
 
 class PaymentWebView extends StatefulWidget {
   final String paymentUrl;
-  final int profileId;
+  final int? profileId;
   final int? selectedDoctorId;
   final String? selectedSpecialtyName;
   final String? Doctorname;
@@ -17,11 +19,13 @@ class PaymentWebView extends StatefulWidget {
   final String? selectTime;
   final String? startTime;
   final String? endTime;
+  final bool? isNormal;
+  final int? PaymentID;
 
   final bool? isVIP;
   const PaymentWebView(
       {required this.paymentUrl,
-      required this.profileId,
+      this.profileId,
       this.selectedDoctorId,
       this.selectedSpecialtyName,
       this.selectedSpecialtyId,
@@ -30,9 +34,11 @@ class PaymentWebView extends StatefulWidget {
       this.selectDate,
       this.selectTime,
       this.Doctorname,
-      this.isVIP,
+      this.isVIP = false,
       this.startTime,
-      this.endTime});
+      this.endTime,
+      this.isNormal = true,
+      this.PaymentID});
 
   @override
   _PaymentWebViewState createState() => _PaymentWebViewState();
@@ -64,16 +70,19 @@ class _PaymentWebViewState extends State<PaymentWebView> {
                   Uri uri = Uri.parse(url.toString());
                   String? transactionStatus =
                       uri.queryParameters["vnp_TransactionStatus"];
-
+                  print("NORMAL: ${widget.isNormal} VIP: ${widget.isVIP}");
                   if (transactionStatus == "00") {
                     await controller.stopLoading();
                     setState(() {
                       _isPaymentCompleted = true;
                     });
-                    if (widget.isVIP == true) {
+                    if (widget.isVIP == true && widget.isNormal! == true) {
                       _handlePaymentSuccessISVIP();
                     } else {
                       _handlePaymentSuccessNOVIP();
+                    }
+                    if (widget.isNormal! == false && widget.isVIP == false) {
+                      _handlePaymentAppointment();
                     }
                   } else {
                     print("Thanh toán thất bại hoặc bị hủy.");
@@ -84,20 +93,29 @@ class _PaymentWebViewState extends State<PaymentWebView> {
     );
   }
 
+  void _handlePaymentAppointment() async {
+    String? transcode =
+        await Paymentapi.UpdatestatusPayment(paymentID: widget.PaymentID!);
+      if(transcode != null){
+         Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PatientFilePage(title: "Lịch khám",)));
+      }
+  }
+
   void _handlePaymentSuccessISVIP() async {
     try {
-      int bookingId = await GetAppointmentApi.createVIPAppointment(
-          patientId: 1,
+      int bookingId = await GetAppointmentApi().createVIPAppointment(
           doctorId: widget.selectedDoctorId!,
           specialty: widget.selectedSpecialtyName!,
-          patientProfileId: widget.profileId,
+          patientProfileId: widget.profileId!,
           startTime: widget.startTime!,
           endTime: widget.endTime!,
           worktime: DateTime.parse(widget.selectDate.toString()));
-      String? transcode =
-          await Paymentapi.createPayment(appointmentid: bookingId, amount: 300000, isVIP: widget.isVIP!);
-      print("ADSADA $transcode");
-      print("ADSADAsss $bookingId");
+      String? transcode = await Paymentapi.createPayment(
+          appointmentid: bookingId, amount: 300000, isVIP: widget.isVIP!);
+
       if (bookingId != 0) {
         Navigator.pushReplacement(
           context,
@@ -123,15 +141,14 @@ class _PaymentWebViewState extends State<PaymentWebView> {
 
   void _handlePaymentSuccessNOVIP() async {
     try {
-      int bookingId = await GetAppointmentApi.createAppointment(
-        patientId: 1,
+      int bookingId = await GetAppointmentApi().createAppointment(
         doctorId: widget.selectedDoctorId!,
         specialty: widget.selectedSpecialtyName!,
         worktimeId: widget.selectedWorkTimeId!,
-        patientProfileId: widget.profileId,
+        patientProfileId: widget.profileId!,
       );
-      String? transcode =
-          await Paymentapi.createPayment(appointmentid: bookingId,amount: 150000, isVIP: widget.isVIP!);
+      String? transcode = await Paymentapi.createPayment(
+          appointmentid: bookingId, amount: 150000, isVIP: widget.isVIP!);
       if (bookingId != 0) {
         Navigator.pushReplacement(
           context,

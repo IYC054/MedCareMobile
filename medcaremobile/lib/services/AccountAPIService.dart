@@ -5,13 +5,15 @@ import 'package:path/path.dart';
 import 'package:medcaremobile/models/Account.dart';
 import './StorageService.dart';
 import 'IpNetwork.dart';
+
 //173.16.16.52
-class AccountAPIService{
+class AccountAPIService {
   static const ip = Ipnetwork.ip;
   String url = "http://$ip:8080/api/account";
   // final String token = StorageService.getToken() as String;
 
-  Future<Map<String, dynamic>?> checkLogin(String email, String password) async {
+  Future<Map<String, dynamic>?> checkLogin(
+      String email, String password) async {
     try {
       final response = await http.post(
         Uri.parse("$url/token"),
@@ -20,14 +22,24 @@ class AccountAPIService{
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final String? token = data?['result']?['token'] as String?;
+        final utf8Decoded = utf8.decode(response.bodyBytes); // Fix encoding
+        final data = jsonDecode(utf8Decoded);
+        final String? token = data['result']?['token'] as String?;
+
+        final Map<String, dynamic>? user = data['result']?['user'];
 
         if (token != null) {
           await StorageService.saveToken(token);
           print("Đăng nhập thành công! Token: $token");
         } else {
           print("Lỗi: API không trả về token.");
+        }
+
+        if (user != null) {
+          await StorageService.saveUser(user);
+          print("Đăng nhập thành công! User: $user");
+        } else {
+          print("Lỗi: API không trả về user.");
         }
 
         return data; // Trả về toàn bộ dữ liệu từ API
@@ -39,7 +51,6 @@ class AccountAPIService{
       throw Exception("Error: $e");
     }
   }
-
   // Future<Map<String, dynamic>> registerAccount({
   //   required String email,
   //   required String name,
@@ -149,7 +160,6 @@ class AccountAPIService{
     }
   }
 
-
   Future<bool?> checkEmailExist(String email) async {
     try {
       final response = await http.get(
@@ -170,12 +180,8 @@ class AccountAPIService{
       } else {
         throw Exception("Dữ liệu trả về không hợp lệ: $decodedResponse");
       }
-
     } catch (error) {
       throw Exception("Lỗi kết nối đến server: $error");
     }
   }
-
-
-
 }

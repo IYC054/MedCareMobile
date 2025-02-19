@@ -153,7 +153,7 @@ class ChooseTimeScreenState extends State<ChooseTimeScreen> {
     String startTime = doctor["startTime"];
     int countBooked =
         bookedTimes.where((time) => time.startsWith(startTime)).length;
-    bool isFullyBooked = countBooked >= 5; // Nếu >= 5 thì không cho chọn nữa
+    bool isFullyBooked = countBooked >= 1; // Nếu >= 5 thì không cho chọn nữa
     return GestureDetector(
       onTap: isFullyBooked
           ? null // Vô hiệu hóa chọn nếu giờ đã đặt

@@ -8,16 +8,17 @@ import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
 import 'package:medcaremobile/services/GetDoctorApi.dart';
 import 'dart:math';
 
-class Choosedoctor extends StatefulWidget {
-  const Choosedoctor(
-      {super.key, required this.profileId, required this.patientname});
+class Choosedoctorvip extends StatefulWidget {
+  const Choosedoctorvip(
+      {super.key, required this.profileId, required this.patientname, required this.isVIP});
   final int profileId;
   final String patientname;
+  final bool isVIP;
   @override
-  State<StatefulWidget> createState() => ChoosedoctorState();
+  State<StatefulWidget> createState() => ChoosedoctorvipState();
 }
 
-class ChoosedoctorState extends State<Choosedoctor> {
+class ChoosedoctorvipState extends State<Choosedoctorvip> {
   String? selectedDoctorName;
   int? selectedDoctorId;
   String? selectedSpecialtyName;
@@ -29,28 +30,14 @@ class ChoosedoctorState extends State<Choosedoctor> {
   String? startTime;
   String? endTime;
 
-  bool isVIP = false;
 
   // Thêm phương thức này để gán cho CustomCheckbox
-  void _toggleVIP(bool value) {
-    setState(() {
-      isVIP = value;
-      selectedDoctorName = null;
-      selectedDoctorId = null;
-      selectedSpecialtyName = null;
-      selectedSpecialtyId = null;
-      selectDate = null;
-      selectedWorkId = null;
-      selectedWorkTimeId = null;
-      selectTime = null;
-    });
-    print("Khám VIP: $isVIP");
-  }
+
 
   void _selectDoctor() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ChooseDoctorScreen(isVIP: false, specId: 0,)),
+      MaterialPageRoute(builder: (context) => ChooseDoctorScreen(isVIP: true, specId: selectedSpecialtyId!,)),
     );
 
     if (result != null && result is Map<String, dynamic>) {
@@ -77,51 +64,8 @@ class ChoosedoctorState extends State<Choosedoctor> {
       });
       print("selectedSpecialtyId $selectedSpecialtyId");
     }
-    if (!isVIP) {
-      _autoSelectDoctor(selectedSpecialtyId!);
-    }
+    
   }
-
-  void _autoSelectDoctor(int specialtyId) async {
-    final fetchedDoctors = await Getdoctorapi.fetchDoctors();
-    print("Fetched Doctors: $fetchedDoctors"); // Debug xem API trả về gì
-
-    if (fetchedDoctors.isEmpty) {
-      print("Danh sách bác sĩ rỗng");
-      return;
-    }
-
-    try {
-      final filteredDoctors = fetchedDoctors.where((doctor) {
-        if (doctor.containsKey('specialties') &&
-            doctor['specialties'] is List) {
-          return doctor['specialties']
-              .any((specialty) => specialty['id'] == specialtyId);
-        }
-        return false;
-      }).toList();
-
-      print("filteredDoctors: $filteredDoctors");
-
-      if (filteredDoctors.isNotEmpty) {
-        final randomDoctor =
-            filteredDoctors[Random().nextInt(filteredDoctors.length)];
-        print("randomDoctor: ${randomDoctor['account']['name']}");
-
-        setState(() {
-          selectedDoctorId = randomDoctor['id'];
-          selectedDoctorName = randomDoctor['account']['name'];
-        });
-
-        return;
-      } else {
-        print("Không có bác sĩ nào với specialtyId này.");
-      }
-    } catch (e) {
-      print("Lỗi khi lọc bác sĩ: $e");
-    }
-  }
-
   void _selectDate() async {
     final result = await Navigator.push(
       context,
@@ -145,7 +89,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
       MaterialPageRoute(
           builder: (context) => ChooseTimeScreen(
                 selectedDate: selectDate!,
-                isVIP: isVIP,
+                isVIP: widget.isVIP,
                 id: selectedWorkId!,
               )),
     );
@@ -205,26 +149,26 @@ class ChoosedoctorState extends State<Choosedoctor> {
               ),
             ),
 
-           
+            
             const SizedBox(height: 16),
             // Options
             Expanded(
               child: ListView(
                 children: [
-                  if (isVIP)
-                    _buildOptionCard(
-                      icon: Icons.person,
-                      title: selectedDoctorName ?? 'Bác sĩ',
-                      onTap: _selectDoctor,
-                    ),
                   _buildOptionCard(
                     icon: Icons.health_and_safety_outlined,
-                    title: selectedSpecialtyName ?? 'Chuyên khoa',
-                    onTap: isVIP && selectedDoctorId == null
+                    title: 
+                    selectedSpecialtyName ?? 'Chuyên khoa',
+                    onTap: _selectSpecialty,
+                  ),
+                  _buildOptionCard(
+                    icon: Icons.person,
+                    title: selectedDoctorName ?? 'Bác sĩ',
+                    onTap: widget.isVIP && selectedSpecialtyId == null
                         ? null
-                        : _selectSpecialty, // Nếu VIP mà chưa chọn bác sĩ -> Không cho chọn chuyên khoa
-                    enabled: isVIP
-                        ? selectedDoctorId != null
+                        : _selectDoctor, // Nếu VIP mà chưa chọn bác sĩ -> Không cho chọn chuyên khoa
+                    enabled: widget.isVIP
+                        ? selectedSpecialtyId != null
                         : true, // Nếu VIP thì phải chọn bác sĩ trước
                   ),
                   _buildOptionCard(
@@ -233,7 +177,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
                         ? formatDate(selectDate!)
                         : 'Ngày khám',
                     onTap: _selectDate,
-                    enabled: isVIP
+                    enabled: widget.isVIP
                         ? selectedDoctorId != null
                         : selectedSpecialtyId != null,
                   ),
@@ -242,7 +186,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
                     title: selectTime ?? 'Giờ khám',
                     onTap: _selectTime,
                     enabled:
-                        isVIP ? selectDate != null : selectedWorkId != null,
+                        widget.isVIP ? selectDate != null : selectedWorkId != null,
                   ),
                 ],
               ),
@@ -274,7 +218,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
                                   Doctorname: selectedDoctorName,
                                   selectTime: selectTime,
                                   selectedSpecialtyName: selectedSpecialtyName,
-                                  isVIP: isVIP,
+                                  isVIP: widget.isVIP,
                                   startTime: startTime,
                                   endTime: endTime,
                                 )));

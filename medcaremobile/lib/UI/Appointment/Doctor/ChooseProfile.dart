@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ChooseDoctor.dart';
+import 'package:medcaremobile/UI/Appointment/Doctor/ChooseDoctorVIP.dart';
+import 'package:medcaremobile/UI/Appointment/Doctor/CreatePatientInformation.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
+import 'package:medcaremobile/services/GetPatientApi.dart';
 import 'package:medcaremobile/services/GetProfileApi.dart';
 
 class ChooseProfile extends StatefulWidget {
-  const ChooseProfile({super.key});
-
+  const ChooseProfile({super.key, required this.isVIP});
+  final bool isVIP;
   @override
   State<StatefulWidget> createState() => ChooseProfileState();
 }
@@ -22,7 +25,7 @@ class ChooseProfileState extends State<ChooseProfile> {
 
   void fetchProfiles() async {
     try {
-      final fetchedProfiles = await Getprofileapi.getProfileByUserid(1);
+      final fetchedProfiles = await Getprofileapi().getProfileByUserid();
       print(
           "Dữ liệu nhận được từ API: $fetchedProfiles"); // Kiểm tra dữ liệu API trả về
       if (fetchedProfiles != null && fetchedProfiles is List) {
@@ -55,42 +58,56 @@ class ChooseProfileState extends State<ChooseProfile> {
               'Đặt khám',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 16),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildAddCard(),
-                SizedBox(
-                    height: 16), // Khoảng cách giữa "Thêm" và danh sách hồ sơ
-                isLoading
-                    ? Center(child: CircularProgressIndicator())
-                    : ListView.builder(
-                        shrinkWrap: true, // Để tránh lỗi chiếm hết không gian
-                        physics:
-                            NeverScrollableScrollPhysics(), // Không cần cuộn riêng
-                        itemCount: profiles.length,
-                        itemBuilder: (context, index) {
-                          var profile = profiles[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(
-                                bottom: 20), // Khoảng cách giữa các profile
-                            child: GestureDetector(
-                              onTap: () {
+                SizedBox(height: 16),
+              ],
+            ),
+            Flexible(
+              flex: 3,
+              child: isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      itemCount:
+                          profiles.length, // Thêm 1 để chứa nút "Thêm"
+                      itemBuilder: (context, index) {
+                        final profile =
+                            profiles[index]; // Lấy profile từ danh sách
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: GestureDetector(
+                            onTap: () {
+                              if (widget.isVIP) {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => Choosedoctor(profileId: profile['id'], patientname: profile['fullname'],)),
+                                      builder: (context) => Choosedoctorvip(
+                                            profileId: profile['id'],
+                                            patientname: profile['fullname'],
+                                            isVIP: widget.isVIP,
+                                          )),
                                 );
-                              },
-                              child: _buildProfileCard(
-                                profile['fullname'],
-                                profile['phone'],
-                              ),
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Choosedoctor(
+                                            profileId: profile['id'],
+                                            patientname: profile['fullname'],
+                                          )),
+                                );
+                              }
+                            },
+                            child: _buildProfileCard(
+                              profile['fullname'],
+                              profile['phone'],
                             ),
-                          );
-                        },
-                      ),
-              ],
+                          ),
+                        );
+                      },
+                    ),
             ),
             SizedBox(height: 24),
             Spacer(),
@@ -131,9 +148,23 @@ class ChooseProfileState extends State<ChooseProfile> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add, size: 32, color: Colors.blue),
-            SizedBox(height: 8),
-            Text('Thêm', style: TextStyle(color: Colors.blue)),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CreatePatientInformation(
+                              isVIP: widget.isVIP,
+                            )));
+              },
+              child: Column(
+                children: [
+                  Icon(Icons.add, size: 32, color: Colors.blue),
+                  SizedBox(height: 8),
+                  Text('Thêm', style: TextStyle(color: Colors.blue)),
+                ],
+              ),
+            ),
           ],
         ),
       ),

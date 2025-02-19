@@ -3,8 +3,9 @@ import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
 import 'package:medcaremobile/services/GetDoctorApi.dart';
 
 class ChooseDoctorScreen extends StatefulWidget {
-  const ChooseDoctorScreen({Key? key}) : super(key: key);
-
+  const ChooseDoctorScreen({Key? key, required this.isVIP, required this.specId}) : super(key: key);
+  final bool isVIP;
+  final int specId;
   @override
   _ChooseDoctorScreenState createState() => _ChooseDoctorScreenState();
 }
@@ -20,17 +21,32 @@ class _ChooseDoctorScreenState extends State<ChooseDoctorScreen> {
   }
 
   void fetchDoctors() async {
-    final fetchedDoctors = await Getdoctorapi.fetchDoctors();
-    print(fetchedDoctors); // Kiểm tra dữ liệu từ API
-    if (fetchedDoctors != null) {
-      setState(() {
-        doctors = fetchedDoctors;
-        isLoading = false;
-      });
+    if (widget.isVIP) {
+      final fetchedDoctors = await Getdoctorapi.fetchDoctorsbySpecialty(widget.specId);
+      print(fetchedDoctors); // Kiểm tra dữ liệu từ API
+      if (fetchedDoctors != null) {
+        setState(() {
+          doctors = fetchedDoctors;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
     } else {
-      setState(() {
-        isLoading = false;
-      });
+      final fetchedDoctors = await Getdoctorapi.fetchDoctors();
+      print(fetchedDoctors); // Kiểm tra dữ liệu từ API
+      if (fetchedDoctors != null) {
+        setState(() {
+          doctors = fetchedDoctors;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 

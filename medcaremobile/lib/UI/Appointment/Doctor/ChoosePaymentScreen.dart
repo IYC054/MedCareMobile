@@ -1,26 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:medcaremobile/UI/Appointment/Doctor/ChooseBill.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:medcaremobile/UI/Viewpayment/PaymentWebView.dart';
+import 'package:medcaremobile/services/GetAppointmentApi.dart';
 import 'package:medcaremobile/services/IpNetwork.dart';
+import 'package:medcaremobile/services/PaymentApi.dart';
 import 'dart:convert';
+import 'package:medcaremobile/services/StorageService.dart';
+import 'package:show_custom_snackbar/show_custom_snackbar.dart';
 
 class ChoosePaymentScreen extends StatefulWidget {
-  const ChoosePaymentScreen(
-      {super.key,
-      required this.specialtyname,
-      required this.profileId,
-      this.selectedDoctorId,
-      this.selectedSpecialtyId,
-      this.selectedWorkTimeId,
-      this.patientName,
-      this.selectDate,
-      this.selectTime,
-      this.Doctorname,
-      this.selectedSpecialtyName,
-      this.isVIP,
-      this.startTime,
-      this.endTime});
+  const ChoosePaymentScreen({
+    super.key,
+    required this.specialtyname,
+    required this.profileId,
+    this.selectedDoctorId,
+    this.selectedSpecialtyId,
+    this.selectedWorkTimeId,
+    this.patientName,
+    this.selectDate,
+    this.selectTime,
+    this.Doctorname,
+    this.selectedSpecialtyName,
+    this.isVIP,
+    this.startTime,
+    this.endTime,
+  });
+
   final String specialtyname;
   final int profileId;
   final int? selectedDoctorId;
@@ -34,15 +41,19 @@ class ChoosePaymentScreen extends StatefulWidget {
   final String? selectTime;
   final String? startTime;
   final String? endTime;
+
   @override
   State<ChoosePaymentScreen> createState() => _ChoosePaymentScreenState();
 }
 
 class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
+  String selectedPayment = ''; // Phương thức mặc định
   static const ip = Ipnetwork.ip;
 
-  String selectedPayment = ''; // Phương thức mặc định
-
+  String formatDate(DateTime date) {
+    return "${date.day}/${date.month}/${date.year}";
+  }
+  
   void selectPayment(String payment) {
     setState(() {
       selectedPayment = payment;
@@ -50,50 +61,104 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
   }
 
   Future<void> _handlePayment() async {
-    const ip = Ipnetwork.ip;
-    const token =
-        "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJuZ2hpbWF0aGl0LmNvbSIsInN1YiI6Im5naGltYXRoaXRAZXhhbXBsZS5jb20iLCJpZCI6MSwiZXhwIjoxNzM5NDY1OTMzLCJpYXQiOjE3Mzk0Mjk5MzMsInNjb3BlIjoiUEFUSUVOVFMgVklFV19QQVRJRU5UIEVESVRfUEFUSUVOVCJ9.OegU67T2g4_nBcotlsxCuT72UpBdFGYnZPyGst7FqtwaBZrYMrH4dkoclq8AJxostiy_Ul_7xpHgkAj6Snox_g";
+    String? token = await StorageService.getToken();
     String apiUrl = 'http://$ip:8080/api/payments/create-payment';
 
     try {
-      final response = await http.post(Uri.parse("$apiUrl?amount=${widget.isVIP! ? 300000 : 150000}&orderInfo=thanh toán medcare"), headers: {
-        "Authorization": "Bearer $token",
-        "Content-Type": "application/json",
-      });
-      print("Phản hồi từ API: ${response.statusCode}, body: ${response.body}");
+      final response = await http.post(
+          Uri.parse(
+              "$apiUrl?amount=${widget.isVIP! ? 300000 : 150000}&orderInfo=thanh toán medcare"),
+          headers: {
+            "Authorization": "Bearer $token",
+            "Content-Type": "application/json",
+          });
       if (response.statusCode == 200) {
         String paymentUrl = response.body;
         if (paymentUrl.isNotEmpty) {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => PaymentWebView(
-                      paymentUrl: paymentUrl,
-                      profileId: widget.profileId,
-                      patientName: widget.patientName,
-                      selectedDoctorId: widget.selectedDoctorId,
-                      selectedSpecialtyId: widget.selectedSpecialtyId,
-                      selectedWorkTimeId: widget.selectedWorkTimeId,
-                      selectDate: widget.selectDate,
-                      selectTime: widget.selectTime,
-                      Doctorname: widget.Doctorname,
-                      selectedSpecialtyName: widget.specialtyname,
-                      isVIP: widget.isVIP,
-                      startTime: widget.startTime,
-                      endTime: widget.endTime,
-                    )),
+              builder: (context) => PaymentWebView(
+                paymentUrl: paymentUrl,
+                profileId: widget.profileId,
+                patientName: widget.patientName,
+                selectedDoctorId: widget.selectedDoctorId,
+                selectedSpecialtyId: widget.selectedSpecialtyId,
+                selectedWorkTimeId: widget.selectedWorkTimeId,
+                selectDate: widget.selectDate,
+                selectTime: widget.selectTime,
+                Doctorname: widget.Doctorname,
+                selectedSpecialtyName: widget.specialtyname,
+                isVIP: widget.isVIP,
+                startTime: widget.startTime,
+                endTime: widget.endTime,
+              ),
+            ),
           );
         } else {
           throw 'Không thể mở đường dẫn: URL rỗng!';
         }
+      } else {
+        throw 'Lỗi khi gọi API thanh toán';
       }
     } catch (e) {
       print('Lỗi khi gọi API thanh toán: $e');
     }
   }
 
+  Future<void> _handlePaymentAtHospital() async {
+    try {
+      print(
+          "doctor: ${widget.selectedDoctorId} \n specialty: ${widget.specialtyname} \n worktimeId: ${widget.selectedWorkTimeId} \n patientProfileId: ${widget.profileId}");
+      int bookingId = await GetAppointmentApi().createAppointment(
+        doctorId: widget.selectedDoctorId!,
+        specialty: widget.specialtyname!,
+        worktimeId: widget.selectedWorkTimeId!,
+        patientProfileId: widget.profileId,
+      );
+      if (bookingId != 0) {
+        String? transcode = await Paymentapi.createPayment(
+          appointmentid: bookingId,
+          amount: widget.isVIP! ? 300000 : 150000,
+          isVIP: widget.isVIP!,
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Choosebill(
+              bookingId: transcode!,
+              patientName: widget.patientName!,
+              paymentTime:
+                  "${formatDate(widget.selectDate!)} - ${widget.selectTime!}",
+              doctorName: "BS. ${widget.Doctorname}",
+              specialization: widget.specialtyname!,
+              totalAmount: widget.isVIP! ? "300.000 VND" : "150.000 VND",
+            ),
+          ),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: ShowCustomSnackBar(
+            title: "Đặt lịch thành công.",
+            label: "",
+            color: Colors.green,
+            icon: Icons.remove_circle_outline,
+          ),
+          behavior: SnackBarBehavior.floating,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+        ));
+      } else {
+        print("Không thể tạo cuộc hẹn.");
+      }
+    } catch (e) {
+      print("Lỗi khi xử lý thanh toán: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chọn thông tin khám'),
@@ -147,6 +212,15 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
               selected: selectedPayment == 'VNPAY',
               onTap: () => selectPayment('VNPAY'),
             ),
+            widget.isVIP ?? false
+                ? SizedBox.shrink()
+                : PaymentOption(
+                    title: 'Thanh toán tại bệnh viện',
+                    imagepath:
+                        "https://img.freepik.com/premium-vector/hospital-logo-vector_1277164-14255.jpg?w=740",
+                    selected: selectedPayment == 'Hospital',
+                    onTap: () => selectPayment('Hospital'),
+                  ),
             Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -176,8 +250,13 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
                   child: Text('Quay lại'),
                 ),
                 ElevatedButton(
-                  onPressed: () =>
-                      {print("Nút Thanh toán đã được nhấn!"), _handlePayment()},
+                  onPressed: () {
+                    if (selectedPayment == "VNPAY") {
+                      _handlePayment();
+                    } else if (selectedPayment == "Hospital") {
+                      _handlePaymentAtHospital();
+                    }
+                  },
                   child: Text('Thanh toán'),
                 ),
               ],
