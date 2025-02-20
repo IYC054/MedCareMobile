@@ -128,6 +128,8 @@ class ChoosedoctorState extends State<Choosedoctor> {
       MaterialPageRoute(
           builder: (context) => Choosedatescreen(
                 id: selectedDoctorId!,
+                doctoId: selectedDoctorId,
+                isVIP: isVIP,
               )),
     );
 

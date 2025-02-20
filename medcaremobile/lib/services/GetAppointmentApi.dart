@@ -162,6 +162,23 @@ class GetAppointmentApi {
       return [];
     }
   }
+    static Future<List<dynamic>> fetchVipAppointmentbyDoctorId(int id) async {
+    try {
+      final url = Uri.parse('$baseUrlVip/doctors/$id');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final utf8Decoded = utf8.decode(response.bodyBytes); // Fix encoding
+        final List<dynamic> data = jsonDecode(utf8Decoded);
+        return data.isNotEmpty ? data : [];
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print("Lỗi khi gọi API: $e");
+      return [];
+    }
+  }
   static Future<String> GenerateQRApointment(int id, bool isVIP) async {
     try {
       final url =

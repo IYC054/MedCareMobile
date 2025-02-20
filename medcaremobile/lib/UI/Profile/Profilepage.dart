@@ -3,6 +3,7 @@ import 'package:medcaremobile/UI/Profile/HistoryPage.dart';
 import 'package:medcaremobile/UI/Profile/PatientFilePage.dart';
 import 'package:medcaremobile/UI/Profile/PersonalProfile.dart';
 import 'package:medcaremobile/UI/Profile/PrivacyPolicyPage.dart';
+import 'package:medcaremobile/UI/Profile/ProfileAppointment.dart';
 import 'package:medcaremobile/UI/Profile/ProfilePage.dart';
 import 'package:medcaremobile/UI/Profile/RegulationsPage.dart';
 import 'package:medcaremobile/UI/Profile/TermsOfServicePage.dart';
@@ -42,28 +43,29 @@ class _ProfilepageState extends State<Profilepage> {
     super.initState();
     _loadUserData();
   }
-Future<void> checkLoginStatus() async {
-    String? token = await StorageService.getToken(); // 🔹 Dùng `await` để lấy giá trị thực
+
+  Future<void> checkLoginStatus() async {
+    String? token =
+        await StorageService.getToken(); // 🔹 Dùng `await` để lấy giá trị thực
     setState(() {
       isLoggedIn = token != null && token.isNotEmpty;
     });
-
   }
- void _logout(BuildContext context) async {
-  await StorageService.clearToken();  // Đảm bảo clear token trước
-  checkLoginStatus();  // Gọi lại checkLoginStatus để cập nhật lại trạng thái
 
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("Đăng xuất thành công!")),
-  );
+  void _logout(BuildContext context) async {
+    await StorageService.clearToken(); // Đảm bảo clear token trước
+    checkLoginStatus(); // Gọi lại checkLoginStatus để cập nhật lại trạng thái
 
-  // Điều hướng về màn hình chính
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => Home()),
-  );
-}
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Đăng xuất thành công!")),
+    );
 
+    // Điều hướng về màn hình chính
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => Home()),
+    );
+  }
 
   void _callCustomerService() async {
     const phoneNumber = "tel:19002115";
@@ -128,7 +130,7 @@ Future<void> checkLoginStatus() async {
   @override
   Widget build(BuildContext context) {
     print(userdata?["name"]);
-    print(userdata?["phone"]);
+    // print(userdata?["role"][0]['name']);
     return Scaffold(
       backgroundColor: Colors.blue,
       appBar: AppBar(
@@ -192,6 +194,9 @@ Future<void> checkLoginStatus() async {
                             "Thông tin cá nhân", context),
                         buildListTile(
                             Icons.personal_injury, "Lịch khám", context),
+                        if (userdata!['role'][0]['name'] == "DOCTOR")
+                          buildListTile(
+                              Icons.calendar_month, "Lịch hẹn của bác sĩ", context),
                         buildListTile(
                             Icons.payment, "Lịch sử thanh toán", context),
                         Divider(
@@ -285,6 +290,14 @@ Future<void> checkLoginStatus() async {
             MaterialPageRoute(
                 builder: (context) => const PatientFilePage(
                       title: "Lịch khám",
+                    )),
+          );
+        } else if (title == "Lịch hẹn của bác sĩ") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const Profileappointment(
+                      title: "Lịch hẹn của bác sĩ",
                     )),
           );
         } else if (title == "Lịch sử thanh toán") {

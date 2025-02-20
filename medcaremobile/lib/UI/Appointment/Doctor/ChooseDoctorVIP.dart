@@ -10,7 +10,10 @@ import 'dart:math';
 
 class Choosedoctorvip extends StatefulWidget {
   const Choosedoctorvip(
-      {super.key, required this.profileId, required this.patientname, required this.isVIP});
+      {super.key,
+      required this.profileId,
+      required this.patientname,
+      required this.isVIP});
   final int profileId;
   final String patientname;
   final bool isVIP;
@@ -30,14 +33,16 @@ class ChoosedoctorvipState extends State<Choosedoctorvip> {
   String? startTime;
   String? endTime;
 
-
   // Thêm phương thức này để gán cho CustomCheckbox
-
 
   void _selectDoctor() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ChooseDoctorScreen(isVIP: true, specId: selectedSpecialtyId!,)),
+      MaterialPageRoute(
+          builder: (context) => ChooseDoctorScreen(
+                isVIP: true,
+                specId: selectedSpecialtyId!,
+              )),
     );
 
     if (result != null && result is Map<String, dynamic>) {
@@ -52,8 +57,7 @@ class ChoosedoctorvipState extends State<Choosedoctorvip> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Choosespecialtyscreen(
-        ),
+        builder: (context) => Choosespecialtyscreen(),
       ),
     );
 
@@ -64,14 +68,16 @@ class ChoosedoctorvipState extends State<Choosedoctorvip> {
       });
       print("selectedSpecialtyId $selectedSpecialtyId");
     }
-    
   }
+
   void _selectDate() async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => Choosedatescreen(
                 id: selectedDoctorId!,
+                doctoId: selectedDoctorId,
+                isVIP: widget.isVIP,
               )),
     );
 
@@ -149,7 +155,6 @@ class ChoosedoctorvipState extends State<Choosedoctorvip> {
               ),
             ),
 
-            
             const SizedBox(height: 16),
             // Options
             Expanded(
@@ -157,8 +162,7 @@ class ChoosedoctorvipState extends State<Choosedoctorvip> {
                 children: [
                   _buildOptionCard(
                     icon: Icons.health_and_safety_outlined,
-                    title: 
-                    selectedSpecialtyName ?? 'Chuyên khoa',
+                    title: selectedSpecialtyName ?? 'Chuyên khoa',
                     onTap: _selectSpecialty,
                   ),
                   _buildOptionCard(
@@ -185,8 +189,9 @@ class ChoosedoctorvipState extends State<Choosedoctorvip> {
                     icon: Icons.access_time,
                     title: selectTime ?? 'Giờ khám',
                     onTap: _selectTime,
-                    enabled:
-                        widget.isVIP ? selectDate != null : selectedWorkId != null,
+                    enabled: widget.isVIP
+                        ? selectDate != null
+                        : selectedWorkId != null,
                   ),
                 ],
               ),

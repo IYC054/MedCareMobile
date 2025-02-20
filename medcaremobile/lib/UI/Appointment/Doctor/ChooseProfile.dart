@@ -46,7 +46,15 @@ class ChooseProfileState extends State<ChooseProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(),
+       appBar: AppBar(
+        title: const Text('Đặt khám'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -215,7 +223,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.white,
-      elevation: 0,
+      // elevation: 0,
       title: Text(
         'Đặt khám',
         style: TextStyle(color: Colors.black, fontSize: 18),

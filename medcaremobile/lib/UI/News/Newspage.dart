@@ -34,7 +34,9 @@ class _NewspagePageState extends State<NewspagePage> {
 
       if (response.statusCode == 200) {
         setState(() {
-          newsList = json.decode(response.body);
+        final utf8Decoded = utf8.decode(response.bodyBytes); // Fix encoding
+
+          newsList = json.decode(utf8Decoded);
           isLoading = false;
         });
       } else {
@@ -85,7 +87,7 @@ class _NewspagePageState extends State<NewspagePage> {
                               title: news['title'] ?? 'Không có tiêu đề',
                               description: news['description'] ?? 'Không có nội dung',
                               date: news['date'] ?? 'Không rõ ngày',
-                              imageUrl: news['images'] ?? '',
+                              imageUrl: news['images'].replaceAll("localhost", ip) ?? '',
                             ),
                           ),
                         );
@@ -94,7 +96,7 @@ class _NewspagePageState extends State<NewspagePage> {
                         news['title'] ?? 'Không có tiêu đề',
                         news['description'] ?? 'Không có nội dung',
                         news['date'] ?? 'Không rõ ngày',
-                        news['images'] ?? '',
+                        news['images'].replaceAll("localhost", ip) ?? '',
                       ),
                     );
                   },

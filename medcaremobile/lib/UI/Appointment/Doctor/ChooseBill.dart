@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
+import 'package:medcaremobile/UI/Profile/PatientFilePage.dart';
 
 class Choosebill extends StatelessWidget {
   final String bookingId;
@@ -67,7 +68,7 @@ class Choosebill extends StatelessWidget {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.popUntil(context, (route) => route.isFirst);
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => PatientFilePage(title: "Lịch khám"),));
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,

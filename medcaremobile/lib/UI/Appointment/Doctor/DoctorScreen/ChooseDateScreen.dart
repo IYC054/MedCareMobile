@@ -1,17 +1,29 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
+import 'package:medcaremobile/services/GetAppointmentApi.dart';
+import 'package:medcaremobile/services/GetDoctorApi.dart';
 import 'package:medcaremobile/services/GetDoctorWorking.dart';
+import 'package:medcaremobile/services/IpNetwork.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class Choosedatescreen extends StatefulWidget {
-  const Choosedatescreen({super.key, required this.id});
+  const Choosedatescreen(
+      {super.key, required this.id, this.doctoId, this.isVIP});
   final int id;
-
+  final int? doctoId;
+  final bool? isVIP;
   @override
   ChoosedatescreenState createState() => ChoosedatescreenState();
 }
 
 class ChoosedatescreenState extends State<Choosedatescreen> {
+  List<Map<String, dynamic>> appointments = [];
+  List<dynamic> vipappointments = [];
+  static const ip = Ipnetwork.ip;
+
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   int? _selectedWorkId; // ID bác sĩ tương ứng với ngày chọn
@@ -22,6 +34,70 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
   void initState() {
     super.initState();
     fetchDoctors();
+    fetchAppointments();
+    fetchVipAppointments();
+    print("AVC: ${widget.doctoId}");
+  }
+
+  Future<void> fetchVipAppointments() async {
+    final fetchVipAppointment =
+        await GetAppointmentApi.fetchVipAppointmentbyDoctorId(widget.doctoId!);
+    print(fetchVipAppointment); // Kiểm tra dữ liệu từ API
+    if (fetchVipAppointment != null) {
+      setState(() {
+        vipappointments = fetchVipAppointment.map((item) {
+          return {
+            "id": item["id"],
+            "date": item["workDate"],
+            "reason": item["type"],
+            "status": item["status"],
+          };
+        }).toList();
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> fetchAppointments() async {
+    String apiUrl =
+        "http://$ip:8080/api/appointment/doctors/${widget.doctoId!}";
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        final utf8Decoded = utf8.decode(response.bodyBytes);
+        List<dynamic> data = jsonDecode(utf8Decoded);
+        setState(() {
+          appointments = data.map((item) {
+            return {
+              "id": item["id"],
+              "date": item["worktime"]["workDate"],
+              "reason": item["type"],
+              "status": item["payments"] != null && item["payments"].isNotEmpty
+                  ? item["payments"][0]
+                      ["status"] // Lấy status của payment đầu tiên
+                  : "Không có thanh toán",
+              "paymentId":
+                  item["payments"] != null && item["payments"].isNotEmpty
+                      ? item["payments"][0]["id"] // Lấy ID của payment đầu tiên
+                      : null,
+            };
+          }).toList();
+          isLoading = false;
+        });
+      } else {
+        throw Exception("Failed to load appointments");
+      }
+    } catch (e) {
+      print("Error fetching appointments: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   void fetchDoctors() async {
@@ -38,7 +114,7 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
             "id": doctor['id'], // Lấy ID bác sĩ từ API
           };
         }).toList();
-        print("Danh sách ngày làm việc: $workDates");
+        // print("Danh sách ngày làm việc: $workDates");
         isLoading = false;
       });
     } else {
@@ -48,8 +124,19 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
     }
   }
 
+  int getAppointmentCount(DateTime day) {
+    return appointments
+            .where((appt) => isSameDay(DateTime.parse(appt['date']), day))
+            .length +
+        vipappointments
+            .where((vip) => isSameDay(DateTime.parse(vip['date']), day))
+            .length;
+  }
+
   @override
   Widget build(BuildContext context) {
+    print(
+        "appoitnemnt ${appointments.length} - ${vipappointments.length} doctorID: ${widget.doctoId}");
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chọn ngày khám'),
@@ -79,7 +166,22 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
                         (date) => isSameDay(date['workDate'], selectedDay),
                         orElse: () => {},
                       );
+                      int totalAppointments = getAppointmentCount(selectedDay);
 
+                      if (totalAppointments > 10) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Ngày này đã đầy lịch hẹn!"),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        return;
+                      }
+
+                      setState(() {
+                        _selectedDay = selectedDay;
+                        _focusedDay = focusedDay;
+                      });
                       if (selectedWorkDate.isNotEmpty) {
                         setState(() {
                           _selectedDay = selectedDay;
@@ -90,8 +192,7 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
                       }
                     },
                     enabledDayPredicate: (day) {
-                      return workDates
-                          .any((date) => isSameDay(date['workDate'], day));
+                      return true; // Chỉ disable nếu số lịch vượt quá 10
                     },
                     calendarStyle: CalendarStyle(
                       selectedDecoration: BoxDecoration(
@@ -114,11 +215,31 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
                             .any((date) => isSameDay(date['workDate'], day));
 
                         if (isWorkDate) {
+                          int countAppointments = appointments
+                              .where((appointment) => isSameDay(
+                                  DateTime.parse(appointment["date"]), day))
+                              .length;
+                          int countVipAppointments = vipappointments
+                              .where((vip) =>
+                                  isSameDay(DateTime.parse(vip["date"]), day))
+                              .length;
+
+                          int totalAppointments =
+                              countAppointments + countVipAppointments;
+
+                          Color bgColor =
+                              Colors.green; // Mặc định màu xanh (Còn trống)
+                          if (totalAppointments > 10) {
+                            bgColor = Colors.red; // Nếu > 10, màu đỏ (Đã hết)
+                          } else if (totalAppointments > 2) {
+                            bgColor =
+                                Colors.amber; // Nếu > 2, màu vàng (Gần đầy)
+                          }
+
                           return Container(
                             margin: EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color:
-                                  Colors.green, // Ngày có thể chọn có nền xanh
+                              color: bgColor,
                               shape: BoxShape.circle,
                             ),
                             alignment: Alignment.center,
@@ -133,6 +254,17 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
                     ),
                   ),
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildStatusBox(Colors.green, "Còn trống"),
+                    SizedBox(width: 10),
+                    _buildStatusBox(Colors.amber, "Gần đầy"),
+                    SizedBox(width: 10),
+                    _buildStatusBox(Colors.red, "Đã hết"),
+                  ],
+                ),
+                const SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: ElevatedButton(
@@ -147,8 +279,26 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
                     child: const Text('Xác nhận'),
                   ),
                 ),
+                const SizedBox(height: 16),
               ],
             ),
+    );
+  }
+
+  Widget _buildStatusBox(Color color, String text) {
+    return Row(
+      children: [
+        Container(
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        SizedBox(width: 5),
+        Text(text, style: TextStyle(fontSize: 16)),
+      ],
     );
   }
 }

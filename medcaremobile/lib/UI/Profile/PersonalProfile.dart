@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import thư viện để định dạng ngày tháng
+import 'package:intl/intl.dart';
+import 'package:medcaremobile/services/StorageService.dart'; // Import thư viện để định dạng ngày tháng
 
 class PersonalProfile extends StatefulWidget {
   const PersonalProfile({super.key, required this.title});
@@ -9,20 +10,44 @@ class PersonalProfile extends StatefulWidget {
 }
 
 class _PersonalProfileState extends State<PersonalProfile> {
-  final TextEditingController _phoneController =
-      TextEditingController(text: "0799951104");
-  final TextEditingController _firstNameController =
-      TextEditingController(text: "Nguyễn Anh");
-  final TextEditingController _lastNameController =
-      TextEditingController(text: "Tuấn");
-  final TextEditingController _emailController =
-      TextEditingController(text: "tuann300724@gmail.com");
+  Map<String, dynamic>? userdata;
+  bool isLoading = true;
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
 
   String _gender = "Nam"; // Mặc định là Nam
   DateTime? _selectedDate; // Ngày sinh đã chọn
 
+  Future<void> _loadUserData() async {
+    final user = await StorageService.getUser();
+    if (user != null) {
+      print("USER PROFILE $user");
+      setState(() {
+        userdata = user;
+        _phoneController.text = user["phone"] ?? "";
+        _firstNameController.text = user["name"] ?? "";
+        _emailController.text = user["email"] ?? "";
+        _gender = user["gender"] == "Male" ? "Nam" : "Nữ";
+        _selectedDate = user["birthdate"] != null
+            ? DateTime.parse(user["birthdate"])
+            : null;
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loadUserData();
+  }
+
   @override
   Widget build(BuildContext context) {
+    print("user $userdata");
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
@@ -53,11 +78,12 @@ class _PersonalProfileState extends State<PersonalProfile> {
                         const Icon(Icons.person, color: Colors.white, size: 40),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    "Nguyễn Anh Tuấn",
+                  Text(
+                    userdata?["name"],
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  Text("079****104", style: TextStyle(color: Colors.grey[600])),
+                  Text(userdata?["phone"],
+                      style: TextStyle(color: Colors.grey[600])),
                 ],
               ),
             ),
@@ -66,7 +92,6 @@ class _PersonalProfileState extends State<PersonalProfile> {
             // Các trường thông tin
             buildTextField("Số điện thoại", _phoneController, isReadOnly: true),
             buildTextField("Họ và tên đệm", _firstNameController),
-            buildTextField("Tên", _lastNameController),
 
             // Chọn ngày sinh + giới tính
             Row(

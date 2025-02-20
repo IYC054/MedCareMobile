@@ -49,7 +49,7 @@ class _HomeState extends State<Home> {
 
   final pages = [
     Homepage(),
-    NotificationPage(),
+    NewspagePage(),
     Profilepage(),
   ];
 
@@ -79,6 +79,8 @@ class _HomeState extends State<Home> {
               label: 'Cá nhân',
             ),
           ],
-        ));
+        ),
+        floatingActionButton: FloatingActionButton(onPressed: (){}, child: Icon(Icons.chat),),
+        );
   }
 }
