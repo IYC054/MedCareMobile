@@ -3,7 +3,9 @@ import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
 import 'package:medcaremobile/services/GetDoctorApi.dart';
 
 class ChooseDoctorScreen extends StatefulWidget {
-  const ChooseDoctorScreen({Key? key, required this.isVIP, required this.specId}) : super(key: key);
+  const ChooseDoctorScreen(
+      {Key? key, required this.isVIP, required this.specId})
+      : super(key: key);
   final bool isVIP;
   final int specId;
   @override
@@ -22,7 +24,8 @@ class _ChooseDoctorScreenState extends State<ChooseDoctorScreen> {
 
   void fetchDoctors() async {
     if (widget.isVIP) {
-      final fetchedDoctors = await Getdoctorapi.fetchDoctorsbySpecialty(widget.specId);
+      final fetchedDoctors =
+          await Getdoctorapi.fetchDoctorsbySpecialty(widget.specId);
       print(fetchedDoctors); // Kiểm tra dữ liệu từ API
       if (fetchedDoctors != null) {
         setState(() {
@@ -86,17 +89,20 @@ class _ChooseDoctorScreenState extends State<ChooseDoctorScreen> {
                       itemCount: doctors.length,
                       itemBuilder: (context, index) {
                         final doctor = doctors[index];
-                        return _buildDoctorCard(
-                          context,
-                          id: doctor['id'] ?? 0, // Nếu null thì mặc định là 0
-                          name: doctor['account']?['name'] ?? "Không có tên",
-                          gender: doctor['gender'] == "Female" ? "Nữ" : "Nam",
-                          specialty: (doctor['specialties'] != null &&
-                                  doctor['specialties'].isNotEmpty)
-                              ? doctor['specialties'][0]['name'] ??
-                                  "Không có chuyên khoa"
-                              : "Không có chuyên khoa",
-                        );
+                        print("DOCTOR VIP: ${doctor['vip'] ? "b" : "a"}");
+                        if (doctor['vip']) {
+                          return _buildDoctorCard(
+                            context,
+                            id: doctor['id'] ?? 0, // Nếu null thì mặc định là 0
+                            name: doctor['account']?['name'] ?? "Không có tên",
+                            gender: doctor['gender'] == "Female" ? "Nữ" : "Nam",
+                            specialty: (doctor['specialties'] != null &&
+                                    doctor['specialties'].isNotEmpty)
+                                ? doctor['specialties'][0]['name'] ??
+                                    "Không có chuyên khoa"
+                                : "Không có chuyên khoa",
+                          );
+                        }
                       },
                     ),
             ),

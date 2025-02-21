@@ -22,18 +22,35 @@ class _PatientFilePageState extends State<PatientFilePage> {
   bool isLoading = true;
   bool isVipSelected = false; // Thêm biến để kiểm tra trạng thái chọn nút Vip
   static const ip = Ipnetwork.ip;
+  static Map<String, dynamic>? user;
   List<dynamic> patientID = [];
   @override
   void initState() {
     super.initState();
     fetchAppointments(); // Mặc định load "Khám Thường"
     fetchPatientData();
+    loadUserData();
+  }
+
+  // Method to load user data asynchronously
+  static Future<void> loadUserData() async {
+    user = await StorageService.getUser();
+    if (user != null) {
+      print("Lay patient Data: $user");
+    } else {
+      print("No user data found. $user");
+    }
   }
 
   Future<void> fetchPatientData() async {
-    final fetchedProfiles = await Getpatientapi.getPatientbyAccountid();
+    if (user == null || !user!.containsKey('id')) {
+      loadUserData();
+    }
+    final fetchedProfiles =
+        await Getpatientapi.getPatientbyAccountid(user!['id']);
     setState(() {
       patientID = fetchedProfiles;
+      print("FEADSADADSA: $fetchedProfiles");
     });
     if (patientID.isNotEmpty) {
       fetchAppointments(); // Gọi fetchAppointments sau khi có patientID

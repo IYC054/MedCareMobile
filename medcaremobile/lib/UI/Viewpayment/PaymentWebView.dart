@@ -4,7 +4,9 @@ import 'package:medcaremobile/UI/Appointment/Doctor/ChooseBill.dart';
 import 'package:medcaremobile/UI/Profile/PatientFilePage.dart';
 import 'package:medcaremobile/UI/Profile/ProfilePage.dart';
 import 'package:medcaremobile/services/GetAppointmentApi.dart';
+import 'package:medcaremobile/services/GetPatientApi.dart';
 import 'package:medcaremobile/services/PaymentApi.dart';
+import 'package:medcaremobile/services/StorageService.dart';
 
 class PaymentWebView extends StatefulWidget {
   final String paymentUrl;
@@ -38,7 +40,7 @@ class PaymentWebView extends StatefulWidget {
       this.startTime,
       this.endTime,
       this.isNormal = true,
-      this.PaymentID});
+      this.PaymentID = 0});
 
   @override
   _PaymentWebViewState createState() => _PaymentWebViewState();
@@ -46,6 +48,30 @@ class PaymentWebView extends StatefulWidget {
 
 class _PaymentWebViewState extends State<PaymentWebView> {
   InAppWebViewController? webViewController;
+  List<dynamic> patientId = []; // Initialize as an empty list
+  static Map<String, dynamic>? user;
+
+  // Method to load user data asynchronously
+  static Future<void> loadUserData() async {
+    user = await StorageService.getUser();
+    if (user != null) {
+      print("Lay patient Data: $user");
+    } else {
+      print("No user data found. $user");
+    }
+  }
+
+  // Constructor
+
+  // Async method to load patient data
+  Future<void> loadPatientData() async {
+    if (user == null) {
+      loadUserData();
+    }
+    // Wait for the data to be loaded before using it
+    patientId = await Getpatientapi.getPatientbyAccountid(user!['id']);
+    print("Patient ID loaded: $patientId");
+  }
 
   String formatDate(DateTime date) {
     return "${date.day}/${date.month}/${date.year}";
@@ -55,6 +81,23 @@ class _PaymentWebViewState extends State<PaymentWebView> {
 
   @override
   Widget build(BuildContext context) {
+    print('''
+profileId: ${widget.profileId}
+selectedDoctorId: ${widget.selectedDoctorId}
+selectedSpecialtyName: ${widget.selectedSpecialtyName}
+selectedSpecialtyId: ${widget.selectedSpecialtyId}
+selectedWorkTimeId: ${widget.selectedWorkTimeId}
+patientName: ${widget.patientName}
+selectDate: ${widget.selectDate}
+selectTime: ${widget.selectTime}
+Doctorname: ${widget.Doctorname}
+isVIP: ${widget.isVIP}
+startTime: ${widget.startTime}
+endTime: ${widget.endTime}
+isNormal: ${widget.isNormal}
+PaymentID: ${widget.PaymentID}
+''');
+
     return Scaffold(
       appBar: AppBar(title: Text("Thanh toán VNPAY")),
       body: _isPaymentCompleted
@@ -96,12 +139,14 @@ class _PaymentWebViewState extends State<PaymentWebView> {
   void _handlePaymentAppointment() async {
     String? transcode =
         await Paymentapi.UpdatestatusPayment(paymentID: widget.PaymentID!);
-      if(transcode != null){
-         Navigator.pushReplacement(
+    if (transcode != null) {
+      Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => PatientFilePage(title: "Lịch khám",)));
-      }
+              builder: (context) => PatientFilePage(
+                    title: "Lịch khám",
+                  )));
+    }
   }
 
   void _handlePaymentSuccessISVIP() async {
@@ -112,9 +157,13 @@ class _PaymentWebViewState extends State<PaymentWebView> {
           patientProfileId: widget.profileId!,
           startTime: widget.startTime!,
           endTime: widget.endTime!,
+          patientID: patientId[0]['id'],
           worktime: DateTime.parse(widget.selectDate.toString()));
       String? transcode = await Paymentapi.createPayment(
-          appointmentid: bookingId, amount: 300000, isVIP: widget.isVIP!, status: "Đã thanh toán");
+          appointmentid: bookingId,
+          amount: 300000,
+          isVIP: widget.isVIP!,
+          status: "Đã thanh toán");
 
       if (bookingId != 0) {
         Navigator.pushReplacement(
@@ -146,9 +195,13 @@ class _PaymentWebViewState extends State<PaymentWebView> {
         specialty: widget.selectedSpecialtyName!,
         worktimeId: widget.selectedWorkTimeId!,
         patientProfileId: widget.profileId!,
+        patientID: patientId[0]['id'],
       );
       String? transcode = await Paymentapi.createPayment(
-          appointmentid: bookingId, amount: 150000, isVIP: widget.isVIP!, status: "Đã thanh toán");
+          appointmentid: bookingId,
+          amount: 150000,
+          isVIP: widget.isVIP!,
+          status: "Đã thanh toán");
       if (bookingId != 0) {
         Navigator.pushReplacement(
           context,

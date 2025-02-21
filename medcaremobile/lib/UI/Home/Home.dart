@@ -2,6 +2,7 @@ import 'package:curved_labeled_navigation_bar/curved_navigation_bar.dart';
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
 import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/Home/CameraPage.dart';
+import 'package:medcaremobile/UI/Home/Chat_screen.dart';
 import 'package:medcaremobile/UI/Home/Homepage.dart';
 import 'package:medcaremobile/UI/Login/LoginPage.dart';
 import 'package:medcaremobile/UI/News/Newspage.dart';
@@ -80,7 +81,9 @@ class _HomeState extends State<Home> {
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(onPressed: (){}, child: Icon(Icons.chat),),
+        floatingActionButton: FloatingActionButton(onPressed: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(),));
+        }, child: Icon(Icons.chat),),
         );
   }
 }

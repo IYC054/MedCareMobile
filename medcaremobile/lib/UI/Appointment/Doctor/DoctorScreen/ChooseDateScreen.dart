@@ -166,6 +166,17 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
                         (date) => isSameDay(date['workDate'], selectedDay),
                         orElse: () => {},
                       );
+                      if (selectedWorkDate.isEmpty) {
+                        // Hiển thị thông báo nếu ngày không nằm trong danh sách workDates
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                "Ngày này bác sĩ không làm việc, vui lòng chọn ngày khác."),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        return; // Không cập nhật state nếu ngày không hợp lệ
+                      }
                       int totalAppointments = getAppointmentCount(selectedDay);
 
                       if (totalAppointments > 10) {

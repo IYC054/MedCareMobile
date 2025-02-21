@@ -5,19 +5,33 @@ import 'package:medcaremobile/services/IpNetwork.dart';
 import 'package:medcaremobile/services/StorageService.dart';
 
 class GetAppointmentApi {
+  GetAppointmentApi();
   static const ip = Ipnetwork.ip;
   static const String baseUrl = "http://$ip:8080/api/appointment";
   static const String baseUrlVip = "http://$ip:8080/api/vip-appointments";
   static String? token;
   List<dynamic> patientId = []; // Initialize as an empty list
+  static Map<String, dynamic>? user;
+
+  // Method to load user data asynchronously
+  static Future<void> loadUserData() async {
+    user = await StorageService.getUser();
+    if (user != null) {
+      print("Lay patient Data: $user");
+    } else {
+      print("No user data found. $user");
+    }
+  }
 
   // Constructor
-  GetAppointmentApi();
 
   // Async method to load patient data
   Future<void> loadPatientData() async {
+    if (user == null) {
+      loadUserData();
+    }
     // Wait for the data to be loaded before using it
-    patientId = await Getpatientapi.getPatientbyAccountid();
+    patientId = await Getpatientapi.getPatientbyAccountid(user!['id']);
     print("Patient ID loaded: $patientId");
   }
 
@@ -25,12 +39,12 @@ class GetAppointmentApi {
     token = await StorageService.getToken();
   }
 
-  Future<int> createAppointment({
-    required int doctorId,
-    required String specialty,
-    required int worktimeId,
-    required int patientProfileId,
-  }) async {
+  Future<int> createAppointment(
+      {required int doctorId,
+      required String specialty,
+      required int worktimeId,
+      required int patientProfileId,
+      required int patientID}) async {
     try {
       if (patientId.isEmpty) {
         // Make sure the data is loaded before accessing it
@@ -39,7 +53,7 @@ class GetAppointmentApi {
       if (token == null) await init();
       final url = Uri.parse(baseUrl);
       print(
-          "doctoId: ${doctorId} \n specialty: ${specialty} \n patientprofile: ${patientProfileId} \n worktime: ${worktimeId} \n patientID: ${patientId[0]['id']}");
+          "doctoId: ${doctorId} \n specialty: ${specialty} \n patientprofile: ${patientProfileId} \n worktime: ${worktimeId} \n patientID: ${patientID}");
 
       final response = await http.post(
         url,
@@ -47,7 +61,7 @@ class GetAppointmentApi {
           "Content-Type": "application/json",
         },
         body: jsonEncode({
-          "patientId": patientId[0]['id'],
+          "patientId": patientID,
           "doctorId": doctorId,
           "type": "Khám $specialty",
           "status": "Chờ xử lý",
@@ -75,15 +89,15 @@ class GetAppointmentApi {
     }
   }
 
-  Future<int> createVIPAppointment({
-    required int doctorId,
-    required String specialty,
-    required DateTime worktime,
-    required String startTime,
-    required String endTime,
-    required int patientProfileId,
-  }) async {
-   try {
+  Future<int> createVIPAppointment(
+      {required int doctorId,
+      required String specialty,
+      required DateTime worktime,
+      required String startTime,
+      required String endTime,
+      required int patientProfileId,
+      required int patientID}) async {
+    try {
       if (patientId.isEmpty) {
         // Make sure the data is loaded before accessing it
         await loadPatientData();
@@ -98,7 +112,7 @@ class GetAppointmentApi {
           "Content-Type": "application/json",
         },
         body: jsonEncode({
-          "patientId": patientId[0]['id'],
+          "patientId": patientID,
           "doctorId": doctorId,
           "profileId": patientProfileId,
           "type": "Khám $specialty",
@@ -145,6 +159,7 @@ class GetAppointmentApi {
       return [];
     }
   }
+
   static Future<List<dynamic>> fetchVipAppointmentbyPatientId(int id) async {
     try {
       final url = Uri.parse('$baseUrlVip/patient/$id');
@@ -162,7 +177,8 @@ class GetAppointmentApi {
       return [];
     }
   }
-    static Future<List<dynamic>> fetchVipAppointmentbyDoctorId(int id) async {
+
+  static Future<List<dynamic>> fetchVipAppointmentbyDoctorId(int id) async {
     try {
       final url = Uri.parse('$baseUrlVip/doctors/$id');
       final response = await http.get(url);
@@ -179,6 +195,7 @@ class GetAppointmentApi {
       return [];
     }
   }
+
   static Future<String> GenerateQRApointment(int id, bool isVIP) async {
     try {
       final url =
@@ -186,7 +203,7 @@ class GetAppointmentApi {
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
-        return base64Encode(response.bodyBytes); 
+        return base64Encode(response.bodyBytes);
       } else {
         throw Exception("Failed to load QR code");
       }

@@ -5,6 +5,7 @@ import 'package:medcaremobile/UI/Appointment/Doctor/CreatePatientInformation.dar
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
 import 'package:medcaremobile/services/GetPatientApi.dart';
 import 'package:medcaremobile/services/GetProfileApi.dart';
+import 'package:medcaremobile/services/StorageService.dart';
 
 class ChooseProfile extends StatefulWidget {
   const ChooseProfile({super.key, required this.isVIP});
@@ -21,11 +22,25 @@ class ChooseProfileState extends State<ChooseProfile> {
   void initState() {
     super.initState();
     fetchProfiles();
+    loadUserData();
   }
+ static Map<String, dynamic>? user;
 
+  // Method to load user data asynchronously
+  static Future<void> loadUserData() async {
+    user = await StorageService.getUser();
+    if (user != null) {
+      print("Lay user Data: $user");
+    } else {
+      print("No Patient data found.");
+    }
+  }
   void fetchProfiles() async {
     try {
-      final fetchedProfiles = await Getprofileapi().getProfileByUserid();
+      if(user == null){
+        loadUserData();
+      }
+      final fetchedProfiles = await Getprofileapi().getProfileByUserid(user?['id']);
       print(
           "Dữ liệu nhận được từ API: $fetchedProfiles"); // Kiểm tra dữ liệu API trả về
       if (fetchedProfiles != null && fetchedProfiles is List) {

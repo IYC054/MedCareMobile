@@ -48,6 +48,7 @@ dependencies:
   http: ^1.1.2
   image_picker: ^1.0.4
   path: any
+  flutter_chat_bubble: ^2.0.0
   permission_handler: ^11.0.1
 dev_dependencies:
   flutter_test:

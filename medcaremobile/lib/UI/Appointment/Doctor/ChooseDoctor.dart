@@ -28,6 +28,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
   String? selectTime;
   String? startTime;
   String? endTime;
+  bool? checkspec = false;
 
   bool isVIP = false;
 
@@ -50,7 +51,11 @@ class ChoosedoctorState extends State<Choosedoctor> {
   void _selectDoctor() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ChooseDoctorScreen(isVIP: false, specId: 0,)),
+      MaterialPageRoute(
+          builder: (context) => ChooseDoctorScreen(
+                isVIP: false,
+                specId: 0,
+              )),
     );
 
     if (result != null && result is Map<String, dynamic>) {
@@ -65,8 +70,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Choosespecialtyscreen(
-        ),
+        builder: (context) => Choosespecialtyscreen(),
       ),
     );
 
@@ -95,8 +99,8 @@ class ChoosedoctorState extends State<Choosedoctor> {
       final filteredDoctors = fetchedDoctors.where((doctor) {
         if (doctor.containsKey('specialties') &&
             doctor['specialties'] is List) {
-          return doctor['specialties']
-              .any((specialty) => specialty['id'] == specialtyId);
+          return doctor['specialties'].any((specialty) =>
+              specialty['id'] == specialtyId && doctor['vip'] == false);
         }
         return false;
       }).toList();
@@ -109,12 +113,21 @@ class ChoosedoctorState extends State<Choosedoctor> {
         print("randomDoctor: ${randomDoctor['account']['name']}");
 
         setState(() {
+          checkspec = true;
           selectedDoctorId = randomDoctor['id'];
           selectedDoctorName = randomDoctor['account']['name'];
         });
 
         return;
       } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                "Hiện tại ko có bác sĩ nào phù hợp với chuyên khoa này, vui lòng chọn lại hoặc quay lại sau!",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              backgroundColor: Colors.amber),
+        );
         print("Không có bác sĩ nào với specialtyId này.");
       }
     } catch (e) {
@@ -180,6 +193,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
 
   @override
   Widget build(BuildContext context) {
+    print("CHECK $checkspec");
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chọn thông tin khám'),
@@ -207,7 +221,6 @@ class ChoosedoctorState extends State<Choosedoctor> {
               ),
             ),
 
-           
             const SizedBox(height: 16),
             // Options
             Expanded(
@@ -237,7 +250,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
                     onTap: _selectDate,
                     enabled: isVIP
                         ? selectedDoctorId != null
-                        : selectedSpecialtyId != null,
+                        : selectedSpecialtyId != null && checkspec == true,
                   ),
                   _buildOptionCard(
                     icon: Icons.access_time,

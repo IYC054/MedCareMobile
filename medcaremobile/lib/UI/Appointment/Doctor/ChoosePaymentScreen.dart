@@ -4,6 +4,7 @@ import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:medcaremobile/UI/Viewpayment/PaymentWebView.dart';
 import 'package:medcaremobile/services/GetAppointmentApi.dart';
+import 'package:medcaremobile/services/GetPatientApi.dart';
 import 'package:medcaremobile/services/IpNetwork.dart';
 import 'package:medcaremobile/services/PaymentApi.dart';
 import 'dart:convert';
@@ -49,11 +50,43 @@ class ChoosePaymentScreen extends StatefulWidget {
 class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
   String selectedPayment = ''; // Phương thức mặc định
   static const ip = Ipnetwork.ip;
+  List<dynamic> patientId = []; // Initialize as an empty list
+  static Map<String, dynamic>? user;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loadUserData();
+    loadPatientData();
+    print("Patient ID loaded: $patientId");
+
+  }
+
+  // Method to load user data asynchronously
+  static Future<void> loadUserData() async {
+    user = await StorageService.getUser();
+    if (user != null) {
+      print("Lay patient Data: $user");
+    } else {
+      print("No user data found. $user");
+    }
+  }
+
+  // Constructor
+
+  // Async method to load patient data
+  Future<void> loadPatientData() async {
+    if (user == null) {
+      loadUserData();
+    }
+    // Wait for the data to be loaded before using it
+    patientId = await Getpatientapi.getPatientbyAccountid(user!['id']);
+  }
 
   String formatDate(DateTime date) {
     return "${date.day}/${date.month}/${date.year}";
   }
-  
+
   void selectPayment(String payment) {
     setState(() {
       selectedPayment = payment;
@@ -107,22 +140,27 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
   }
 
   Future<void> _handlePaymentAtHospital() async {
+    if (user == null) {
+      loadUserData();
+    }
+    if (patientId == null) {
+      loadPatientData();
+    }
     try {
       print(
-          "doctor: ${widget.selectedDoctorId} \n specialty: ${widget.specialtyname} \n worktimeId: ${widget.selectedWorkTimeId} \n patientProfileId: ${widget.profileId}");
+          "doctor: ${widget.selectedDoctorId} \n specialty: ${widget.specialtyname} \n worktimeId: ${widget.selectedWorkTimeId} \n patientProfileId: ${widget.profileId} \n patient: ${patientId[0]}");
       int bookingId = await GetAppointmentApi().createAppointment(
-        doctorId: widget.selectedDoctorId!,
-        specialty: widget.specialtyname!,
-        worktimeId: widget.selectedWorkTimeId!,
-        patientProfileId: widget.profileId,
-      );
+          doctorId: widget.selectedDoctorId!,
+          specialty: widget.specialtyname!,
+          worktimeId: widget.selectedWorkTimeId!,
+          patientProfileId: widget.profileId,
+          patientID: patientId[0]['id']);
       if (bookingId != 0) {
         String? transcode = await Paymentapi.createPayment(
-          appointmentid: bookingId,
-          amount: widget.isVIP! ? 300000 : 150000,
-          isVIP: widget.isVIP!,
-          status: "Chưa thanh toán"
-        );
+            appointmentid: bookingId,
+            amount: widget.isVIP! ? 300000 : 150000,
+            isVIP: widget.isVIP!,
+            status: "Chưa thanh toán");
 
         Navigator.pushReplacement(
           context,
@@ -159,7 +197,6 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chọn thông tin khám'),

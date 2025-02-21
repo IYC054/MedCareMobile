@@ -146,7 +146,7 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
                   buildTextField("Nghề nghiệp", jobController),
                   buildTextField("Email", emailController),
                   buildTextField("Dân tộc", ethnicityController),
-                  buildTextField("BHYT", bhytController),
+                  buildTextField("Căn cước công dân", bhytController),
 
                   // Dropdown chọn Tỉnh/Thành
                   buildDropdownField(

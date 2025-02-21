@@ -61,7 +61,7 @@ class Patientinformation {
           "birthdate": birthdate,
           "phone": phone,
           "gender": gender,
-          "codeBhyt": codeBhyt,
+          "identification_card": codeBhyt,
           "nation": nation,
           "address": address,
           "accountid": user?['id']

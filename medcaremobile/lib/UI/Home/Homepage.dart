@@ -276,6 +276,22 @@ class HomepageState extends State<Homepage> {
                                       ));
                                     }
                                   } else if (index == 1) {
+                                    if(isLoggedIn! == false){
+                                       ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                        content: ShowCustomSnackBar(
+                                          title: "Chưa đăng nhập!",
+                                          label:
+                                              "Hãy đăng nhập trước.",
+                                          color: Colors.red,
+                                          icon: Icons.remove_circle_outline,
+                                        ),
+                                        behavior: SnackBarBehavior.floating,
+                                        elevation: 0,
+                                        backgroundColor: Colors.transparent,
+                                      ));
+                                      return;
+                                    }
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(

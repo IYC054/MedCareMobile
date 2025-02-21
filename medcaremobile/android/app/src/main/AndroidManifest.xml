@@ -1,24 +1,25 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-<!--    <uses-permission android:name="android.permission.CAMERA"  />-->
-<!--    <uses-permission android:name="android.permission.INTERNET"/>-->
+    <!--    <uses-permission android:name="android.permission.CAMERA"  />-->
+    <!--    <uses-permission android:name="android.permission.INTERNET"/>-->
     <!-- Quyền truy cập camera -->
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <!-- Quyền truy cập internet -->
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- Quyền truy cập thư viện ảnh trên Android 10 trở xuống -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- Quyền truy cập thư viện ảnh trên Android 13 trở lên -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <application
         android:label="medcaremobile"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
+            android:enableOnBackInvokedCallback="true"
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"

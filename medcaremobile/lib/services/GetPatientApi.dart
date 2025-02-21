@@ -19,12 +19,12 @@ class Getpatientapi {
     }
   }
 
-  static Future<List<dynamic>> getPatientbyAccountid() async {
+  static Future<List<dynamic>> getPatientbyAccountid(int id) async {
     try {
       if (user == null) {
         await loadUserData(); // Wait for user data to be loaded
       }
-      final url = Uri.parse("$baseUrl/account/${user?['id']}");
+      final url = Uri.parse("$baseUrl/account/$id");
       final response = await http.get(url);
 
       if (response.statusCode == 200) {

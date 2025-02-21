@@ -25,6 +25,7 @@ class ChooseTimeScreenState extends State<ChooseTimeScreen> {
   @override
   void initState() {
     super.initState();
+    print("VIP: ${widget.isVIP}");
     fetchDoctors();
     fetchVipAppointment();
   }
@@ -57,13 +58,28 @@ class ChooseTimeScreenState extends State<ChooseTimeScreen> {
     if (widget.isVIP) {
       setState(() {
         doctors = [
-          {"id": 1, "startTime": "06:00", "endTime": "07:00"},
-          {"id": 2, "startTime": "08:00", "endTime": "09:00"},
-          {"id": 3, "startTime": "10:00", "endTime": "11:00"},
-          {"id": 4, "startTime": "13:00", "endTime": "14:00"},
-          {"id": 5, "startTime": "15:00", "endTime": "16:00"},
-          {"id": 6, "startTime": "17:00", "endTime": "18:00"},
+          {"id": 1, "startTime": "06:00", "endTime": "06:30"},
+          {"id": 2, "startTime": "06:30", "endTime": "07:00"},
+          {"id": 3, "startTime": "07:00", "endTime": "07:30"},
+          {"id": 4, "startTime": "07:30", "endTime": "08:00"},
+          {"id": 5, "startTime": "08:00", "endTime": "08:30"},
+          {"id": 6, "startTime": "08:30", "endTime": "09:00"},
+          {"id": 7, "startTime": "09:00", "endTime": "09:30"},
+          {"id": 8, "startTime": "09:30", "endTime": "10:00"},
+          {"id": 9, "startTime": "10:00", "endTime": "10:30"},
+          {"id": 10, "startTime": "10:30", "endTime": "11:00"},
+          {"id": 11, "startTime": "11:00", "endTime": "11:30"},
+          {"id": 12, "startTime": "11:30", "endTime": "12:00"},
+          {"id": 13, "startTime": "13:00", "endTime": "13:30"},
+          {"id": 14, "startTime": "13:30", "endTime": "14:00"},
+          {"id": 15, "startTime": "14:00", "endTime": "14:30"},
+          {"id": 16, "startTime": "14:30", "endTime": "15:00"},
+          {"id": 17, "startTime": "15:00", "endTime": "15:30"},
+          {"id": 18, "startTime": "15:30", "endTime": "16:00"},
+          {"id": 19, "startTime": "16:00", "endTime": "16:30"},
+          {"id": 20, "startTime": "16:30", "endTime": "17:00"},
         ];
+
         isLoading = false;
       });
     } else {
@@ -91,11 +107,17 @@ class ChooseTimeScreenState extends State<ChooseTimeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(
-        "Ngày đã chọn: ${widget.selectedDate.toIso8601String().split('T')[0]}");
-    print("Danh sách giờ đã đặt: $bookedTimes");
-    print(
-        "Danh sách giờ làm việc của bác sĩ: ${doctors.map((e) => e['startTime'])}");
+    // Lọc danh sách giờ theo buổi
+    List<dynamic> morningDoctors = doctors.where((doctor) {
+      int hour = int.parse(doctor["startTime"].split(":")[0]);
+      return hour >= 6 && hour < 12;
+    }).toList();
+
+    List<dynamic> afternoonDoctors = doctors.where((doctor) {
+      int hour = int.parse(doctor["startTime"].split(":")[0]);
+      return hour >= 13 && hour < 17;
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Chọn giờ khám',
@@ -115,32 +137,49 @@ class ChooseTimeScreenState extends State<ChooseTimeScreen> {
             Text('Chọn giờ khám',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 16),
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 16),
-                    Divider(),
-                    SizedBox(height: 8),
-                    Text('Buổi sáng',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8.0,
-                      runSpacing: 8.0,
-                      children: doctors.map((doctor) {
-                        return _buildTimeSlot(context, doctor);
-                      }).toList(),
-                    ),
-                  ],
+
+            // Hiển thị buổi sáng
+            if (morningDoctors.isNotEmpty) ...[
+              Text('Buổi sáng', style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Wrap(
+                    spacing: 8.0,
+                    runSpacing: 8.0,
+                    children: morningDoctors.map((doctor) {
+                      return _buildTimeSlot(context, doctor);
+                    }).toList(),
+                  ),
                 ),
               ),
-            ),
+              SizedBox(height: 16),
+            ],
+
+            // Hiển thị buổi chiều
+            if (afternoonDoctors.isNotEmpty) ...[
+              Text('Buổi chiều', style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Wrap(
+                    spacing: 8.0,
+                    runSpacing: 8.0,
+                    children: afternoonDoctors.map((doctor) {
+                      return _buildTimeSlot(context, doctor);
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
