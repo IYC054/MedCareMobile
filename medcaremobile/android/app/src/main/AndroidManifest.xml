@@ -14,6 +14,7 @@
     <!-- Quyền truy cập thư viện ảnh trên Android 13 trở lên -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
     <application
         android:label="medcaremobile"
         android:name="${applicationName}"
@@ -37,6 +38,12 @@
                 android:resource="@style/NormalTheme"
             />
             <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="medcaremobile" android:host="payment" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -56,6 +63,7 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT" />
             <data android:mimeType="text/plain" />
+
         </intent>
     </queries>
 </manifest>

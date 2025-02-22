@@ -50,6 +50,7 @@ dependencies:
   path: any
   flutter_chat_bubble: ^2.0.0
   permission_handler: ^11.0.1
+  html: ^0.15.4
 dev_dependencies:
   flutter_test:
     sdk: flutter

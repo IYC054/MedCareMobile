@@ -84,7 +84,7 @@ class GetAppointmentApi {
         return 0;
       }
     } catch (e) {
-      print("⚠️ Lỗi khi gọi API: $e");
+      print("⚠️ Lỗi khi gọi API apointment: $e");
       return 0;
     }
   }
@@ -137,7 +137,7 @@ class GetAppointmentApi {
         return 0;
       }
     } catch (e) {
-      print("⚠️ Lỗi khi gọi API: $e");
+      print("⚠️ Lỗi khi gọi API appointmentVIP: $e");
       return 0;
     }
   }
@@ -155,7 +155,7 @@ class GetAppointmentApi {
         return [];
       }
     } catch (e) {
-      print("Lỗi khi gọi API: $e");
+      print("Lỗi khi gọi API fetchVIP: $e");
       return [];
     }
   }
@@ -173,7 +173,7 @@ class GetAppointmentApi {
         return [];
       }
     } catch (e) {
-      print("Lỗi khi gọi API: $e");
+      print("Lỗi khi gọi API fectchVIPBYPATIENT: $e");
       return [];
     }
   }
@@ -191,7 +191,7 @@ class GetAppointmentApi {
         return [];
       }
     } catch (e) {
-      print("Lỗi khi gọi API: $e");
+      print("Lỗi khi gọi API fetchVIPBYDOCTOR: $e");
       return [];
     }
   }
@@ -208,7 +208,7 @@ class GetAppointmentApi {
         throw Exception("Failed to load QR code");
       }
     } catch (e) {
-      print("Lỗi khi gọi API: $e");
+      print("Lỗi khi gọi API QRCODE: $e");
       return '';
     }
   }

@@ -2,29 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ChooseBill.dart';
 import 'package:medcaremobile/UI/Profile/PatientFilePage.dart';
-import 'package:medcaremobile/UI/Profile/ProfilePage.dart';
 import 'package:medcaremobile/services/GetAppointmentApi.dart';
 import 'package:medcaremobile/services/GetPatientApi.dart';
 import 'package:medcaremobile/services/PaymentApi.dart';
 import 'package:medcaremobile/services/StorageService.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'package:html/parser.dart';
 
 class PaymentWebView extends StatefulWidget {
   final String paymentUrl;
-  final int? profileId;
-  final int? selectedDoctorId;
-  final String? selectedSpecialtyName;
-  final String? Doctorname;
-  final int? selectedSpecialtyId;
-  final int? selectedWorkTimeId;
-  final String? patientName;
+  final int? profileId,
+      selectedDoctorId,
+      selectedSpecialtyId,
+      selectedWorkTimeId,
+      PaymentID;
+  final String? selectedSpecialtyName,
+      Doctorname,
+      patientName,
+      selectTime,
+      startTime,
+      endTime,
+      TypePayment;
   final DateTime? selectDate;
-  final String? selectTime;
-  final String? startTime;
-  final String? endTime;
-  final bool? isNormal;
-  final int? PaymentID;
+  final bool? isNormal, isVIP;
 
-  final bool? isVIP;
   const PaymentWebView(
       {required this.paymentUrl,
       this.profileId,
@@ -40,99 +42,123 @@ class PaymentWebView extends StatefulWidget {
       this.startTime,
       this.endTime,
       this.isNormal = true,
-      this.PaymentID = 0});
+      this.PaymentID = 0,
+      this.TypePayment});
 
   @override
   _PaymentWebViewState createState() => _PaymentWebViewState();
 }
 
-class _PaymentWebViewState extends State<PaymentWebView> {
+class _PaymentWebViewState extends State<PaymentWebView>
+    with WidgetsBindingObserver {
   InAppWebViewController? webViewController;
-  List<dynamic> patientId = []; // Initialize as an empty list
+  List<dynamic> patientId = [];
   static Map<String, dynamic>? user;
 
-  // Method to load user data asynchronously
-  static Future<void> loadUserData() async {
-    user = await StorageService.getUser();
-    if (user != null) {
-      print("Lay patient Data: $user");
-    } else {
-      print("No user data found. $user");
-    }
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    loadUserData();
   }
 
-  // Constructor
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
-  // Async method to load patient data
+  Future<void> loadUserData() async {
+    user = await StorageService.getUser();
+    if (user != null) loadPatientData();
+  }
+
   Future<void> loadPatientData() async {
-    if (user == null) {
-      loadUserData();
-    }
-    // Wait for the data to be loaded before using it
     patientId = await Getpatientapi.getPatientbyAccountid(user!['id']);
-    print("Patient ID loaded: $patientId");
+  }
+
+  String fixPaymentUrl(String url) => url.replaceAll("momo://app", "").trim();
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _checkPaymentStatus();
+  }
+
+  void _checkPaymentStatus() async {
+    String? currentUrl = (await webViewController?.getUrl())?.toString();
+    if (currentUrl != null) {
+      Uri uri = Uri.parse(currentUrl);
+      if (uri.queryParameters["vnp_TransactionStatus"] == "00" ||
+          uri.queryParameters["resultCode"] == "0") {
+        Navigator.pop(context, true);
+      }
+    }
   }
 
   String formatDate(DateTime date) {
     return "${date.day}/${date.month}/${date.year}";
   }
 
-  bool _isPaymentCompleted = false;
+  Future<String?> fetchSuccessMessage(urls) async {
+    final url = Uri.parse(urls);
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        var document = parse(response.body); // Parse HTML
+        var successText =
+            document.querySelector("p")?.text; // Lấy nội dung của <p>
+
+        if (successText != null && successText.contains("Thành công")) {
+          return successText;
+        }
+      }
+    } catch (e) {
+      print("Lỗi khi lấy dữ liệu: $e");
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
-    print('''
-profileId: ${widget.profileId}
-selectedDoctorId: ${widget.selectedDoctorId}
-selectedSpecialtyName: ${widget.selectedSpecialtyName}
-selectedSpecialtyId: ${widget.selectedSpecialtyId}
-selectedWorkTimeId: ${widget.selectedWorkTimeId}
-patientName: ${widget.patientName}
-selectDate: ${widget.selectDate}
-selectTime: ${widget.selectTime}
-Doctorname: ${widget.Doctorname}
-isVIP: ${widget.isVIP}
-startTime: ${widget.startTime}
-endTime: ${widget.endTime}
-isNormal: ${widget.isNormal}
-PaymentID: ${widget.PaymentID}
-''');
-
     return Scaffold(
-      appBar: AppBar(title: Text("Thanh toán VNPAY")),
-      body: _isPaymentCompleted
-          ? Center(child: CircularProgressIndicator()) // Hoặc giao diện khác
-          : InAppWebView(
-              initialUrlRequest: URLRequest(url: WebUri(widget.paymentUrl)),
-              onWebViewCreated: (controller) {
-                webViewController = controller;
-              },
-              onLoadStop: (controller, url) async {
-                if (url != null) {
-                  print("URL thanh toán: $url");
-                  Uri uri = Uri.parse(url.toString());
-                  String? transactionStatus =
-                      uri.queryParameters["vnp_TransactionStatus"];
-                  print("NORMAL: ${widget.isNormal} VIP: ${widget.isVIP}");
-                  if (transactionStatus == "00") {
-                    await controller.stopLoading();
-                    setState(() {
-                      _isPaymentCompleted = true;
-                    });
-                    if (widget.isVIP == true && widget.isNormal! == true) {
-                      _handlePaymentSuccessISVIP();
-                    } else {
-                      _handlePaymentSuccessNOVIP();
-                    }
-                    if (widget.isNormal! == false && widget.isVIP == false) {
-                      _handlePaymentAppointment();
-                    }
-                  } else {
-                    print("Thanh toán thất bại hoặc bị hủy.");
-                  }
-                }
-              },
-            ),
+      appBar: AppBar(title: Text("Thanh toán MEDCARE")),
+      body: InAppWebView(
+        initialUrlRequest:
+            URLRequest(url: WebUri(fixPaymentUrl(widget.paymentUrl))),
+        onWebViewCreated: (controller) => webViewController = controller,
+        onLoadStop: (controller, url) async {
+          if (url != null) {
+            String source =
+                url.toString(); // Lưu giá trị URL hiện tại vào biến source
+            Uri uri = Uri.parse(source);
+
+            // Nếu source chứa một URL hợp lệ, cập nhật lại uri
+            String? message = await fetchSuccessMessage(source);
+            print("message $message");
+            bool isSuccess = message != null && message.contains("Thành công.");
+            if (uri.queryParameters["vnp_TransactionStatus"] == "00" ||
+                isSuccess) {
+              await controller.stopLoading();
+              setState(() {});
+              widget.isVIP == true && widget.isNormal == true
+                  ? _handlePaymentSuccessISVIP()
+                  : _handlePaymentSuccessNOVIP();
+              if (widget.isNormal == false && widget.isVIP == false)
+                _handlePaymentAppointment();
+            }
+          }
+        },
+        shouldOverrideUrlLoading: (controller, navigationAction) async {
+          var url = navigationAction.request.url.toString();
+          if (url.startsWith("momo://")) {
+            await launchUrl(Uri.parse(url),
+                mode: LaunchMode.externalApplication);
+            return NavigationActionPolicy.CANCEL;
+          }
+          return NavigationActionPolicy.ALLOW;
+        },
+      ),
     );
   }
 
@@ -143,48 +169,43 @@ PaymentID: ${widget.PaymentID}
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (context) => PatientFilePage(
-                    title: "Lịch khám",
-                  )));
+              builder: (context) => PatientFilePage(title: "Lịch khám")));
     }
   }
 
   void _handlePaymentSuccessISVIP() async {
-    try {
-      int bookingId = await GetAppointmentApi().createVIPAppointment(
-          doctorId: widget.selectedDoctorId!,
-          specialty: widget.selectedSpecialtyName!,
-          patientProfileId: widget.profileId!,
-          startTime: widget.startTime!,
-          endTime: widget.endTime!,
-          patientID: patientId[0]['id'],
-          worktime: DateTime.parse(widget.selectDate.toString()));
-      String? transcode = await Paymentapi.createPayment(
-          appointmentid: bookingId,
-          amount: 300000,
-          isVIP: widget.isVIP!,
-          status: "Đã thanh toán");
-
-      if (bookingId != 0) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Choosebill(
-              bookingId: transcode!,
-              patientName: widget.patientName!,
-              paymentTime:
-                  "${formatDate(widget.selectDate!)} - ${widget.selectTime!}",
-              doctorName: "BS. ${widget.Doctorname}",
-              specialization: widget.selectedSpecialtyName!,
-              totalAmount: "300.00 VND",
-            ),
+    if (patientId.isEmpty) return;
+    int bookingId = await GetAppointmentApi().createVIPAppointment(
+      doctorId: widget.selectedDoctorId ?? 0,
+      specialty: widget.selectedSpecialtyName ?? "Không xác định",
+      patientProfileId: widget.profileId ?? 0,
+      startTime: widget.startTime ?? "",
+      endTime: widget.endTime ?? "",
+      patientID: patientId[0]['id'],
+      worktime: widget.selectDate ?? DateTime.now(),
+    );
+    if (bookingId == 0) return;
+    String? transcode = await Paymentapi.createPayment(
+      appointmentid: bookingId,
+      TypePayment: "VNPAY",
+      amount: 300000,
+      isVIP: widget.isVIP ?? false,
+      status: "Đã thanh toán",
+    );
+    if (transcode != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Choosebill(
+            bookingId: transcode,
+            patientName: widget.patientName ?? "Không xác định",
+            paymentTime: "${formatDate(widget.selectDate!)} - ${widget.selectTime!}",
+            doctorName: "BS. ${widget.Doctorname ?? ""}",
+            specialization: widget.selectedSpecialtyName ?? "",
+            totalAmount: "300.00 VND",
           ),
-        );
-      } else {
-        print("Không thể tạo cuộc hẹn.");
-      }
-    } catch (e) {
-      print("Lỗi khi xử lý thanh toán: $e");
+        ),
+      );
     }
   }
 
@@ -198,6 +219,7 @@ PaymentID: ${widget.PaymentID}
         patientID: patientId[0]['id'],
       );
       String? transcode = await Paymentapi.createPayment(
+          TypePayment: "VNPAY",
           appointmentid: bookingId,
           amount: 150000,
           isVIP: widget.isVIP!,

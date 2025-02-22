@@ -240,9 +240,9 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
 
                           Color bgColor =
                               Colors.green; // Mặc định màu xanh (Còn trống)
-                          if (totalAppointments > 10) {
+                          if (totalAppointments >= 10) {
                             bgColor = Colors.red; // Nếu > 10, màu đỏ (Đã hết)
-                          } else if (totalAppointments > 2) {
+                          } else if (totalAppointments >= 2) {
                             bgColor =
                                 Colors.amber; // Nếu > 2, màu vàng (Gần đầy)
                           }

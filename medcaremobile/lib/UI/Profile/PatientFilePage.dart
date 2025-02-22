@@ -48,6 +48,7 @@ class _PatientFilePageState extends State<PatientFilePage> {
     }
     final fetchedProfiles =
         await Getpatientapi.getPatientbyAccountid(user!['id']);
+        
     setState(() {
       patientID = fetchedProfiles;
       print("FEADSADADSA: $fetchedProfiles");

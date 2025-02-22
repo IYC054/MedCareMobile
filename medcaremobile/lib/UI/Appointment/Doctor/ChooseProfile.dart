@@ -21,26 +21,32 @@ class ChooseProfileState extends State<ChooseProfile> {
   @override
   void initState() {
     super.initState();
-    fetchProfiles();
     loadUserData();
   }
- static Map<String, dynamic>? user;
+
+  static Map<String, dynamic>? user;
 
   // Method to load user data asynchronously
-  static Future<void> loadUserData() async {
+  Future<void> loadUserData() async {
     user = await StorageService.getUser();
     if (user != null) {
-      print("Lay user Data: $user");
+      print("Lấy user Data: $user");
+      fetchProfiles(); // Gọi fetchProfiles sau khi user đã có dữ liệu
     } else {
-      print("No Patient data found.");
+      print("Không tìm thấy dữ liệu bệnh nhân.");
+      setState(() {
+        isLoading = false; // Dừng loading nếu không có user
+      });
     }
   }
+
   void fetchProfiles() async {
     try {
-      if(user == null){
+      if (user == null) {
         loadUserData();
       }
-      final fetchedProfiles = await Getprofileapi().getProfileByUserid(user?['id']);
+      final fetchedProfiles =
+          await Getprofileapi().getProfileByUserid(user?['id']);
       print(
           "Dữ liệu nhận được từ API: $fetchedProfiles"); // Kiểm tra dữ liệu API trả về
       if (fetchedProfiles != null && fetchedProfiles is List) {
@@ -61,7 +67,7 @@ class ChooseProfileState extends State<ChooseProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       appBar: AppBar(
+      appBar: AppBar(
         title: const Text('Đặt khám'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -93,8 +99,7 @@ class ChooseProfileState extends State<ChooseProfile> {
               child: isLoading
                   ? Center(child: CircularProgressIndicator())
                   : ListView.builder(
-                      itemCount:
-                          profiles.length, // Thêm 1 để chứa nút "Thêm"
+                      itemCount: profiles.length, // Thêm 1 để chứa nút "Thêm"
                       itemBuilder: (context, index) {
                         final profile =
                             profiles[index]; // Lấy profile từ danh sách

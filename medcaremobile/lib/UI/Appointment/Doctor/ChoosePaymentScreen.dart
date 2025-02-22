@@ -57,15 +57,15 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
     // TODO: implement initState
     super.initState();
     loadUserData();
-    loadPatientData();
     print("Patient ID loaded: $patientId");
-
   }
 
   // Method to load user data asynchronously
-  static Future<void> loadUserData() async {
+  Future<void> loadUserData() async {
     user = await StorageService.getUser();
     if (user != null) {
+      loadPatientData();
+
       print("Lay patient Data: $user");
     } else {
       print("No user data found. $user");
@@ -139,6 +139,55 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
     }
   }
 
+  Future<void> _handlePaymentMomo() async {
+    String? token = await StorageService.getToken();
+    String apiUrl = 'http://$ip:8080/api/payments/momo-mobile';
+
+    try {
+      final response = await http.post(
+          Uri.parse(
+              "$apiUrl?amount=1000&orderInfo=thanh toán medcare"),
+          headers: {
+            "Content-Type": "application/json",
+          });
+      if (response.statusCode == 200) {
+        String paymentUrl = response.body;
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        // print("DATA: $data");
+        if (data.containsKey("payUrl")) {
+          String paymentUrl = data["payUrl"];
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PaymentWebView(
+                paymentUrl: paymentUrl,
+                profileId: widget.profileId,
+                patientName: widget.patientName,
+                selectedDoctorId: widget.selectedDoctorId,
+                selectedSpecialtyId: widget.selectedSpecialtyId,
+                selectedWorkTimeId: widget.selectedWorkTimeId,
+                selectDate: widget.selectDate,
+                selectTime: widget.selectTime,
+                Doctorname: widget.Doctorname,
+                selectedSpecialtyName: widget.specialtyname,
+                isVIP: widget.isVIP,
+                startTime: widget.startTime,
+                endTime: widget.endTime,
+                TypePayment: "MOMO",
+              ),
+            ),
+          );
+        } else {
+          throw 'Không thể mở đường dẫn: URL rỗng!';
+        }
+      } else {
+        throw 'Lỗi khi gọi API thanh toán';
+      }
+    } catch (e) {
+      print('Lỗi khi gọi API thanh toán: $e');
+    }
+  }
+
   Future<void> _handlePaymentAtHospital() async {
     if (user == null) {
       loadUserData();
@@ -157,6 +206,7 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
           patientID: patientId[0]['id']);
       if (bookingId != 0) {
         String? transcode = await Paymentapi.createPayment(
+            TypePayment: "VNPAY",
             appointmentid: bookingId,
             amount: widget.isVIP! ? 300000 : 150000,
             isVIP: widget.isVIP!,
@@ -250,6 +300,13 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
               selected: selectedPayment == 'VNPAY',
               onTap: () => selectPayment('VNPAY'),
             ),
+            PaymentOption(
+              title: 'Thanh toán MOMO',
+              imagepath:
+                  "https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png?20201011055544",
+              selected: selectedPayment == 'MOMO',
+              onTap: () => selectPayment('MOMO'),
+            ),
             widget.isVIP ?? false
                 ? SizedBox.shrink()
                 : PaymentOption(
@@ -293,6 +350,8 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
                       _handlePayment();
                     } else if (selectedPayment == "Hospital") {
                       _handlePaymentAtHospital();
+                    } else if (selectedPayment == "MOMO") {
+                      _handlePaymentMomo();
                     }
                   },
                   child: Text('Thanh toán'),

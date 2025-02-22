@@ -6,8 +6,9 @@ import 'package:medcaremobile/UI/News/Newspage.dart';
 import 'package:medcaremobile/UI/News/NotificationPage.dart';
 import 'package:medcaremobile/UI/Profile/Profilepage.dart';
 import 'package:medcaremobile/UI/VerifyEmail/VerifyEmailPage.dart';
+import 'package:medcaremobile/services/IpNetwork.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
 }
 

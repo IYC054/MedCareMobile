@@ -102,6 +102,10 @@ class _ChooseDoctorScreenState extends State<ChooseDoctorScreen> {
                                     "Không có chuyên khoa"
                                 : "Không có chuyên khoa",
                           );
+                        } else {
+                          return Center(
+                            child: Text("Hiện tại chưa có bác sĩ nào!", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                          );
                         }
                       },
                     ),
