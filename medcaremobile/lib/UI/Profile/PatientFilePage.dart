@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:medcaremobile/UI/Appointment/Doctor/UpdateDoctorVip.dart';
 import 'package:medcaremobile/UI/Viewpayment/PaymentWebView.dart';
 import 'package:medcaremobile/services/GetAppointmentApi.dart';
 import 'package:medcaremobile/services/GetPatientApi.dart';
@@ -33,9 +34,10 @@ class _PatientFilePageState extends State<PatientFilePage> {
   }
 
   // Method to load user data asynchronously
-  static Future<void> loadUserData() async {
+  Future<void> loadUserData() async {
     user = await StorageService.getUser();
     if (user != null) {
+      fetchAppointments();
       print("Lay patient Data: $user");
     } else {
       print("No user data found. $user");
@@ -48,7 +50,7 @@ class _PatientFilePageState extends State<PatientFilePage> {
     }
     final fetchedProfiles =
         await Getpatientapi.getPatientbyAccountid(user!['id']);
-        
+
     setState(() {
       patientID = fetchedProfiles;
       print("FEADSADADSA: $fetchedProfiles");
@@ -71,7 +73,10 @@ class _PatientFilePageState extends State<PatientFilePage> {
             "id": item["id"],
             "date": item["workDate"],
             "reason": item["type"],
-            "status": item["status"],
+            "status": "Đã thanh toán",
+            "examination": item["status"],
+            "startTime": item["startTime"],
+            "endTime": item["endTime"],
           };
         }).toList();
         isLoading = false;
@@ -128,10 +133,15 @@ class _PatientFilePageState extends State<PatientFilePage> {
         List<dynamic> data = jsonDecode(utf8Decoded);
         setState(() {
           appointments = data.map((item) {
+            print(
+                "Item ${item['worktime']['startTime']} - ${item['worktime']['endTime']}");
             return {
               "id": item["id"],
               "date": item["worktime"]["workDate"],
+              "startTime": item['worktime']['startTime'],
+              "endTime": item['worktime']['endTime'],
               "reason": item["type"],
+              "examination": item['status'],
               "status": item["payments"] != null && item["payments"].isNotEmpty
                   ? item["payments"][0]
                       ["status"] // Lấy status của payment đầu tiên
@@ -305,13 +315,30 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                       const SizedBox(height: 10),
                                       Row(
                                         children: [
+                                          const Icon(Icons.timelapse_outlined,
+                                              size: 22, color: Colors.blue),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              "Thời gian: ${appointment["startTime"]} - ${appointment["endTime"]}",
+                                              style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.red),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Row(
+                                        children: [
                                           const Icon(Icons.local_hospital,
                                               size: 22,
                                               color: Colors.redAccent),
                                           const SizedBox(width: 8),
                                           Expanded(
                                             child: Text(
-                                              "Khám: ${appointment["reason"]}",
+                                              "Chuyên khoa: ${appointment["reason"]}",
                                               style: const TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold,
@@ -327,7 +354,23 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                               size: 22, color: Colors.green),
                                           const SizedBox(width: 8),
                                           Text(
-                                            "Trạng thái: ${appointment["status"]}",
+                                            "Trạng thái: ${appointment["examination"]}",
+                                            style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.credit_card,
+                                              size: 22, color: Colors.green),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            "Trạng thái thanh toán: ${appointment["status"]}",
                                             style: const TextStyle(
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w500),
@@ -395,9 +438,7 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                           ],
                                         ),
                                       ),
-                                      SizedBox(
-                                        height: 15,
-                                      ),
+                                      SizedBox(height: 10,),
                                       if (appointment['status']
                                           .toString()
                                           .contains("Chưa thanh toán"))
@@ -422,6 +463,28 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                             ],
                                           ),
                                         ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      if(isVipSelected)
+                                      GestureDetector(
+                                        onTap: (){
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => Updatedoctorvip(appointmentVIPID: appointment['id'],)));
+                                        },
+                                        child: Row(
+                                        children: [
+                                          const Icon(Icons.update,
+                                              size: 22, color: Colors.amber),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            "Thay đổi lịch hẹn",
+                                            style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                        ],
+                                      ),
+                                      )
                                     ],
                                   ),
                                 ),

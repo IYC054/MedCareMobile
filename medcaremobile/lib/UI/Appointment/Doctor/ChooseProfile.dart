@@ -103,6 +103,10 @@ class ChooseProfileState extends State<ChooseProfile> {
                       itemBuilder: (context, index) {
                         final profile =
                             profiles[index]; // Lấy profile từ danh sách
+                        String maskedPhone = profile['phone'] != null &&
+                                profile['phone'].length > 3
+                            ? "******" + profile['phone'].substring(6).trim()
+                            : "******";
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 20),
                           child: GestureDetector(
@@ -130,7 +134,7 @@ class ChooseProfileState extends State<ChooseProfile> {
                             },
                             child: _buildProfileCard(
                               profile['fullname'],
-                              profile['phone'],
+                              maskedPhone,
                             ),
                           ),
                         );

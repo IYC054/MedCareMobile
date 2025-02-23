@@ -27,11 +27,25 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
   TextEditingController bhytController = TextEditingController();
   TextEditingController addressController = TextEditingController();
 
-  String? gender;
+  String? gender = "Nam";
   String? selectedProvinceId;
   String? selectedDistrictId;
   String? selectedWardId;
+  String? selectedEthnicity;
+  String? selectedJob;
+  List<Map<String, String>> ethnicities = [
+    {'id': '1', 'name': 'Kinh'},
+    {'id': '2', 'name': 'Tày'},
+    {'id': '3', 'name': 'Thái'},
+    {'id': '4', 'name': 'Mường'},
+  ];
 
+  List<Map<String, String>> jobs = [
+    {'id': '1', 'name': 'Bác sĩ'},
+    {'id': '2', 'name': 'Kỹ sư'},
+    {'id': '3', 'name': 'Giáo viên'},
+    {'id': '4', 'name': 'Sinh viên'},
+  ];
   List<Map<String, String>> provinces = [];
   List<Map<String, String>> districts = [];
   List<Map<String, String>> wards = [];
@@ -110,45 +124,61 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-  DateTime? pickedDate = await showDatePicker(
-    context: context,
-    initialDate: DateTime.now(),
-    firstDate: DateTime(1900),
-    lastDate: DateTime.now(),
-  );
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
 
-  if (pickedDate != null) {
-    setState(() {
-      birthDateController.text =
-          "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
-    });
+    if (pickedDate != null) {
+      setState(() {
+        birthDateController.text =
+            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+      });
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Tạo hồ sơ khám bệnh")),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
           children: [
             ProgressBar(currentStep: 1),
             SizedBox(height: 24),
-            Expanded(
-              child: ListView(
+            Form(
+              key: _formKey, // Thêm key vào Form
+              child: Column(
                 children: [
                   buildTextField("Tên", nameController),
                   buildDatePickerField("Ngày sinh", birthDateController),
                   buildTextField("Số điện thoại", phoneController),
                   buildGenderField(),
-                  buildTextField("Nghề nghiệp", jobController),
+                  buildDropdownField(
+                    "Dân tộc",
+                    ethnicities,
+                    selectedEthnicity,
+                    (value) {
+                      setState(() {
+                        selectedEthnicity = value;
+                      });
+                    },
+                  ),
+                  buildDropdownField(
+                    "Nghề nghiệp",
+                    jobs,
+                    selectedJob,
+                    (value) {
+                      setState(() {
+                        selectedJob = value;
+                      });
+                    },
+                  ),
                   buildTextField("Email", emailController),
-                  buildTextField("Dân tộc", ethnicityController),
                   buildTextField("Căn cước công dân", bhytController),
-
-                  // Dropdown chọn Tỉnh/Thành
                   buildDropdownField(
                     "Tỉnh/Thành",
                     provinces,
@@ -162,8 +192,6 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
                       });
                     },
                   ),
-
-                  // Dropdown chọn Quận/Huyện
                   buildDropdownField(
                     "Quận/Huyện",
                     districts,
@@ -176,8 +204,6 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
                       });
                     },
                   ),
-
-                  // Dropdown chọn Phường/Xã
                   buildDropdownField(
                     "Phường/Xã",
                     wards,
@@ -188,31 +214,25 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
                       });
                     },
                   ),
-
                   buildTextField("Địa chỉ hiện tại", addressController),
                   SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () async {
+                      if (!_formKey.currentState!.validate()) {
+                        // Gọi validate() để hiển thị lỗi
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text('Vui lòng điền đầy đủ thông tin!')),
+                        );
+                        return;
+                      }
+
+                      // Nếu validate thành công, tiếp tục xử lý
                       String formattedAddress =
                           "${getProvinceName(selectedProvinceId ?? '')} "
                           "${getDistrictName(selectedDistrictId ?? '')} "
                           "${getWardName(selectedWardId ?? '')} "
                           "${addressController.text}";
-                      print("Tên: ${nameController.text}");
-                      print("Ngày sinh: ${birthDateController.text}");
-                      print("Số điện thoại: ${phoneController.text}");
-                      print("Giới tính: ${gender ?? ""}");
-                      print("Nghề nghiệp: ${jobController.text}");
-                      print("Email: ${emailController.text}");
-                      print("Dân tộc: ${ethnicityController.text}");
-                      print("BHYT: ${bhytController.text}");
-                      print(
-                          "Tỉnh/Thành: ${getProvinceName(selectedProvinceId)}");
-                      print(
-                          "Quận/Huyện: ${getDistrictName(selectedDistrictId)}");
-                      print("Phường/Xã: ${getWardName(selectedWardId)}");
-                      print("Địa chỉ chi tiết: ${addressController.text}");
-                      print("Địa chỉ hoàn chỉnh: $formattedAddress");
 
                       int result =
                           await Patientinformation.createPatientInformation(
@@ -224,12 +244,17 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
                         nation: ethnicityController.text,
                         address: formattedAddress,
                       );
-                      print("Đã nhấn vao submit");
+
                       if (result > 0) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Tạo hồ sơ thành công!')),
                         );
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => ChooseProfile(isVIP: widget.isVIP),));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ChooseProfile(isVIP: widget.isVIP),
+                            ));
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Lỗi khi tạo hồ sơ!')),
@@ -240,7 +265,7 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
                   ),
                 ],
               ),
-            ),
+            )
           ],
         ),
       ),
@@ -306,7 +331,7 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
         }).toList(),
         onChanged: onChanged,
         validator: (value) {
-          if (value == null) {
+          if (value == null || value.isEmpty) {
             return 'Vui lòng chọn $label';
           }
           return null;
@@ -316,39 +341,39 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
   }
 
   Widget buildGenderField() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Giới tính", style: TextStyle(fontSize: 16)),
-          Row(
-            children: [
-              Radio(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Giới tính"),
+        Row(
+          children: [
+            Expanded(
+              child: RadioListTile<String>(
+                title: Text("Nam"),
                 value: "Nam",
                 groupValue: gender,
                 onChanged: (value) {
                   setState(() {
-                    gender = value.toString();
+                    gender = value;
                   });
                 },
               ),
-              Text("Nam"),
-              SizedBox(width: 20),
-              Radio(
+            ),
+            Expanded(
+              child: RadioListTile<String>(
+                title: Text("Nữ"),
                 value: "Nữ",
                 groupValue: gender,
                 onChanged: (value) {
                   setState(() {
-                    gender = value.toString();
+                    gender = value;
                   });
                 },
               ),
-              Text("Nữ"),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
