@@ -81,11 +81,18 @@ class _PaymentWebViewState extends State<PaymentWebView>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) _checkPaymentStatus();
+    print(
+        "App state changed: $state"); // Kiểm tra xem app có nhận sự kiện resume không
+    if (state == AppLifecycleState.resumed) {
+      _checkPaymentStatus();
+    }
   }
 
   void _checkPaymentStatus() async {
+    await Future.delayed(Duration(seconds: 2)); // Chờ 2 giây
     String? currentUrl = (await webViewController?.getUrl())?.toString();
+    print("Current URL: $currentUrl");
+
     if (currentUrl != null) {
       Uri uri = Uri.parse(currentUrl);
       if (uri.queryParameters["vnp_TransactionStatus"] == "00" ||
@@ -124,41 +131,44 @@ class _PaymentWebViewState extends State<PaymentWebView>
     return Scaffold(
       appBar: AppBar(title: Text("Thanh toán MEDCARE")),
       body: InAppWebView(
-        initialUrlRequest:
-            URLRequest(url: WebUri(fixPaymentUrl(widget.paymentUrl))),
-        onWebViewCreated: (controller) => webViewController = controller,
-        onLoadStop: (controller, url) async {
-          if (url != null) {
-            String source =
-                url.toString(); // Lưu giá trị URL hiện tại vào biến source
-            Uri uri = Uri.parse(source);
+          initialUrlRequest:
+              URLRequest(url: WebUri(fixPaymentUrl(widget.paymentUrl))),
+          onWebViewCreated: (controller) => webViewController = controller,
+          onLoadStop: (controller, url) async {
+            if (url != null) {
+              String source =
+                  url.toString(); // Lưu giá trị URL hiện tại vào biến source
+              Uri uri = Uri.parse(source);
 
-            // Nếu source chứa một URL hợp lệ, cập nhật lại uri
-            String? message = await fetchSuccessMessage(source);
-            print("message $message");
-            bool isSuccess = message != null && message.contains("Thành công.");
-            if (uri.queryParameters["vnp_TransactionStatus"] == "00" ||
-                isSuccess) {
-              await controller.stopLoading();
-              setState(() {});
-              widget.isVIP == true && widget.isNormal == true
-                  ? _handlePaymentSuccessISVIP()
-                  : _handlePaymentSuccessNOVIP();
-              if (widget.isNormal == false && widget.isVIP == false)
-                _handlePaymentAppointment();
+              // Nếu source chứa một URL hợp lệ, cập nhật lại uri
+              String? message = await fetchSuccessMessage(source);
+              print("message $message");
+              bool isSuccess =
+                  message != null && message.contains("Thành công.");
+              if (uri.queryParameters["vnp_TransactionStatus"] == "00" ||
+                  isSuccess) {
+                await controller.stopLoading();
+                setState(() {});
+                widget.isVIP == true && widget.isNormal == true
+                    ? _handlePaymentSuccessISVIP()
+                    : _handlePaymentSuccessNOVIP();
+                if (widget.isNormal == false && widget.isVIP == false)
+                  _handlePaymentAppointment();
+              }
             }
-          }
-        },
-        shouldOverrideUrlLoading: (controller, navigationAction) async {
-          var url = navigationAction.request.url.toString();
-          if (url.startsWith("momo://") || url.startsWith("medcaremobile://")) {
-            await launchUrl(Uri.parse(url),
-                mode: LaunchMode.externalApplication);
-            return NavigationActionPolicy.CANCEL;
-          }
-          return NavigationActionPolicy.ALLOW;
-        },
-      ),
+          },
+          shouldOverrideUrlLoading: (controller, navigationAction) async {
+            var url = navigationAction.request.url.toString();
+            print("Intercepted URL: $url");
+
+            if (url.startsWith("momo://") ||
+                url.startsWith("medcaremobile://")) {
+              await launchUrl(Uri.parse(url),
+                  mode: LaunchMode.externalApplication);
+              return NavigationActionPolicy.CANCEL;
+            }
+            return NavigationActionPolicy.ALLOW;
+          }),
     );
   }
 

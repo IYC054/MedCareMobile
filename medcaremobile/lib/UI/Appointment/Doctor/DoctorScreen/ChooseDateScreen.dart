@@ -51,10 +51,10 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
   Future<void> fetchVipAppointments() async {
     final fetchVipAppointment =
         await GetAppointmentApi.fetchVipAppointmentbyDoctorId(widget.doctoId!);
-    print(fetchVipAppointment); // Kiểm tra dữ liệu từ API
     if (fetchVipAppointment != null) {
       setState(() {
         vipappointments = fetchVipAppointment.map((item) {
+          print("VIP: ${item['status']}"); // Kiểm tra dữ liệu từ API
           return {
             "id": item["id"],
             "date": item["workDate"],
@@ -197,7 +197,6 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("SEECT $isSelectDate");
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chọn ngày khám'),
@@ -244,8 +243,19 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
                         return; // Không cập nhật state nếu ngày không hợp lệ
                       }
                       int totalAppointments = getAppointmentCount(selectedDay);
+                      int totalVipAppointments =
+                          getVipAppointmentCount(selectedDay);
 
-                      if (totalAppointments > 10) {
+                      if (totalAppointments >= 10) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Ngày này đã đầy lịch hẹn!"),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        return;
+                      }
+                      if (totalVipAppointments >= 10) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text("Ngày này đã đầy lịch hẹn!"),
@@ -294,15 +304,27 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
 
                         if (isWorkDate) {
                           int countAppointments = appointments
-                              .where((appointment) => isSameDay(
-                                  DateTime.parse(appointment["date"]), day))
+                              .where((appointment) =>
+                                  isSameDay(DateTime.parse(appointment["date"]),
+                                      day) &&
+                                  !appointment['status']
+                                      .toString()
+                                      .trim()
+                                      .contains("Đã huỷ"))
                               .length;
                           int countVipAppointments = vipappointments
                               .where((vip) =>
-                                  isSameDay(DateTime.parse(vip["date"]), day))
+                                  isSameDay(DateTime.parse(vip["date"]), day) &&
+                                  !vip['status']
+                                      .toString()
+                                      .trim()
+                                      .contains("Đã huỷ"))
                               .length;
-                          getAppointmentCount(day);
-                          getVipAppointmentCount(day);
+
+                          print(
+                              "Đã có $countAppointments cuộc hẹn thường bị huỷ");
+                          print(
+                              "Đã có $countVipAppointments cuộc hẹn vip bị huỷ");
 
                           Color bgColor = Colors.green;
                           if (countAppointments >= 10 ||
