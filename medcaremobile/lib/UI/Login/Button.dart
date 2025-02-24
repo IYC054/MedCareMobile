@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:medcaremobile/services/AccountAPIService.dart';
+import 'package:medcaremobile/services/FirestoreService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../services/StorageService.dart';
@@ -64,7 +65,7 @@ class _ButtonState extends State<Button> {
         widget.emailController.text,
         widget.passwordController.text,
       );
-
+      FirestoreService.loginWithEmail(widget.emailController.text, widget.passwordController.text);
       if (data != null &&
           data.containsKey('result') &&
           data['result'] != null &&

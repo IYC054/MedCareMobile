@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -28,7 +29,6 @@ class StorageService {
     }
     return null;
   } // Lấy token từ SharedPreferences (trả về null nếu không có)
-
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_tokenKey);
@@ -48,4 +48,6 @@ class StorageService {
     print("Token: ${prefs.getString(_tokenKey)}"); // Nên in ra null
     print("User: ${prefs.getString(_userKey)}");
   }
+
+  
 }

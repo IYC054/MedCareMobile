@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:medcaremobile/UI/Login/LoginPage.dart';
 import 'package:medcaremobile/services/AccountAPIService.dart';
+import 'package:medcaremobile/services/FirestoreService.dart';
+import 'package:medcaremobile/services/StorageService.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../Register/Header.dart';
@@ -152,7 +154,8 @@ class _RegisterPageState extends State<RegisterPage> {
           roles: _roles,
           avatar: _selectedImage,
         );
-
+        //add account to firestore
+        FirestoreService.createAccountWithEmail(widget.emailController.text, _passwordController.text);
         print("API Response: $response");
 
         if (response.containsKey('result') && response['result'] != null) {

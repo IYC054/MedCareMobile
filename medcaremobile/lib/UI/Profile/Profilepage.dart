@@ -9,6 +9,7 @@ import 'package:medcaremobile/UI/Profile/RegulationsPage.dart';
 import 'package:medcaremobile/UI/Profile/TermsOfServicePage.dart';
 
 import 'package:medcaremobile/UI/Profile/FAQPage.dart';
+import 'package:medcaremobile/services/FirestoreService.dart';
 import 'package:medcaremobile/services/StorageService.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
@@ -119,6 +120,7 @@ class _ProfilepageState extends State<Profilepage> {
               onPressed: () {
                 Navigator.of(context).pop(); // Đóng Dialog
                 _logout(context); // Gọi hàm xử lý đăng xuất
+                FirestoreService.logout(); //Đăng xuất Firestore
               },
             ),
           ],

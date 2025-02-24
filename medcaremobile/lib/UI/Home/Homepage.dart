@@ -4,6 +4,7 @@ import 'package:medcaremobile/UI/Appointment/Doctor/ChooseProfile.dart';
 import 'package:medcaremobile/UI/Appointment/ApptbySpecialty.dart';
 import 'package:medcaremobile/UI/Home/Footer.dart';
 import 'package:medcaremobile/UI/Profile/PatientFilePage.dart';
+import 'package:medcaremobile/services/NotificationService.dart';
 import 'package:medcaremobile/services/StorageService.dart';
 import 'package:show_custom_snackbar/show_custom_snackbar.dart';
 class Homepage extends StatefulWidget {
@@ -19,6 +20,7 @@ class HomepageState extends State<Homepage> {
   void initState() {
     super.initState();
     print("🔹 isLoggedIn: $isLoggedIn");
+    PushNotifications.getDeviceFcmToken();
     checkLoginStatus();
   }
 

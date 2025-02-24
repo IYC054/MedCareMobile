@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "986312694554",
+    "project_id": "notidemo-47adf",
+    "storage_bucket": "notidemo-47adf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:986312694554:android:54106487f4c82ee2fdeaa3",
+        "android_client_info": {
+          "package_name": "com.example.medcaremobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMiDJ6KnHFs4TpEB3Mg2oQcJxLmal0azE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

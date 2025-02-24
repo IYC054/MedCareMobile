@@ -10,6 +10,7 @@ import 'package:medcaremobile/UI/News/NotificationPage.dart';
 import 'package:medcaremobile/UI/Profile/ProfilePage.dart';
 import 'package:medcaremobile/UI/Register/RegisterPage.dart';
 import 'package:medcaremobile/UI/VerifyEmail/VerifyEmailPage.dart';
+import 'package:medcaremobile/services/NotificationService.dart';
 import 'package:medcaremobile/services/StorageService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,6 +35,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     print("🔹 isLoggedIn: $isLoggedIn");
+    // PushNotifications.getDeviceFcmToken();
     checkLoginStatus();
   }
 
