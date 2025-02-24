@@ -77,6 +77,7 @@ class _PatientFilePageState extends State<PatientFilePage> {
             "examination": item["status"],
             "startTime": item["startTime"],
             "endTime": item["endTime"],
+            "profileID": item["patientprofile"]["id"],
           };
         }).toList();
         isLoading = false;
@@ -163,6 +164,92 @@ class _PatientFilePageState extends State<PatientFilePage> {
         isLoading = false;
       });
     }
+  }
+
+  void ShowUpdateStatus(BuildContext context, int appId, isVIP) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Thông báo"),
+          content: Text("Bạn có chắn muốn huỷ cuộc hẹn?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Không"),
+            ),
+            TextButton(
+              onPressed: () async {
+                bool checkstatus;
+                if (isVIP) {
+                  checkstatus =
+                      await GetAppointmentApi.UpdateStatusVIPAppointment(appId);
+                } else {
+                  checkstatus =
+                      await GetAppointmentApi.UpdateStatusAppointment(appId);
+                }
+                if (checkstatus) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Đã huỷ hẹn thành công"),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                  fetchPatientData();
+                  fetchAppointments();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content:
+                          Text("huỷ hẹn chưa thành công xin vui lòng thử lại"),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: Text("Có"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void ShowalertPayment(BuildContext context, int appId, bool isvip) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Thông báo"),
+          content: Text(
+              "Bạn đã thanh toán cho cuộc hẹn này, vui lòng liện hệ với nhân viên để xử lý thanh toán nếu bạn huỷ!"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Không huỷ"),
+            ),
+            TextButton(
+              onPressed: () {
+                // Navigator.of(context).pop();
+                Future.delayed(Duration(milliseconds: 500), () {
+                  if (context.mounted) {
+          
+                    ShowUpdateStatus(context, appId, isvip);
+                  }
+                });
+              },
+              child: Text("Tiếp tục huỷ"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -273,11 +360,16 @@ class _PatientFilePageState extends State<PatientFilePage> {
                       : Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: ListView.separated(
-                            itemCount: appointments.length,
+                            itemCount: appointments
+                                .where((appointment) =>
+                                    appointment['status']?.toString()?.trim() !=
+                                    "Đã huỷ")
+                                .length,
                             separatorBuilder: (context, index) =>
                                 const SizedBox(height: 12),
                             itemBuilder: (context, index) {
                               final appointment = appointments[index];
+                              print("ISVIP: $isVipSelected");
                               return Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white,
@@ -438,10 +530,16 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                           ],
                                         ),
                                       ),
-                                      SizedBox(height: 10,),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
                                       if (appointment['status']
-                                          .toString()
-                                          .contains("Chưa thanh toán"))
+                                              .toString()
+                                              .contains("Chưa thanh toán") &&
+                                          !appointment['examination']
+                                              .toString()
+                                              .trim()
+                                              .contains("Đã huỷ"))
                                         GestureDetector(
                                           onTap: () {
                                             _handlePayment(
@@ -463,28 +561,78 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                             ],
                                           ),
                                         ),
+                                      isVipSelected
+                                          ? SizedBox(height: 10)
+                                          : SizedBox.shrink(),
+                                      if (isVipSelected)
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        Updatedoctorvip(
+                                                          appointmentVIPID:
+                                                              appointment['id'],
+                                                          selectProfileID:
+                                                              appointment[
+                                                                  'profileID'],
+                                                        )));
+                                          },
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.update,
+                                                  size: 22,
+                                                  color: Colors.amber),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                "Thay đổi lịch hẹn",
+                                                style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       SizedBox(
                                         height: 10,
                                       ),
-                                      if(isVipSelected)
-                                      GestureDetector(
-                                        onTap: (){
-                                          Navigator.push(context, MaterialPageRoute(builder: (context) => Updatedoctorvip(appointmentVIPID: appointment['id'],)));
-                                        },
-                                        child: Row(
-                                        children: [
-                                          const Icon(Icons.update,
-                                              size: 22, color: Colors.amber),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            "Thay đổi lịch hẹn",
-                                            style: const TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w500),
+                                      if (!appointment['examination']
+                                          .toString()
+                                          .trim()
+                                          .contains("Đã huỷ"))
+                                        GestureDetector(
+                                          onTap: () {
+                                            if (appointment['status']
+                                                .toString()
+                                                .contains("Chưa thanh toán")) {
+                                              ShowUpdateStatus(
+                                                  context,
+                                                  appointment['id'],
+                                                  isVipSelected);
+                                            } else {
+                                              ShowalertPayment(
+                                                  context,
+                                                  appointment['id'],
+                                                  isVipSelected);
+                                            }
+                                          },
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.block,
+                                                  size: 22, color: Colors.red),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                "Huỷ lịch hẹn",
+                                                style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                                      )
+                                        )
                                     ],
                                   ),
                                 ),

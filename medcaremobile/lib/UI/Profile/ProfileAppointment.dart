@@ -237,6 +237,7 @@ class _ProfileappointmentState extends State<Profileappointment> {
                 ],
               ),
             ),
+            Center(child: Text("Bạn đang có ${appointments.where((vip) => vip['status'].toString().contains("Chưa khám")).length} cuộc hẹn", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),)),
             Expanded(
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())

@@ -1,8 +1,3 @@
-import 'dart:io';
-
 class Ipnetwork {
-  static const ip = "192.168.1.242";
-
+  static const ip = "192.168.1.23";
 }
-
-

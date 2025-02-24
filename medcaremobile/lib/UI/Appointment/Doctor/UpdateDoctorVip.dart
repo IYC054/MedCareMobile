@@ -11,8 +11,9 @@ import 'package:medcaremobile/services/GetDoctorApi.dart';
 import 'dart:math';
 
 class Updatedoctorvip extends StatefulWidget {
-  const Updatedoctorvip({super.key, required this.appointmentVIPID});
+  const Updatedoctorvip({super.key, required this.appointmentVIPID, required this.selectProfileID});
   final int appointmentVIPID;
+  final int selectProfileID;
   @override
   State<StatefulWidget> createState() => UpdatedoctorvipState();
 }
@@ -103,6 +104,7 @@ class UpdatedoctorvipState extends State<Updatedoctorvip> {
                 id: selectedDoctorId!,
                 doctoId: selectedDoctorId,
                 isVIP: isVIP,
+                selectProfileID: widget.selectProfileID,
               )),
     );
 

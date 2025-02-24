@@ -143,6 +143,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
                 id: selectedDoctorId!,
                 doctoId: selectedDoctorId,
                 isVIP: isVIP,
+                selectProfileID: widget.profileId,
               )),
     );
 

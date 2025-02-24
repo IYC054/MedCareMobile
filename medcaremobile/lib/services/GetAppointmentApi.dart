@@ -144,59 +144,59 @@ class GetAppointmentApi {
   }
 
   static Future<bool> UpdateVIPAppointment({
-  required DateTime worktime,
-  required String startTime,
-  required String endTime,
-  required int appointmentVIPID,
-}) async {
-  try {
-    final url = Uri.parse("$baseUrlVip/$appointmentVIPID/update-time");
-    final formattedDate = DateFormat("yyyy-MM-dd").format(worktime);
+    required DateTime worktime,
+    required String startTime,
+    required String endTime,
+    required int appointmentVIPID,
+  }) async {
+    try {
+      final url = Uri.parse("$baseUrlVip/$appointmentVIPID/update-time");
+      final formattedDate = DateFormat("yyyy-MM-dd").format(worktime);
 
-    print("📢 URL: $url");
-    print("📢 Request Body: { workDate: $formattedDate, startTime: $startTime, endTime: $endTime }");
+      print("📢 URL: $url");
+      print(
+          "📢 Request Body: { workDate: $formattedDate, startTime: $startTime, endTime: $endTime }");
 
-    final response = await http.put(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: jsonEncode({
-        "workDate": formattedDate,
-        "startTime": startTime,
-        "endTime": endTime,
-      }),
-    );
+      final response = await http.put(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "workDate": formattedDate,
+          "startTime": startTime,
+          "endTime": endTime,
+        }),
+      );
 
-    print("📢 Response Status: ${response.statusCode}");
-    print("📢 Response Body: ${response.body}");
+      print("📢 Response Status: ${response.statusCode}");
+      print("📢 Response Body: ${response.body}");
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      if (response.body.isNotEmpty) {
-        try {
-          final utf8Decoded = utf8.decode(response.bodyBytes);
-          final Map<String, dynamic> responseData = jsonDecode(utf8Decoded);
-          print("✅ responseData: $responseData");
-          return true;
-        } catch (e) {
-          print("⚠️ Lỗi JSON Decode nhưng vẫn trả về true: $e");
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (response.body.isNotEmpty) {
+          try {
+            final utf8Decoded = utf8.decode(response.bodyBytes);
+            final Map<String, dynamic> responseData = jsonDecode(utf8Decoded);
+            print("✅ responseData: $responseData");
+            return true;
+          } catch (e) {
+            print("⚠️ Lỗi JSON Decode nhưng vẫn trả về true: $e");
+            return true;
+          }
+        } else {
+          print("✅ API không trả về dữ liệu, nhưng cập nhật thành công.");
           return true;
         }
       } else {
-        print("✅ API không trả về dữ liệu, nhưng cập nhật thành công.");
-        return true;
+        print("❌ Lỗi cập nhật: ${response.statusCode} - ${response.body}");
+        return false;
       }
-    } else {
-      print("❌ Lỗi cập nhật: ${response.statusCode} - ${response.body}");
+    } catch (e, stacktrace) {
+      print("⚠️ Lỗi khi gọi API UpdateVIPAppointment: $e");
+      print("🛑 Stacktrace: $stacktrace");
       return false;
     }
-  } catch (e, stacktrace) {
-    print("⚠️ Lỗi khi gọi API UpdateVIPAppointment: $e");
-    print("🛑 Stacktrace: $stacktrace");
-    return false;
   }
-}
-
 
   static Future<List<dynamic>> fetchVipAppointment() async {
     try {
@@ -268,6 +268,48 @@ class GetAppointmentApi {
     } catch (e) {
       print("Lỗi khi gọi API GetVIPBYDOCTOR: $e");
       return null;
+    }
+  }
+
+  // ignore: non_constant_identifier_names
+  static Future<bool> UpdateStatusAppointment(int id) async {
+    try {
+      final url = Uri.parse('$baseUrl/status/$id');
+      final response = await http.put(url,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({"status": "Đã huỷ"}));
+
+      if (response.statusCode == 200) {
+        final utf8Decoded = utf8.decode(response.bodyBytes); // Fix encoding
+        final Map<String, dynamic> data = jsonDecode(utf8Decoded);
+        return true;
+      } else {
+        print("Lỗi API: ${response.statusCode}");
+        return false;
+      }
+    } catch (e) {
+      print("Lỗi khi gọi API GetVIPBYDOCTOR: $e");
+      return false;
+    }
+  }
+    static Future<bool> UpdateStatusVIPAppointment(int id) async {
+    try {
+      final url = Uri.parse('$baseUrlVip/status/$id');
+      final response = await http.put(url,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({"status": "Đã huỷ"}));
+
+      if (response.statusCode == 200) {
+        final utf8Decoded = utf8.decode(response.bodyBytes); // Fix encoding
+        final Map<String, dynamic> data = jsonDecode(utf8Decoded);
+        return true;
+      } else {
+        print("Lỗi API: ${response.statusCode}");
+        return false;
+      }
+    } catch (e) {
+      print("Lỗi khi gọi API GetVIPBYDOCTOR: $e");
+      return false;
     }
   }
 

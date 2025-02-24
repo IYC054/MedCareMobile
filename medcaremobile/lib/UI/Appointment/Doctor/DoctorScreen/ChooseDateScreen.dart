@@ -11,10 +11,15 @@ import 'package:table_calendar/table_calendar.dart';
 
 class Choosedatescreen extends StatefulWidget {
   const Choosedatescreen(
-      {super.key, required this.id, this.doctoId, this.isVIP});
+      {super.key,
+      required this.id,
+      this.doctoId,
+      this.isVIP,
+      required this.selectProfileID});
   final int id;
   final int? doctoId;
   final bool? isVIP;
+  final int selectProfileID;
   @override
   ChoosedatescreenState createState() => ChoosedatescreenState();
 }
@@ -29,12 +34,16 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
   int? _selectedWorkId; // ID bác sĩ tương ứng với ngày chọn
   List<Map<String, dynamic>> workDates = []; // Chứa ngày làm việc và ID bác sĩ
   bool isLoading = true;
+  bool isSelectDate = true;
 
   @override
   void initState() {
     super.initState();
+    print("Gọi fetchDoctors()");
     fetchDoctors();
+    print("Gọi fetchAppointments()");
     fetchAppointments();
+    print("Gọi fetchVipAppointments()");
     fetchVipAppointments();
     print("AVC: ${widget.doctoId}");
   }
@@ -51,6 +60,7 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
             "date": item["workDate"],
             "reason": item["type"],
             "status": item["status"],
+            "profileID": item["patientprofile"]['id']
           };
         }).toList();
         isLoading = false;
@@ -67,24 +77,22 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
         "http://$ip:8080/api/appointment/doctors/${widget.doctoId!}";
     try {
       final response = await http.get(Uri.parse(apiUrl));
+      print("API Response Status: ${response.statusCode}");
+      print("API Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final utf8Decoded = utf8.decode(response.bodyBytes);
         List<dynamic> data = jsonDecode(utf8Decoded);
+        print("Decoded Data: $data"); // Kiểm tra dữ liệu trước khi setState
+
         setState(() {
           appointments = data.map((item) {
             return {
               "id": item["id"],
               "date": item["worktime"]["workDate"],
               "reason": item["type"],
-              "status": item["payments"] != null && item["payments"].isNotEmpty
-                  ? item["payments"][0]
-                      ["status"] // Lấy status của payment đầu tiên
-                  : "Không có thanh toán",
-              "paymentId":
-                  item["payments"] != null && item["payments"].isNotEmpty
-                      ? item["payments"][0]["id"] // Lấy ID của payment đầu tiên
-                      : null,
+              "status": item["status"],
+              "profileID": item["patientprofile"]['id']
             };
           }).toList();
           isLoading = false;
@@ -124,19 +132,72 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
     }
   }
 
+  void checkBooking(BuildContext context, bool isAlreadyBooked) {
+    if (isAlreadyBooked) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Thông báo"),
+            content: Text(
+                "Bạn đã có lịch hẹn vào ngày này. Bạn có muốn đặt tiếp không?"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    isSelectDate = false;
+                  });
+                  Navigator.of(context).pop();
+                },
+                child: Text("Không"),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    isSelectDate = true;
+                  });
+                  Navigator.of(context).pop();
+                },
+                child: Text("Có"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   int getAppointmentCount(DateTime day) {
-    return appointments
-            .where((appt) => isSameDay(DateTime.parse(appt['date']), day))
-            .length +
-        vipappointments
-            .where((vip) => isSameDay(DateTime.parse(vip['date']), day))
-            .length;
+    print("getAppointmentCount được gọi cho ngày: $day");
+
+    var appCancelled = appointments
+        .where((appt) =>
+            isSameDay(DateTime.parse(appt['date']), day) &&
+            !appt['status'].toString().contains("Đã huỷ"))
+        .toList();
+
+    print("Số appointments bị huỷ: ${appCancelled.length}");
+
+    return appCancelled.length;
+  }
+
+  int getVipAppointmentCount(DateTime day) {
+    print("getAppointmentCount được gọi cho ngày: $day");
+
+    var vipCancelled = vipappointments
+        .where((vip) =>
+            isSameDay(DateTime.parse(vip['date']), day) &&
+            !vip['status'].toString().contains("Đã huỷ"))
+        .toList();
+
+    print("Số vipappointments bị huỷ: ${vipCancelled.length}");
+
+    return vipCancelled.length;
   }
 
   @override
   Widget build(BuildContext context) {
-    print(
-        "appoitnemnt ${appointments.length} - ${vipappointments.length} doctorID: ${widget.doctoId}");
+    print("SEECT $isSelectDate");
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chọn ngày khám'),
@@ -166,6 +227,11 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
                         (date) => isSameDay(date['workDate'], selectedDay),
                         orElse: () => {},
                       );
+                      bool isAlreadyBooked = vipappointments.any((vip) =>
+                          vip['profileID'] == widget.selectProfileID &&
+                          isSameDay(DateTime.parse(vip['date']), selectedDay));
+
+                      checkBooking(context, isAlreadyBooked);
                       if (selectedWorkDate.isEmpty) {
                         // Hiển thị thông báo nếu ngày không nằm trong danh sách workDates
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -191,6 +257,7 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
 
                       setState(() {
                         _selectedDay = selectedDay;
+                        isSelectDate = true;
                         _focusedDay = focusedDay;
                       });
                       if (selectedWorkDate.isNotEmpty) {
@@ -234,17 +301,16 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
                               .where((vip) =>
                                   isSameDay(DateTime.parse(vip["date"]), day))
                               .length;
+                          getAppointmentCount(day);
+                          getVipAppointmentCount(day);
 
-                          int totalAppointments =
-                              countAppointments + countVipAppointments;
-
-                          Color bgColor =
-                              Colors.green; // Mặc định màu xanh (Còn trống)
-                          if (totalAppointments >= 10) {
-                            bgColor = Colors.red; // Nếu > 10, màu đỏ (Đã hết)
-                          } else if (totalAppointments >= 2) {
-                            bgColor =
-                                Colors.amber; // Nếu > 2, màu vàng (Gần đầy)
+                          Color bgColor = Colors.green;
+                          if (countAppointments >= 10 ||
+                              countVipAppointments >= 5) {
+                            bgColor = Colors.red;
+                          } else if (countAppointments >= 2 ||
+                              countVipAppointments >= 2) {
+                            bgColor = Colors.amber;
                           }
 
                           return Container(
@@ -279,7 +345,9 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: ElevatedButton(
-                    onPressed: _selectedDay != null && _selectedWorkId != null
+                    onPressed: _selectedDay != null &&
+                            _selectedWorkId != null &&
+                            isSelectDate == true
                         ? () {
                             Navigator.pop(context, {
                               "selectDate": _selectedDay,

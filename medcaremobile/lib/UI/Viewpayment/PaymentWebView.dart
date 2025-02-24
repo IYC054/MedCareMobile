@@ -151,7 +151,7 @@ class _PaymentWebViewState extends State<PaymentWebView>
         },
         shouldOverrideUrlLoading: (controller, navigationAction) async {
           var url = navigationAction.request.url.toString();
-          if (url.startsWith("momo://")) {
+          if (url.startsWith("momo://") || url.startsWith("medcaremobile://")) {
             await launchUrl(Uri.parse(url),
                 mode: LaunchMode.externalApplication);
             return NavigationActionPolicy.CANCEL;
@@ -187,7 +187,8 @@ class _PaymentWebViewState extends State<PaymentWebView>
     if (bookingId == 0) return;
     String? transcode = await Paymentapi.createPayment(
       appointmentid: bookingId,
-      TypePayment: "VNPAY",
+      TypePayment:
+          widget.isNormal == false && widget.isVIP == false ? "MOMO" : "VNPAY",
       amount: 300000,
       isVIP: widget.isVIP ?? false,
       status: "Đã thanh toán",
@@ -199,7 +200,8 @@ class _PaymentWebViewState extends State<PaymentWebView>
           builder: (context) => Choosebill(
             bookingId: transcode,
             patientName: widget.patientName ?? "Không xác định",
-            paymentTime: "${formatDate(widget.selectDate!)} - ${widget.selectTime!}",
+            paymentTime:
+                "${formatDate(widget.selectDate!)} - ${widget.selectTime!}",
             doctorName: "BS. ${widget.Doctorname ?? ""}",
             specialization: widget.selectedSpecialtyName ?? "",
             totalAmount: "300.00 VND",
@@ -219,7 +221,9 @@ class _PaymentWebViewState extends State<PaymentWebView>
         patientID: patientId[0]['id'],
       );
       String? transcode = await Paymentapi.createPayment(
-          TypePayment: "VNPAY",
+          TypePayment: widget.isNormal == false && widget.isVIP == false
+              ? "MOMO"
+              : "VNPAY",
           appointmentid: bookingId,
           amount: 150000,
           isVIP: widget.isVIP!,

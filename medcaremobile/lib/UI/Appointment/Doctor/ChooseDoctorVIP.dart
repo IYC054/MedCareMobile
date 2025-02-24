@@ -78,6 +78,7 @@ class ChoosedoctorvipState extends State<Choosedoctorvip> {
                 id: selectedDoctorId!,
                 doctoId: selectedDoctorId,
                 isVIP: widget.isVIP,
+                selectProfileID: widget.profileId,
               )),
     );
 
