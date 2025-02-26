@@ -159,7 +159,7 @@ class UpdatedoctorvipState extends State<Updatedoctorvip> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chọn thông tin khám'),
+        title: const Text('Thay đổi lịch hẹn'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
