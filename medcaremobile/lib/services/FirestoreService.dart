@@ -51,4 +51,21 @@ class FirestoreService {
     var user = await FirebaseAuth.instance.currentUser;
     return user != null;
   }
+
+  static Future<void> saveNotification(String userId, String title, String body) async {
+    await FirebaseFirestore.instance.collection("notifications").add({
+      "userId": userId,
+      "title": title,
+      "body": body,
+      "timestamp": FieldValue.serverTimestamp()
+    });
+  }
+
+  static Stream<QuerySnapshot> getNotifications(String userId) {
+    return FirebaseFirestore.instance
+        .collection("notifications")
+        .where("userId", isEqualTo: userId)
+        .orderBy("timestamp", descending: true)
+        .snapshots();
+  }
 }

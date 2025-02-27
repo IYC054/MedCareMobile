@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:medcaremobile/services/GetPatientApi.dart';
 import 'package:medcaremobile/services/IpNetwork.dart';
@@ -52,6 +53,13 @@ class GetAppointmentApi {
         await loadPatientData();
       }
       if (token == null) await init();
+      //lấy uid từ firebase
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        print("⚠️ Không có user đăng nhập! Hủy gọi API.");
+      }
+      String userIdFirestore = user!.uid;
+      print("User ID Firestore: " + userIdFirestore);
       final url = Uri.parse(baseUrl);
       final response = await http.post(
         url,
@@ -66,6 +74,7 @@ class GetAppointmentApi {
           "amount": 150000.0,
           "worktimeId": worktimeId,
           "patientProfileId": patientProfileId,
+          "firestoreUserId": userIdFirestore,
         }),
       );
 
@@ -101,6 +110,13 @@ class GetAppointmentApi {
         await loadPatientData();
       }
       if (token == null) await init();
+      //lấy uid từ firebase
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        print("⚠️ Không có user đăng nhập! Hủy gọi API.");
+      }
+      String userIdFirestore = user!.uid;
+      print("User ID Firestore: " + userIdFirestore);
       final url = Uri.parse(baseUrlVip);
 
       final response = await http.post(
@@ -118,7 +134,8 @@ class GetAppointmentApi {
           "startTime": startTime,
           "endTime": endTime,
           "status": "Chờ xử lý",
-          "amount": 300000
+          "amount": 300000,
+          "firestoreUserId": userIdFirestore,
         }),
       );
 
@@ -289,7 +306,8 @@ class GetAppointmentApi {
       return false;
     }
   }
-    static Future<bool> UpdateStatusVIPAppointment(int id) async {
+
+  static Future<bool> UpdateStatusVIPAppointment(int id) async {
     try {
       final url = Uri.parse('$baseUrlVip/status/$id');
       final response = await http.put(url,

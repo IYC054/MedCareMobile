@@ -1,0 +1,2 @@
+/Users/inyeongcho/Desktop/MB/MedCareMobile/medcaremobile/android/app/.cxx/Debug/u6n391a4/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/inyeongcho/Desktop/MB/MedCareMobile/medcaremobile/android/app/.cxx/Debug/u6n391a4/armeabi-v7a/CMakeFiles/rebuild_cache.dir
