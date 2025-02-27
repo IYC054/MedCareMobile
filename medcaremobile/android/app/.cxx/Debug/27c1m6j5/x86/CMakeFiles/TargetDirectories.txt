@@ -1,0 +1,2 @@
+D:/Project4Mobile/MedCareMobile/medcaremobile/android/app/.cxx/Debug/27c1m6j5/x86/CMakeFiles/edit_cache.dir
+D:/Project4Mobile/MedCareMobile/medcaremobile/android/app/.cxx/Debug/27c1m6j5/x86/CMakeFiles/rebuild_cache.dir
