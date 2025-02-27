@@ -145,8 +145,7 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
 
     try {
       final response = await http.post(
-          Uri.parse(
-              "$apiUrl?amount=1000&orderInfo=thanh toán medcare"),
+          Uri.parse("$apiUrl?amount=1000&orderInfo=thanh toán medcare"),
           headers: {
             "Content-Type": "application/json",
           });
@@ -189,21 +188,37 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
   }
 
   Future<void> _handlePaymentAtHospital() async {
-    if (user == null) {
-      loadUserData();
-    }
-    if (patientId == null) {
-      loadPatientData();
-    }
+    // if (user == null) {
+    //   loadUserData();
+    // }
+    // if (patientId == null) {
+    //   loadPatientData();
+    // }
     try {
-      print(
-          "doctor: ${widget.selectedDoctorId} \n specialty: ${widget.specialtyname} \n worktimeId: ${widget.selectedWorkTimeId} \n patientProfileId: ${widget.profileId} \n patient: ${patientId[0]}");
+      print("Doctor: ${widget.selectedDoctorId}");
+      print("DoctorName: ${widget.Doctorname}");
+      print("Specialty: ${widget.specialtyname}");
+      print("WorktimeId: ${widget.selectedWorkTimeId}");
+      print("PatientProfileId: ${widget.profileId}");
+      print("VIP: ${widget.isVIP}");
+      print("TIME: ${formatDate(widget.selectDate!)} - ${widget.selectTime!}");
+      print("Patient: ${patientId.isNotEmpty ? patientId[0]['id'] : 'NULL'}");
+      if (widget.selectedDoctorId == null ||
+          widget.specialtyname == null ||
+          widget.selectedWorkTimeId == null ||
+          widget.profileId == null ||
+          patientId.isEmpty ||
+          patientId[0]['id'] == null) {
+        print("Lỗi: Có giá trị null, không thể tạo cuộc hẹn.");
+        return;
+      }
       int bookingId = await GetAppointmentApi().createAppointment(
           doctorId: widget.selectedDoctorId!,
           specialty: widget.specialtyname!,
           worktimeId: widget.selectedWorkTimeId!,
-          patientProfileId: widget.profileId,
+          patientProfileId: widget.profileId!,
           patientID: patientId[0]['id']);
+
       if (bookingId != 0) {
         String? transcode = await Paymentapi.createPayment(
             TypePayment: "VNPAY",
@@ -212,6 +227,10 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
             isVIP: widget.isVIP!,
             status: "Chưa thanh toán");
 
+        if (transcode == null) {
+          print("transcode bị null");
+          return;
+        }
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

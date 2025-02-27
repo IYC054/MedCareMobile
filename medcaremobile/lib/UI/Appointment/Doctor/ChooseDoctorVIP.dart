@@ -13,10 +13,18 @@ class Choosedoctorvip extends StatefulWidget {
       {super.key,
       required this.profileId,
       required this.patientname,
-      required this.isVIP});
+      required this.isVIP,
+      this.reselectedSpecialtyId = 0,
+      this.reselectedSpecialtyName = "",
+      this.reselectedDoctorId = 0,
+      this.resselectedDoctorName = ""});
   final int profileId;
   final String patientname;
   final bool isVIP;
+  final int? reselectedSpecialtyId;
+  final int? reselectedDoctorId;
+  final String? reselectedSpecialtyName;
+  final String? resselectedDoctorName;
   @override
   State<StatefulWidget> createState() => ChoosedoctorvipState();
 }
@@ -34,6 +42,22 @@ class ChoosedoctorvipState extends State<Choosedoctorvip> {
   String? endTime;
 
   // Thêm phương thức này để gán cho CustomCheckbox
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if (widget.reselectedSpecialtyId != 0 &&
+        widget.reselectedSpecialtyName != "" &&
+        widget.reselectedSpecialtyName != "" &&
+        widget.reselectedDoctorId != 0) {
+      setState(() {
+        selectedSpecialtyName = widget.reselectedSpecialtyName;
+        selectedSpecialtyId = widget.reselectedSpecialtyId;
+        selectedDoctorName = widget.resselectedDoctorName;
+        selectedDoctorId = widget.reselectedDoctorId;
+      });
+    }
+  }
 
   void _selectDoctor() async {
     final result = await Navigator.push(

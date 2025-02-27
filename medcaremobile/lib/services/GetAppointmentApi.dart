@@ -53,9 +53,6 @@ class GetAppointmentApi {
       }
       if (token == null) await init();
       final url = Uri.parse(baseUrl);
-      print(
-          "doctoId: ${doctorId} \n specialty: ${specialty} \n patientprofile: ${patientProfileId} \n worktime: ${worktimeId} \n patientID: ${patientID}");
-
       final response = await http.post(
         url,
         headers: {

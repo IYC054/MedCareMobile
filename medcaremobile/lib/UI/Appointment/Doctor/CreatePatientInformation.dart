@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ChooseProfile.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
+import 'package:medcaremobile/services/CheckCCCDApi.dart';
 import 'package:medcaremobile/services/ProvinceApi.dart';
 import 'package:medcaremobile/services/PatientInformation.dart';
 
@@ -16,7 +19,8 @@ class CreatePatientInformation extends StatefulWidget {
 
 class _CreatePatientInformationState extends State<CreatePatientInformation> {
   final _formKey = GlobalKey<FormState>();
-
+  File? _selectedImage;
+  Map<String, dynamic>? _cccdData;
   // Controllers
   TextEditingController nameController = TextEditingController();
   TextEditingController birthDateController = TextEditingController();
@@ -27,12 +31,56 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
   TextEditingController bhytController = TextEditingController();
   TextEditingController addressController = TextEditingController();
 
-  String? gender = "Nam";
+  String? gender = "NAM";
   String? selectedProvinceId;
   String? selectedDistrictId;
   String? selectedWardId;
   String? selectedEthnicity;
   String? selectedJob;
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+
+      // Gửi ảnh lên API để lấy thông tin CCCD
+      final response = await CheckCCCDAPI.getCCCD(_selectedImage!);
+      if (response != null) {
+        setState(() {
+          _cccdData = response;
+        });
+        _updateCCCDFields();
+      }
+    }
+  }
+
+  // Cập nhật thông tin CCCD vào form
+  void _updateCCCDFields() {
+    if (_cccdData != null &&
+        _cccdData!['data'] is List &&
+        _cccdData!['data'].isNotEmpty) {
+      var firstData = _cccdData!['data'][0];
+
+      setState(() {
+        nameController.text = firstData['name'] ?? '';
+        birthDateController.text = firstData['dob'] ?? '';
+        bhytController.text = firstData['id'] ?? '';
+        addressController.text = firstData['address'] ?? '';
+        gender = firstData['sex'] ?? '';
+      });
+
+      print("Tên: ${nameController.text}");
+      print("Ngày sinh: ${birthDateController.text}");
+      print("CCCD: ${bhytController.text}");
+      print("Địa chỉ: ${addressController.text}");
+    } else {
+      print("❌ Dữ liệu CCCD không hợp lệ");
+    }
+  }
+
   List<Map<String, String>> ethnicities = [
     {'id': '1', 'name': 'Kinh'},
     {'id': '2', 'name': 'Tày'},
@@ -153,6 +201,10 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
               key: _formKey, // Thêm key vào Form
               child: Column(
                 children: [
+                  buildImagePicker(),
+                  SizedBox(
+                    height: 10,
+                  ),
                   buildTextField("Tên", nameController),
                   buildDatePickerField("Ngày sinh", birthDateController),
                   buildTextField("Số điện thoại", phoneController),
@@ -178,7 +230,7 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
                     },
                   ),
                   buildTextField("Email", emailController),
-                  buildTextField("Căn cước công dân", bhytController),
+                  buildTextField("Số CCCD", bhytController),
                   buildDropdownField(
                     "Tỉnh/Thành",
                     provinces,
@@ -219,7 +271,6 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
                   ElevatedButton(
                     onPressed: () async {
                       if (!_formKey.currentState!.validate()) {
-                        // Gọi validate() để hiển thị lỗi
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                               content: Text('Vui lòng điền đầy đủ thông tin!')),
@@ -227,12 +278,28 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
                         return;
                       }
 
-                      // Nếu validate thành công, tiếp tục xử lý
-                      String formattedAddress =
-                          "${getProvinceName(selectedProvinceId ?? '')} "
-                          "${getDistrictName(selectedDistrictId ?? '')} "
-                          "${getWardName(selectedWardId ?? '')} "
-                          "${addressController.text}";
+                      // Kiểm tra nếu chưa chọn ảnh và chưa nhập địa chỉ đầy đủ
+                      bool isImageSelected = _selectedImage != null;
+                      bool isAddressFilled = selectedProvinceId != null &&
+                          selectedDistrictId != null &&
+                          selectedWardId != null;
+
+                      if (!isImageSelected && !isAddressFilled) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  'Vui lòng chọn ảnh hoặc nhập đầy đủ địa chỉ!')),
+                        );
+                        return;
+                      }
+
+                      // Nếu đã chọn ảnh, không cần lấy địa chỉ
+                      String formattedAddress = isImageSelected
+                          ? "Không có địa chỉ"
+                          : "${getProvinceName(selectedProvinceId ?? '')} "
+                              "${getDistrictName(selectedDistrictId ?? '')} "
+                              "${getWardName(selectedWardId ?? '')} "
+                              "${addressController.text}";
 
                       int result =
                           await Patientinformation.createPatientInformation(
@@ -252,12 +319,13 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  ChooseProfile(isVIP: widget.isVIP),
+                              builder: (context) => ChooseProfile(
+                                isVIP: widget.isVIP,
+                              ),
                             ));
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Lỗi khi tạo hồ sơ!')),
+                          SnackBar(content: Text('Tạo hồ sơ thất bại!')),
                         );
                       }
                     },
@@ -287,6 +355,37 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
           }
           return null;
         },
+      ),
+    );
+  }
+
+// Vùng chọn ảnh với giao diện đẹp hơn
+  Widget buildImagePicker() {
+    return GestureDetector(
+      onTap: _pickImage,
+      child: Container(
+        height: 150,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey, width: 1),
+        ),
+        child: _selectedImage == null
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add_a_photo, size: 40, color: Colors.grey[700]),
+                  SizedBox(height: 8),
+                  Text("Chọn ảnh CCCD",
+                      style: TextStyle(color: Colors.grey[700])),
+                ],
+              )
+            : ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(_selectedImage!,
+                    fit: BoxFit.cover, width: double.infinity),
+              ),
       ),
     );
   }
@@ -350,7 +449,7 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
             Expanded(
               child: RadioListTile<String>(
                 title: Text("Nam"),
-                value: "Nam",
+                value: "NAM",
                 groupValue: gender,
                 onChanged: (value) {
                   setState(() {
@@ -362,7 +461,7 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
             Expanded(
               child: RadioListTile<String>(
                 title: Text("Nữ"),
-                value: "Nữ",
+                value: "NỮ",
                 groupValue: gender,
                 onChanged: (value) {
                   setState(() {

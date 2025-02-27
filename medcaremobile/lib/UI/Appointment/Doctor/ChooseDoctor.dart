@@ -10,9 +10,19 @@ import 'dart:math';
 
 class Choosedoctor extends StatefulWidget {
   const Choosedoctor(
-      {super.key, required this.profileId, required this.patientname});
+      {super.key,
+      required this.profileId,
+      required this.patientname,
+      this.reselectedSpecialtyId = 0,
+      this.reselectedSpecialtyName = "",
+      this.reselectedDoctorId = 0,
+      this.resselectedDoctorName = ""});
   final int profileId;
   final String patientname;
+  final int? reselectedSpecialtyId;
+  final int? reselectedDoctorId;
+  final String? reselectedSpecialtyName;
+  final String? resselectedDoctorName;
   @override
   State<StatefulWidget> createState() => ChoosedoctorState();
 }
@@ -46,6 +56,24 @@ class ChoosedoctorState extends State<Choosedoctor> {
       selectTime = null;
     });
     print("Khám VIP: $isVIP");
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if (widget.reselectedSpecialtyId != 0 &&
+        widget.reselectedSpecialtyName != "" &&
+        widget.reselectedSpecialtyName != "" &&
+        widget.reselectedDoctorId != 0) {
+      setState(() {
+        checkspec = true;
+        selectedSpecialtyName = widget.reselectedSpecialtyName;
+        selectedSpecialtyId = widget.reselectedSpecialtyId;
+        selectedDoctorName = widget.resselectedDoctorName;
+        selectedDoctorId = widget.reselectedDoctorId;
+      });
+    }
   }
 
   void _selectDoctor() async {

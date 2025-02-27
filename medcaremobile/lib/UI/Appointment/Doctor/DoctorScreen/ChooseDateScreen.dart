@@ -140,7 +140,7 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
           return AlertDialog(
             title: Text("Thông báo"),
             content: Text(
-                "Bạn đã có lịch hẹn vào ngày này. Bạn có muốn đặt tiếp không?"),
+                "Bạn đã có lịch hẹn vào ngày này?"),
             actions: [
               TextButton(
                 onPressed: () {
@@ -149,17 +149,9 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
                   });
                   Navigator.of(context).pop();
                 },
-                child: Text("Không"),
+                child: Text("OK"),
               ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    isSelectDate = true;
-                  });
-                  Navigator.of(context).pop();
-                },
-                child: Text("Có"),
-              ),
+              
             ],
           );
         },
@@ -176,7 +168,7 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
             !appt['status'].toString().contains("Đã huỷ"))
         .toList();
 
-    print("Số appointments bị huỷ: ${appCancelled.length}");
+    print("Số appointments chưa hủy: ${appCancelled.length}");
 
     return appCancelled.length;
   }
@@ -190,7 +182,7 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
             !vip['status'].toString().contains("Đã huỷ"))
         .toList();
 
-    print("Số vipappointments bị huỷ: ${vipCancelled.length}");
+    print("Số vipappointments chưa hủy: ${vipCancelled.length}");
 
     return vipCancelled.length;
   }

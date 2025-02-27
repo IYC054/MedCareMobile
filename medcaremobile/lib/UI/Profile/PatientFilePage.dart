@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:medcaremobile/UI/Appointment/Doctor/ChooseDoctor.dart';
+import 'package:medcaremobile/UI/Appointment/Doctor/ChooseDoctorVIP.dart';
 import 'package:medcaremobile/UI/Appointment/Doctor/UpdateDoctorVip.dart';
 import 'package:medcaremobile/UI/Viewpayment/PaymentWebView.dart';
 import 'package:medcaremobile/services/GetAppointmentApi.dart';
@@ -28,7 +30,6 @@ class _PatientFilePageState extends State<PatientFilePage> {
   @override
   void initState() {
     super.initState();
-    fetchAppointments(); // Mặc định load "Khám Thường"
     fetchPatientData();
     loadUserData();
   }
@@ -68,7 +69,10 @@ class _PatientFilePageState extends State<PatientFilePage> {
     if (fetchVipAppointment != null) {
       setState(() {
         appointments = fetchVipAppointment.map((item) {
-          print("VIP: $item['id']");
+          var matchedSpecialty = item['doctor']['specialties'].firstWhere(
+            (specialty) => specialty['name'] == item['type'],
+            orElse: () => null, // Trả về null nếu không tìm thấy
+          );
           return {
             "id": item["id"],
             "date": item["workDate"],
@@ -78,6 +82,14 @@ class _PatientFilePageState extends State<PatientFilePage> {
             "startTime": item["startTime"],
             "endTime": item["endTime"],
             "profileID": item["patientprofile"]["id"],
+            "doctor_id": item['doctor']['id'],
+            "doctor_name": item['doctor']['account']['name'],
+            "specialty_id":
+                matchedSpecialty != null ? matchedSpecialty['id'] : null,
+            "specialty_name":
+                matchedSpecialty != null ? matchedSpecialty['name'] : null,
+            "patient_name": item['patientprofile']['fullname'],
+            "patientprofile_id": item['patientprofile']['id'],
           };
         }).toList();
         isLoading = false;
@@ -134,13 +146,25 @@ class _PatientFilePageState extends State<PatientFilePage> {
         List<dynamic> data = jsonDecode(utf8Decoded);
         setState(() {
           appointments = data.map((item) {
-            print(
-                "Item ${item['worktime']['startTime']} - ${item['worktime']['endTime']}");
+            print("APPOINT DATA: ${item[0]}");
+
+            var matchedSpecialty = item['doctor']['specialties'].firstWhere(
+              (specialty) => specialty['name'] == item['type'],
+              orElse: () => null, // Trả về null nếu không tìm thấy
+            );
             return {
               "id": item["id"],
               "date": item["worktime"]["workDate"],
               "startTime": item['worktime']['startTime'],
               "endTime": item['worktime']['endTime'],
+              "doctor_id": item['doctor']['id'],
+              "doctor_name": item['doctor']['account']['name'],
+              "specialty_id":
+                  matchedSpecialty != null ? matchedSpecialty['id'] : null,
+              "specialty_name":
+                  matchedSpecialty != null ? matchedSpecialty['name'] : null,
+              "patient_name": item['patientprofile']['fullname'],
+              "patientprofile_id": item['patientprofile']['id'],
               "reason": item["type"],
               "examination": item['status'],
               "status": item["payments"] != null && item["payments"].isNotEmpty
@@ -239,7 +263,6 @@ class _PatientFilePageState extends State<PatientFilePage> {
                 // Navigator.of(context).pop();
                 Future.delayed(Duration(milliseconds: 500), () {
                   if (context.mounted) {
-          
                     ShowUpdateStatus(context, appId, isvip);
                   }
                 });
@@ -370,6 +393,8 @@ class _PatientFilePageState extends State<PatientFilePage> {
                             itemBuilder: (context, index) {
                               final appointment = appointments[index];
                               print("ISVIP: $isVipSelected");
+                              print(
+                                  "ID: ${appointment['specialty_id']} \n ${appointment['specialty_name']} ${appointment['patient_name']}");
                               return Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white,
@@ -604,6 +629,21 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                           .contains("Đã huỷ"))
                                         GestureDetector(
                                           onTap: () {
+                                            DateTime today = DateTime.now();
+                                            DateTime appointmentDate =
+                                                DateTime.parse(
+                                                    appointment['date']);
+                                            Duration difference =
+                                                appointmentDate
+                                                    .difference(today);
+
+                                            if (difference.inDays < 1) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                      content: Text(
+                                                          "Bạn chỉ có thể huỷ lịch hẹn trước 1 ngày!")));
+                                              return;
+                                            }
                                             if (appointment['status']
                                                 .toString()
                                                 .contains("Chưa thanh toán")) {
@@ -632,7 +672,88 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                               ),
                                             ],
                                           ),
-                                        )
+                                        ),
+                                      isVipSelected
+                                          ? SizedBox(height: 10)
+                                          : SizedBox(height: 10),
+                                      if (appointment['examination']
+                                          .toString()
+                                          .trim()
+                                          .contains("Hoàn thành"))
+                                        GestureDetector(
+                                          onTap: () {
+                                            print(
+                                                "ID: ${appointment['specialty_id']} \n name ${appointment['patient_name']} \n specialty_id ${appointment['specialty_id']} \n specialty_name ${appointment['specialty_name']} \n doctor_id: ${appointment['doctor_id']} \n doctor_name: ${appointment['doctor_name']}");
+                                            if (isVipSelected) {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        Choosedoctorvip(
+                                                          isVIP: true,
+                                                          profileId: appointment[
+                                                              'patientprofile_id'],
+                                                          patientname:
+                                                              appointment[
+                                                                  'patient_name'],
+                                                          reselectedSpecialtyId:
+                                                              appointment[
+                                                                  'specialty_id'],
+                                                          reselectedSpecialtyName:
+                                                              appointment[
+                                                                  'specialty_name'],
+                                                          reselectedDoctorId:
+                                                              appointment[
+                                                                  'doctor_id'],
+                                                          resselectedDoctorName:
+                                                              appointment[
+                                                                  'doctor_name'],
+                                                        )),
+                                              );
+                                            } else {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        Choosedoctor(
+                                                          profileId: appointment[
+                                                              'patientprofile_id'],
+                                                          patientname:
+                                                              appointment[
+                                                                  'patient_name'],
+                                                          reselectedSpecialtyId:
+                                                              appointment[
+                                                                  'specialty_id'],
+                                                          reselectedSpecialtyName:
+                                                              appointment[
+                                                                  'specialty_name'],
+                                                          reselectedDoctorId:
+                                                              appointment[
+                                                                  'doctor_id'],
+                                                          resselectedDoctorName:
+                                                              appointment[
+                                                                  'doctor_name'],
+                                                        )),
+                                              );
+                                            }
+                                          },
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.book,
+                                                  size: 22,
+                                                  color:
+                                                      Colors.deepOrangeAccent),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                "Tái khám",
+                                                style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                     ],
                                   ),
                                 ),
