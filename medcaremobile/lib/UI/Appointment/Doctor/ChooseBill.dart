@@ -23,7 +23,8 @@ class Choosebill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hóa đơn thanh toán', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text('Hóa đơn thanh toán',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: Colors.blue[600],
         centerTitle: true,
         automaticallyImplyLeading: false,
@@ -54,7 +55,10 @@ class Choosebill extends StatelessWidget {
 
             Text(
               "Đặt lịch thành công!",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.green[700]),
+              style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green[700]),
               textAlign: TextAlign.center,
             ),
 
@@ -63,7 +67,8 @@ class Choosebill extends StatelessWidget {
             // Hộp chứa thông tin hóa đơn
             Card(
               elevation: 5,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
               child: Padding(
                 padding: EdgeInsets.all(20),
                 child: Column(
@@ -85,17 +90,22 @@ class Choosebill extends StatelessWidget {
             // Nút quay về trang chủ
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home()));
+                Navigator.pushReplacement(
+                    context, MaterialPageRoute(builder: (context) => Home()));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green[700],
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30)),
                 padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 elevation: 5,
               ),
               child: Text(
                 "Về Trang Chủ",
-                style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -109,15 +119,21 @@ class Choosebill extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start, // Căn về đầu
         children: [
-          Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: isHighlight ? FontWeight.bold : FontWeight.normal,
-              color: isHighlight ? Colors.redAccent : Colors.black87,
+          Expanded(
+            child: Text(label,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.right, // Đảm bảo text căn phải
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: isHighlight ? FontWeight.bold : FontWeight.normal,
+                color: isHighlight ? Colors.redAccent : Colors.black87,
+              ),
             ),
           ),
         ],

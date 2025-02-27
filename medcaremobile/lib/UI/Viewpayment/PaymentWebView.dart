@@ -131,47 +131,44 @@ class _PaymentWebViewState extends State<PaymentWebView>
     return Scaffold(
       appBar: AppBar(title: Text("Thanh toán MEDCARE")),
       body: InAppWebView(
-        initialUrlRequest:
-            URLRequest(url: WebUri(fixPaymentUrl(widget.paymentUrl))),
-        onWebViewCreated: (controller) => webViewController = controller,
-        onLoadStop: (controller, url) async {
-          if (url != null) {
-            String source =
-                url.toString(); // Lưu giá trị URL hiện tại vào biến source
-            Uri uri = Uri.parse(source);
+          initialUrlRequest:
+              URLRequest(url: WebUri(fixPaymentUrl(widget.paymentUrl))),
+          onWebViewCreated: (controller) => webViewController = controller,
+          onLoadStop: (controller, url) async {
+            if (url != null) {
+              String source =
+                  url.toString(); // Lưu giá trị URL hiện tại vào biến source
+              Uri uri = Uri.parse(source);
 
-            // Nếu source chứa một URL hợp lệ, cập nhật lại uri
-            String? message = await fetchSuccessMessage(source);
-            print("message $message");
-            bool isSuccess = message != null && message.contains("Thành công.");
-            if (uri.queryParameters["vnp_TransactionStatus"] == "00" ||
-                isSuccess) {
-              await controller.stopLoading();
-              setState(() {});
-              widget.isVIP == true && widget.isNormal == true
-                  ? _handlePaymentSuccessISVIP()
-                  : _handlePaymentSuccessNOVIP();
-              if (widget.isNormal == false && widget.isVIP == false)
-                _handlePaymentAppointment();
+              // Nếu source chứa một URL hợp lệ, cập nhật lại uri
+              String? message = await fetchSuccessMessage(source);
+              print("message $message");
+              bool isSuccess =
+                  message != null && message.contains("Thành công.");
+              if (uri.queryParameters["vnp_TransactionStatus"] == "00" ||
+                  isSuccess) {
+                await controller.stopLoading();
+                setState(() {});
+                widget.isVIP == true && widget.isNormal == true
+                    ? _handlePaymentSuccessISVIP()
+                    : _handlePaymentSuccessNOVIP();
+                if (widget.isNormal == false && widget.isVIP == false)
+                  _handlePaymentAppointment();
+              }
             }
-          }
-        },
-        shouldOverrideUrlLoading: (controller, navigationAction) async {
-          var url = navigationAction.request.url.toString();
-          print("Intercepted URL: $url");
+          },
+          shouldOverrideUrlLoading: (controller, navigationAction) async {
+            var url = navigationAction.request.url.toString();
+            print("Intercepted URL: $url");
 
-          if (url.startsWith("momo://") || url.startsWith("medcaremobile://")) {
-            if (await canLaunchUrl(Uri.parse(url))) {
+            if (url.startsWith("momo://") ||
+                url.startsWith("medcaremobile://")) {
               await launchUrl(Uri.parse(url),
                   mode: LaunchMode.externalApplication);
-            } else {
-              print("Không tìm thấy ứng dụng để xử lý $url");
+              return NavigationActionPolicy.CANCEL;
             }
-            return NavigationActionPolicy.CANCEL;
-          }
-          return NavigationActionPolicy.ALLOW;
-        },
-      ),
+            return NavigationActionPolicy.ALLOW;
+          }),
     );
   }
 
@@ -264,3 +261,4 @@ class _PaymentWebViewState extends State<PaymentWebView>
     }
   }
 }
+
