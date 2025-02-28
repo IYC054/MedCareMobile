@@ -106,7 +106,6 @@ class GetAppointmentApi {
       final response = await http.post(
         url,
         headers: {
-          "Authorization": "Bearer $token",
           "Content-Type": "application/json",
         },
         body: jsonEncode({
