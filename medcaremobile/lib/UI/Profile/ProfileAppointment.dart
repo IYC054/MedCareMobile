@@ -56,7 +56,8 @@ class _ProfileappointmentState extends State<Profileappointment> {
             "startTime": item["startTime"],
             "endTime": item["endTime"],
             "reason": item["type"],
-            "status": item["status"],
+            "status": "Đã thanh toán",
+            "examination": item["status"],
             "fullname": item['patientprofile']["fullname"],
           };
         }).toList();
@@ -122,6 +123,7 @@ class _ProfileappointmentState extends State<Profileappointment> {
               "endTime": item["worktime"]["endTime"],
               "fullname": item['patientprofile']['fullname'],
               "reason": item["type"],
+              "examination": item['status'],
               "status": item["payments"] != null && item["payments"].isNotEmpty
                   ? item["payments"][0]
                       ["status"] // Lấy status của payment đầu tiên
@@ -237,7 +239,11 @@ class _ProfileappointmentState extends State<Profileappointment> {
                 ],
               ),
             ),
-            Center(child: Text("Bạn đang có ${appointments.where((vip) => vip['status'].toString().contains("Chưa khám")).length} cuộc hẹn", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),)),
+            Center(
+                child: Text(
+              "Bạn đang có ${appointments.where((vip) => vip['examination'].toString().contains("Chờ xử lý")).length} cuộc hẹn",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            )),
             Expanded(
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -337,7 +343,23 @@ class _ProfileappointmentState extends State<Profileappointment> {
                                               size: 22, color: Colors.green),
                                           const SizedBox(width: 8),
                                           Text(
-                                            "Trạng thái: ${appointment["status"]}",
+                                            "Trạng thái: ${appointment["examination"]}",
+                                            style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.credit_card,
+                                              size: 22, color: Colors.green),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            "Trạng thái thanh toán: ${appointment["status"]}",
                                             style: const TextStyle(
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w500),

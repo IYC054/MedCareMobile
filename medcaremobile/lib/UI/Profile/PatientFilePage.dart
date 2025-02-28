@@ -9,6 +9,7 @@ import 'package:medcaremobile/services/GetPatientApi.dart';
 import 'dart:convert';
 
 import 'package:medcaremobile/services/IpNetwork.dart';
+import 'package:medcaremobile/services/PaymentApi.dart';
 import 'package:medcaremobile/services/StorageService.dart';
 
 class PatientFilePage extends StatefulWidget {
@@ -136,6 +137,11 @@ class _PatientFilePageState extends State<PatientFilePage> {
   }
 
   Future<void> fetchAppointments() async {
+    if (patientID.isEmpty) {
+      print("PatientID rỗng, không thể lấy dữ liệu lịch hẹn.");
+      return; // Ngăn việc gọi API khi chưa có patientID
+    }
+
     String apiUrl =
         "http://$ip:8080/api/appointment/patient/${patientID[0]['id']}";
     try {
@@ -144,14 +150,25 @@ class _PatientFilePageState extends State<PatientFilePage> {
       if (response.statusCode == 200) {
         final utf8Decoded = utf8.decode(response.bodyBytes);
         List<dynamic> data = jsonDecode(utf8Decoded);
+
+        if (data.isEmpty) {
+          print("Không có cuộc hẹn nào được tìm thấy.");
+          setState(() {
+            isLoading = false;
+            appointments = [];
+          });
+          return;
+        }
+
         setState(() {
           appointments = data.map((item) {
-            print("APPOINT DATA: ${item[0]}");
+            print("APPOINT DATA: $item");
 
             var matchedSpecialty = item['doctor']['specialties'].firstWhere(
               (specialty) => specialty['name'] == item['type'],
-              orElse: () => null, // Trả về null nếu không tìm thấy
+              orElse: () => null,
             );
+
             return {
               "id": item["id"],
               "date": item["worktime"]["workDate"],
@@ -167,14 +184,11 @@ class _PatientFilePageState extends State<PatientFilePage> {
               "patientprofile_id": item['patientprofile']['id'],
               "reason": item["type"],
               "examination": item['status'],
-              "status": item["payments"] != null && item["payments"].isNotEmpty
-                  ? item["payments"][0]
-                      ["status"] // Lấy status của payment đầu tiên
-                  : "Không có thanh toán",
+              "status": item["payments"].isNotEmpty
+                  ? item["payments"][0]["status"]
+                  : "Chưa thanh toán",
               "paymentId":
-                  item["payments"] != null && item["payments"].isNotEmpty
-                      ? item["payments"][0]["id"] // Lấy ID của payment đầu tiên
-                      : null,
+                  item["payments"].isNotEmpty ? item["payments"][0]["id"] : null
             };
           }).toList();
           isLoading = false;
@@ -190,60 +204,70 @@ class _PatientFilePageState extends State<PatientFilePage> {
     }
   }
 
-  void ShowUpdateStatus(BuildContext context, int appId, isVIP) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Thông báo"),
-          content: Text("Bạn có chắn muốn huỷ cuộc hẹn?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("Không"),
-            ),
-            TextButton(
-              onPressed: () async {
-                bool checkstatus;
-                if (isVIP) {
-                  checkstatus =
-                      await GetAppointmentApi.UpdateStatusVIPAppointment(appId);
-                } else {
-                  checkstatus =
-                      await GetAppointmentApi.UpdateStatusAppointment(appId);
-                }
-                if (checkstatus) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("Đã huỷ hẹn thành công"),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                  fetchPatientData();
-                  fetchAppointments();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content:
-                          Text("huỷ hẹn chưa thành công xin vui lòng thử lại"),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                }
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              },
-              child: Text("Có"),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  void ShowUpdateStatus(BuildContext context, int appId, bool isVIP, int paymentID, String appointmentStatus) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Thông báo"),
+        content: Text("Bạn có chắc muốn huỷ cuộc hẹn?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text("Không"),
+          ),
+          TextButton(
+            onPressed: () async {
+              bool checkstatus;
+              String? transcode;
 
-  void ShowalertPayment(BuildContext context, int appId, bool isvip) {
+              // Gọi API hủy cuộc hẹn
+              if (isVIP) {
+                checkstatus = await GetAppointmentApi.UpdateStatusVIPAppointment(appId);
+              } else {
+                checkstatus = await GetAppointmentApi.UpdateStatusAppointment(appId);
+              }
+
+              // Chỉ cập nhật trạng thái payment nếu cuộc hẹn đã thanh toán
+              if (appointmentStatus.contains("Đã thanh toán")) {
+                transcode = await Paymentapi.UpdatestatusPayment(paymentID: paymentID, status: "Hoàn tiền");
+              } else {
+                transcode = "No Payment Update"; // Chỉ để check, không gọi API
+              }
+
+              if (checkstatus && transcode != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Đã huỷ hẹn thành công"),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+                fetchPatientData();
+                fetchAppointments();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Huỷ hẹn chưa thành công, xin vui lòng thử lại"),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              }
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },
+            child: Text("Có"),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
+  void ShowalertPayment(
+      BuildContext context, int appId, bool isvip, int paymentID, String appointmentStatus ) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -263,7 +287,7 @@ class _PatientFilePageState extends State<PatientFilePage> {
                 // Navigator.of(context).pop();
                 Future.delayed(Duration(milliseconds: 500), () {
                   if (context.mounted) {
-                    ShowUpdateStatus(context, appId, isvip);
+                    ShowUpdateStatus(context, appId, isvip, paymentID, appointmentStatus);
                   }
                 });
               },
@@ -630,9 +654,19 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                         GestureDetector(
                                           onTap: () {
                                             DateTime today = DateTime.now();
+                                            today = DateTime(
+                                                today.year,
+                                                today.month,
+                                                today.day); // Đặt về 00:00:00
+
                                             DateTime appointmentDate =
                                                 DateTime.parse(
                                                     appointment['date']);
+                                            appointmentDate = DateTime(
+                                                appointmentDate.year,
+                                                appointmentDate.month,
+                                                appointmentDate.day);
+
                                             Duration difference =
                                                 appointmentDate
                                                     .difference(today);
@@ -650,12 +684,14 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                               ShowUpdateStatus(
                                                   context,
                                                   appointment['id'],
-                                                  isVipSelected);
+                                                  isVipSelected,
+                                                  appointment['paymentId'], appointment['status'],);
                                             } else {
                                               ShowalertPayment(
                                                   context,
                                                   appointment['id'],
-                                                  isVipSelected);
+                                                  isVipSelected,
+                                                  appointment['paymentId'], appointment['status']);
                                             }
                                           },
                                           child: Row(

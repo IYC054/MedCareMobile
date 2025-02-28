@@ -40,7 +40,7 @@ class Paymentapi {
         final Map<String, dynamic> responseData = jsonDecode(utf8Decoded);
 
         String bookingId = responseData["transactionCode"];
-        print("Thanh toán thành công $bookingId");
+        print("Thanh toán thành công payments $bookingId");
 
         return bookingId;
       } else {
@@ -54,6 +54,7 @@ class Paymentapi {
   }
     static Future<String?> UpdatestatusPayment(
       {required int paymentID,
+      required String status
       }) async {
     try {
       if (token == null) await init(); 
@@ -65,7 +66,7 @@ class Paymentapi {
           "Content-Type": "application/json",
         },
         body: jsonEncode({
-          "status": "Đã thanh toán",
+          "status": status,
         }),
       );
 

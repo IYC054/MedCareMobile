@@ -54,6 +54,7 @@ class _PaymentWebViewState extends State<PaymentWebView>
   InAppWebViewController? webViewController;
   List<dynamic> patientId = [];
   static Map<String, dynamic>? user;
+  bool _appointmentCreated = false;
 
   @override
   void initState() {
@@ -151,7 +152,7 @@ class _PaymentWebViewState extends State<PaymentWebView>
               bool isSuccess =
                   message != null && message.contains("Thành công.");
               if (uri.queryParameters["vnp_TransactionStatus"] == "00" ||
-                  isSuccess) {
+                  isSuccess && _appointmentCreated == false) {
                 await controller.stopLoading();
                 setState(() {});
                 widget.isVIP == true && widget.isNormal == true
@@ -198,7 +199,7 @@ class _PaymentWebViewState extends State<PaymentWebView>
 
   void _handlePaymentAppointment() async {
     String? transcode =
-        await Paymentapi.UpdatestatusPayment(paymentID: widget.PaymentID!);
+        await Paymentapi.UpdatestatusPayment(paymentID: widget.PaymentID!, status: "Đã thanh toán");
     if (transcode != null) {
       Navigator.pushReplacement(
           context,
@@ -208,6 +209,8 @@ class _PaymentWebViewState extends State<PaymentWebView>
   }
 
   void _handlePaymentSuccessISVIP() async {
+    if (_appointmentCreated) return; // Ngăn gọi hàm nhiều lần
+    _appointmentCreated = true;
     if (patientId.isEmpty) return;
     int bookingId = await GetAppointmentApi().createVIPAppointment(
       doctorId: widget.selectedDoctorId ?? 0,
@@ -246,6 +249,8 @@ class _PaymentWebViewState extends State<PaymentWebView>
   }
 
   void _handlePaymentSuccessNOVIP() async {
+    if (_appointmentCreated) return; // Ngăn gọi hàm nhiều lần
+    _appointmentCreated = true;
     try {
       int bookingId = await GetAppointmentApi().createAppointment(
         doctorId: widget.selectedDoctorId!,

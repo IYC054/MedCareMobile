@@ -139,8 +139,7 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text("Thông báo"),
-            content: Text(
-                "Bạn đã có lịch hẹn vào ngày này?"),
+            content: Text("Bạn đã có lịch hẹn vào ngày này?"),
             actions: [
               TextButton(
                 onPressed: () {
@@ -151,7 +150,6 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
                 },
                 child: Text("OK"),
               ),
-              
             ],
           );
         },
@@ -208,8 +206,8 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: TableCalendar(
-                    firstDay: DateTime.utc(2020, 1, 1),
-                    lastDay: DateTime.utc(2030, 12, 31),
+                    firstDay: DateTime.now(),
+                    lastDay: DateTime.utc(2030, 12, 31), // Chỉ hiện ngày hôm nay và ngày mai
                     focusedDay: _focusedDay,
                     calendarFormat: CalendarFormat.month,
                     selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
