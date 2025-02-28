@@ -74,6 +74,9 @@ class _PaymentWebViewState extends State<PaymentWebView>
   }
 
   Future<void> loadPatientData() async {
+    if (user == null) {
+      loadUserData();
+    }
     patientId = await Getpatientapi.getPatientbyAccountid(user!['id']);
   }
 
@@ -89,12 +92,14 @@ class _PaymentWebViewState extends State<PaymentWebView>
   }
 
   void _checkPaymentStatus() async {
-    await Future.delayed(Duration(seconds: 2)); // Chờ 2 giây
+    await Future.delayed(Duration(seconds: 2));
     String? currentUrl = (await webViewController?.getUrl())?.toString();
-    print("Current URL: $currentUrl");
+    print("Current URL: $currentUrl"); // Kiểm tra URL hiện tại
 
     if (currentUrl != null) {
       Uri uri = Uri.parse(currentUrl);
+      print("Query parameters: ${uri.queryParameters}"); // In toàn bộ tham số
+
       if (uri.queryParameters["vnp_TransactionStatus"] == "00" ||
           uri.queryParameters["resultCode"] == "0") {
         Navigator.pop(context, true);
@@ -139,7 +144,7 @@ class _PaymentWebViewState extends State<PaymentWebView>
               String source =
                   url.toString(); // Lưu giá trị URL hiện tại vào biến source
               Uri uri = Uri.parse(source);
-
+              print("✅ onLoadStop: $url");
               // Nếu source chứa một URL hợp lệ, cập nhật lại uri
               String? message = await fetchSuccessMessage(source);
               print("message $message");
@@ -163,9 +168,28 @@ class _PaymentWebViewState extends State<PaymentWebView>
 
             if (url.startsWith("momo://") ||
                 url.startsWith("medcaremobile://")) {
+              Uri uri = Uri.parse(url);
+              print("✅ Detected Deep Link: $url");
+
+              // Kiểm tra trạng thái thanh toán từ query parameters
+              if (uri.queryParameters["vnp_TransactionStatus"] == "00") {
+                print("🎉 Thanh toán thành công!");
+
+                // Xử lý thanh toán thành công
+                if (widget.isVIP == true && widget.isNormal == true) {
+                  _handlePaymentSuccessISVIP();
+                } else {
+                  _handlePaymentSuccessNOVIP();
+                }
+                if (widget.isNormal == false && widget.isVIP == false) {
+                  _handlePaymentAppointment();
+                }
+              }
+
               await launchUrl(Uri.parse(url),
                   mode: LaunchMode.externalApplication);
-              return NavigationActionPolicy.CANCEL;
+              return NavigationActionPolicy
+                  .CANCEL; // Ngăn WebView tải deep link
             }
             return NavigationActionPolicy.ALLOW;
           }),
@@ -261,4 +285,3 @@ class _PaymentWebViewState extends State<PaymentWebView>
     }
   }
 }
-
