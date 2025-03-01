@@ -79,14 +79,14 @@ class _ButtonState extends State<Button> {
         // // Lưu token vào SharedPreferences
         // await StorageService.saveToken(token);
         // Lấy deviceToken của Firebase
-        String? deviceToken = await FirebaseMessaging.instance.getToken();
+        // String? deviceToken = await FirebaseMessaging.instance.getToken();
 
-        if (deviceToken != null) {
-          print("Device Token: $deviceToken");
+        // if (deviceToken != null) {
+        //   print("Device Token: $deviceToken");
 
-          // Lưu deviceToken vào Firestore
-          await FirestoreService.saveUserToken(deviceToken);
-        }
+        //   // Lưu deviceToken vào Firestore
+        //   await FirestoreService.saveUserToken(deviceToken);
+        // }
 
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: ShowCustomSnackBar(

@@ -30,14 +30,27 @@ class FirestoreService {
     }
   }
   //login with email, password method
-  static Future<String> loginWithEmail(String email, String password) async {
-    try{
-      await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-      print("Login successfully with Firestore");
-      return "Login successfully with Firestore";
-    }on FirebaseAuthException catch (e){
+   static Future<String> loginWithEmail(String email, String password) async {
+    try {
+      final auth = FirebaseAuth.instance;
+      // Kiểm tra email đã tồn tại chưa
+      List<String> signInMethods = await auth.fetchSignInMethodsForEmail(email);
+      if (signInMethods != null) {
+        print("Email tồn tại");
+        // Email đã tồn tại -> Tiến hành đăng nhập
+        await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+        return "Login successfully with Firestore";
+      } else {
+        print("Email Chưa tồn tại");
+
+        // Email chưa tồn tại -> Tiến hành đăng ký
+        await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(email: email, password: password);
+        return "Register and login successfully with Firestore";
+      }
+    } on FirebaseAuthException catch (e) {
       return e.message.toString();
-    } catch(e){
+    } catch (e) {
       return e.toString();
     }
   }
