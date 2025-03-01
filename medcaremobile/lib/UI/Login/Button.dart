@@ -4,10 +4,12 @@ import 'package:http/http.dart' as http;
 import 'package:medcaremobile/services/AccountAPIService.dart';
 import 'package:medcaremobile/services/FirestoreService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../../services/StorageService.dart';
 import '../Home/Home.dart';
 import 'package:show_custom_snackbar/show_custom_snackbar.dart';
+
 class Button extends StatefulWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
@@ -65,7 +67,8 @@ class _ButtonState extends State<Button> {
         widget.emailController.text,
         widget.passwordController.text,
       );
-      FirestoreService.loginWithEmail(widget.emailController.text, widget.passwordController.text);
+      FirestoreService.loginWithEmail(
+          widget.emailController.text, widget.passwordController.text);
       if (data != null &&
           data.containsKey('result') &&
           data['result'] != null &&
@@ -75,18 +78,27 @@ class _ButtonState extends State<Button> {
         //
         // // Lưu token vào SharedPreferences
         // await StorageService.saveToken(token);
+        // Lấy deviceToken của Firebase
+        String? deviceToken = await FirebaseMessaging.instance.getToken();
 
-         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: ShowCustomSnackBar(
-          title: "Đăng nhập thành công.",
-          label: "",
-          color: Colors.green,
-          icon: Icons.check_circle_outline,
-        ),
-        behavior: SnackBarBehavior.floating,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-      ));
+        if (deviceToken != null) {
+          print("Device Token: $deviceToken");
+
+          // Lưu deviceToken vào Firestore
+          await FirestoreService.saveUserToken(deviceToken);
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: ShowCustomSnackBar(
+            title: "Đăng nhập thành công.",
+            label: "",
+            color: Colors.green,
+            icon: Icons.check_circle_outline,
+          ),
+          behavior: SnackBarBehavior.floating,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+        ));
 
         // Điều hướng đến màn hình chính
         Navigator.pushReplacement(
@@ -99,7 +111,7 @@ class _ButtonState extends State<Button> {
         throw Exception("Invalid response from server. Token not found.");
       }
     } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: ShowCustomSnackBar(
           title: "Đăng nhập thất bại.",
           label: "",

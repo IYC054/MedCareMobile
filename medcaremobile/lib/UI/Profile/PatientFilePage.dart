@@ -204,70 +204,75 @@ class _PatientFilePageState extends State<PatientFilePage> {
     }
   }
 
-  void ShowUpdateStatus(BuildContext context, int appId, bool isVIP, int paymentID, String appointmentStatus) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text("Thông báo"),
-        content: Text("Bạn có chắc muốn huỷ cuộc hẹn?"),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text("Không"),
-          ),
-          TextButton(
-            onPressed: () async {
-              bool checkstatus;
-              String? transcode;
+  void ShowUpdateStatus(BuildContext context, int appId, bool isVIP,
+      int paymentID, String appointmentStatus) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Thông báo"),
+          content: Text("Bạn có chắc muốn huỷ cuộc hẹn?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Không"),
+            ),
+            TextButton(
+              onPressed: () async {
+                bool checkstatus;
+                String? transcode;
 
-              // Gọi API hủy cuộc hẹn
-              if (isVIP) {
-                checkstatus = await GetAppointmentApi.UpdateStatusVIPAppointment(appId);
-              } else {
-                checkstatus = await GetAppointmentApi.UpdateStatusAppointment(appId);
-              }
+                // Gọi API hủy cuộc hẹn
+                if (isVIP) {
+                  checkstatus =
+                      await GetAppointmentApi.UpdateStatusVIPAppointment(appId);
+                } else {
+                  checkstatus =
+                      await GetAppointmentApi.UpdateStatusAppointment(appId);
+                }
 
-              // Chỉ cập nhật trạng thái payment nếu cuộc hẹn đã thanh toán
-              if (appointmentStatus.contains("Đã thanh toán")) {
-                transcode = await Paymentapi.UpdatestatusPayment(paymentID: paymentID, status: "Hoàn tiền");
-              } else {
-                transcode = "No Payment Update"; // Chỉ để check, không gọi API
-              }
+                // Chỉ cập nhật trạng thái payment nếu cuộc hẹn đã thanh toán
+                if (appointmentStatus.contains("Đã thanh toán")) {
+                  transcode = await Paymentapi.UpdatestatusPayment(
+                      paymentID: paymentID, status: "Hoàn tiền");
+                } else {
+                  transcode =
+                      "No Payment Update"; // Chỉ để check, không gọi API
+                }
 
-              if (checkstatus && transcode != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Đã huỷ hẹn thành công"),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-                fetchPatientData();
-                fetchAppointments();
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Huỷ hẹn chưa thành công, xin vui lòng thử lại"),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              }
-              Navigator.of(context).pop();
-              Navigator.of(context).pop();
-            },
-            child: Text("Có"),
-          ),
-        ],
-      );
-    },
-  );
-}
+                if (checkstatus && transcode != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Đã huỷ hẹn thành công"),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                  fetchPatientData();
+                  fetchAppointments();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content:
+                          Text("Huỷ hẹn chưa thành công, xin vui lòng thử lại"),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: Text("Có"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-
-  void ShowalertPayment(
-      BuildContext context, int appId, bool isvip, int paymentID, String appointmentStatus ) {
+  void ShowalertPayment(BuildContext context, int appId, bool isvip,
+      int paymentID, String appointmentStatus) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -287,7 +292,8 @@ class _PatientFilePageState extends State<PatientFilePage> {
                 // Navigator.of(context).pop();
                 Future.delayed(Duration(milliseconds: 500), () {
                   if (context.mounted) {
-                    ShowUpdateStatus(context, appId, isvip, paymentID, appointmentStatus);
+                    ShowUpdateStatus(
+                        context, appId, isvip, paymentID, appointmentStatus);
                   }
                 });
               },
@@ -616,6 +622,31 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                       if (isVipSelected)
                                         GestureDetector(
                                           onTap: () {
+                                            DateTime today = DateTime.now();
+                                            today = DateTime(
+                                                today.year,
+                                                today.month,
+                                                today.day); // Đặt về 00:00:00
+
+                                            DateTime appointmentDate =
+                                                DateTime.parse(
+                                                    appointment['date']);
+                                            appointmentDate = DateTime(
+                                                appointmentDate.year,
+                                                appointmentDate.month,
+                                                appointmentDate.day);
+
+                                            Duration difference =
+                                                appointmentDate
+                                                    .difference(today);
+
+                                            if (difference.inDays < 1) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                      content: Text(
+                                                          "Bạn chỉ có thể thay đổi lịch hẹn trước 1 ngày!")));
+                                              return;
+                                            }
                                             Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
@@ -682,16 +713,19 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                                 .toString()
                                                 .contains("Chưa thanh toán")) {
                                               ShowUpdateStatus(
-                                                  context,
-                                                  appointment['id'],
-                                                  isVipSelected,
-                                                  appointment['paymentId'], appointment['status'],);
+                                                context,
+                                                appointment['id'],
+                                                isVipSelected,
+                                                appointment['paymentId'],
+                                                appointment['status'],
+                                              );
                                             } else {
                                               ShowalertPayment(
                                                   context,
                                                   appointment['id'],
                                                   isVipSelected,
-                                                  appointment['paymentId'], appointment['status']);
+                                                  appointment['paymentId'],
+                                                  appointment['status']);
                                             }
                                           },
                                           child: Row(

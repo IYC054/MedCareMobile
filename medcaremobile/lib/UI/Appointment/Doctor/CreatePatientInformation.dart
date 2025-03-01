@@ -7,6 +7,7 @@ import 'package:medcaremobile/UI/Appointment/Doctor/ProgressBar.dart';
 import 'package:medcaremobile/services/CheckCCCDApi.dart';
 import 'package:medcaremobile/services/ProvinceApi.dart';
 import 'package:medcaremobile/services/PatientInformation.dart';
+import 'package:intl/intl.dart';
 
 class CreatePatientInformation extends StatefulWidget {
   const CreatePatientInformation({super.key, required this.isVIP});
@@ -37,6 +38,8 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
   String? selectedWardId;
   String? selectedEthnicity;
   String? selectedJob;
+  bool isCCCDUpdated = false;
+
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -64,20 +67,36 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
         _cccdData!['data'].isNotEmpty) {
       var firstData = _cccdData!['data'][0];
 
+      String rawDob = firstData['dob'] ?? '';
+
+      DateTime? parsedDate;
+      try {
+        if (rawDob.contains('/')) {
+          // Nếu định dạng là DD/MM/YYYY hoặc MM/DD/YYYY
+          List<String> parts = rawDob.split('/');
+          if (parts[2].length == 4) {
+            parsedDate = DateFormat('dd/MM/yyyy').parse(rawDob);
+          } else {
+            parsedDate = DateFormat('MM/dd/yyyy').parse(rawDob);
+          }
+        } else if (rawDob.contains('-')) {
+          // Nếu định dạng là YYYY-MM-DD (chuẩn)
+          parsedDate = DateTime.parse(rawDob);
+        }
+      } catch (e) {
+        print("Lỗi khi parse ngày tháng: $e");
+        parsedDate = null;
+      }
+
       setState(() {
         nameController.text = firstData['name'] ?? '';
-        birthDateController.text = firstData['dob'] ?? '';
+        birthDateController.text = parsedDate != null
+            ? "${parsedDate.year}-${parsedDate.month.toString().padLeft(2, '0')}-${parsedDate.day.toString().padLeft(2, '0')}"
+            : '';
         bhytController.text = firstData['id'] ?? '';
-        addressController.text = firstData['address'] ?? '';
         gender = firstData['sex'] ?? '';
+        isCCCDUpdated = true;
       });
-
-      print("Tên: ${nameController.text}");
-      print("Ngày sinh: ${birthDateController.text}");
-      print("CCCD: ${bhytController.text}");
-      print("Địa chỉ: ${addressController.text}");
-    } else {
-      print("❌ Dữ liệu CCCD không hợp lệ");
     }
   }
 
@@ -205,8 +224,9 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
                   SizedBox(
                     height: 10,
                   ),
-                  buildTextField("Tên", nameController),
-                  buildDatePickerField("Ngày sinh", birthDateController),
+                  buildTextField("Tên", nameController, isCCCDUpdated),
+                  buildDatePickerField(
+                      "Ngày sinh", birthDateController, isCCCDUpdated),
                   buildTextField("Số điện thoại", phoneController),
                   buildGenderField(),
                   buildDropdownField(
@@ -230,7 +250,7 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
                     },
                   ),
                   buildTextField("Email", emailController),
-                  buildTextField("Số CCCD", bhytController),
+                  buildTextField("Số CCCD", bhytController, isCCCDUpdated),
                   buildDropdownField(
                     "Tỉnh/Thành",
                     provinces,
@@ -340,10 +360,12 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
     );
   }
 
-  Widget buildTextField(String label, TextEditingController controller) {
+  Widget buildTextField(String label, TextEditingController controller,
+      [bool isDisabled = false]) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
+        enabled: !isDisabled,
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
@@ -390,7 +412,8 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
     );
   }
 
-  Widget buildDatePickerField(String label, TextEditingController controller) {
+  Widget buildDatePickerField(String label, TextEditingController controller,
+      [bool isDisabled = false]) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
@@ -401,7 +424,8 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
           border: OutlineInputBorder(),
           suffixIcon: Icon(Icons.calendar_today),
         ),
-        onTap: () => _selectDate(context),
+        enabled: !isDisabled, // Vô hiệu hóa nếu isDisabled = true
+        onTap: isDisabled ? null : () => _selectDate(context),
         validator: (value) {
           if (value == null || value.isEmpty) {
             return 'Vui lòng chọn $label';

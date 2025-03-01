@@ -188,12 +188,10 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
   }
 
   Future<void> _handlePaymentAtHospital() async {
-    // if (user == null) {
-    //   loadUserData();
-    // }
-    // if (patientId == null) {
-    //   loadPatientData();
-    // }
+    if (patientId.isEmpty) {
+      loadPatientData();
+      return;
+    }
     try {
       print("Doctor: ${widget.selectedDoctorId}");
       print("DoctorName: ${widget.Doctorname}");
