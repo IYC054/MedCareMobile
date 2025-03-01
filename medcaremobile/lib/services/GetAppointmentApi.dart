@@ -57,8 +57,9 @@ class GetAppointmentApi {
       User? user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         print("⚠️ Không có user đăng nhập! Hủy gọi API.");
+        return 0;
       }
-      String userIdFirestore = user!.uid;
+      String userIdFirestore = user.uid;
       print("User ID Firestore: " + userIdFirestore);
       final url = Uri.parse(baseUrl);
       final response = await http.post(
@@ -114,9 +115,12 @@ class GetAppointmentApi {
       User? user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         print("⚠️ Không có user đăng nhập! Hủy gọi API.");
+        return 0;
       }
-      String userIdFirestore = user!.uid;
+      String userIdFirestore = user.uid;
       print("User ID Firestore: " + userIdFirestore);
+
+
       final url = Uri.parse(baseUrlVip);
 
       final response = await http.post(
