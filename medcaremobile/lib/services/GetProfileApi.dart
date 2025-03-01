@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:medcaremobile/services/GetPatientApi.dart';
 import 'package:medcaremobile/services/IpNetwork.dart';
-import 'package:medcaremobile/services/StorageService.dart';
 
 class Getprofileapi {
   static const ip = Ipnetwork.ip;
