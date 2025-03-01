@@ -39,6 +39,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
   String? startTime;
   String? endTime;
   bool? checkspec = false;
+  String? doctorEmail;
 
   bool isVIP = false;
 
@@ -90,6 +91,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
       setState(() {
         selectedDoctorId = result['id'];
         selectedDoctorName = result['name'];
+        doctorEmail = result['email'];
       });
     }
   }
@@ -139,11 +141,13 @@ class ChoosedoctorState extends State<Choosedoctor> {
         final randomDoctor =
             filteredDoctors[Random().nextInt(filteredDoctors.length)];
         print("randomDoctor: ${randomDoctor['account']['name']}");
+        print("Email: ${randomDoctor['account']['email']}");
 
         setState(() {
           checkspec = true;
           selectedDoctorId = randomDoctor['id'];
           selectedDoctorName = randomDoctor['account']['name'];
+          doctorEmail = randomDoctor['account']['email'];
         });
 
         return;
@@ -321,6 +325,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
                                   isVIP: isVIP,
                                   startTime: startTime,
                                   endTime: endTime,
+                                  doctorEmail: doctorEmail,
                                 )));
                   },
                   child: const Text('Tiếp theo'),

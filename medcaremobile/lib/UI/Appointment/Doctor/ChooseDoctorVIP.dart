@@ -40,6 +40,7 @@ class ChoosedoctorvipState extends State<Choosedoctorvip> {
   String? selectTime;
   String? startTime;
   String? endTime;
+  String? doctorEmail;
 
   // Thêm phương thức này để gán cho CustomCheckbox
   @override
@@ -73,6 +74,8 @@ class ChoosedoctorvipState extends State<Choosedoctorvip> {
       setState(() {
         selectedDoctorId = result['id'];
         selectedDoctorName = result['name'];
+        doctorEmail = result['email'];
+        print("doctorEmail: ${result['email']}");
       });
     }
   }
@@ -251,6 +254,7 @@ class ChoosedoctorvipState extends State<Choosedoctorvip> {
                                   isVIP: widget.isVIP,
                                   startTime: startTime,
                                   endTime: endTime,
+                                  doctorEmail: doctorEmail,
                                 )));
                   },
                   child: const Text('Tiếp theo'),

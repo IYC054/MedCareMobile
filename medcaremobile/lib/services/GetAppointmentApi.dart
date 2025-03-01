@@ -41,12 +41,14 @@ class GetAppointmentApi {
     token = await StorageService.getToken();
   }
 
-  Future<int> createAppointment(
-      {required int doctorId,
-      required String specialty,
-      required int worktimeId,
-      required int patientProfileId,
-      required int patientID}) async {
+  Future<int> createAppointment({
+    required int doctorId,
+    required String specialty,
+    required int worktimeId,
+    required int patientProfileId,
+    required int patientID,
+    required String doctorEmail,
+  }) async {
     try {
       if (patientId.isEmpty) {
         // Make sure the data is loaded before accessing it
@@ -76,6 +78,7 @@ class GetAppointmentApi {
           "worktimeId": worktimeId,
           "patientProfileId": patientProfileId,
           "firestoreUserId": userIdFirestore,
+          "doctorEmail": doctorEmail
         }),
       );
 
@@ -97,14 +100,16 @@ class GetAppointmentApi {
     }
   }
 
-  Future<int> createVIPAppointment(
-      {required int doctorId,
-      required String specialty,
-      required DateTime worktime,
-      required String startTime,
-      required String endTime,
-      required int patientProfileId,
-      required int patientID}) async {
+  Future<int> createVIPAppointment({
+    required int doctorId,
+    required String specialty,
+    required DateTime worktime,
+    required String startTime,
+    required String endTime,
+    required int patientProfileId,
+    required int patientID,
+    required String doctorEmail,
+  }) async {
     try {
       if (patientId.isEmpty) {
         // Make sure the data is loaded before accessing it
@@ -119,7 +124,6 @@ class GetAppointmentApi {
       }
       String userIdFirestore = user.uid;
       print("User ID Firestore: " + userIdFirestore);
-
 
       final url = Uri.parse(baseUrlVip);
 
@@ -139,6 +143,7 @@ class GetAppointmentApi {
           "status": "Chờ xử lý",
           "amount": 300000,
           "firestoreUserId": userIdFirestore,
+          "doctorEmail": doctorEmail,
         }),
       );
 

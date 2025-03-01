@@ -23,7 +23,8 @@ class PaymentWebView extends StatefulWidget {
       selectTime,
       startTime,
       endTime,
-      TypePayment;
+      TypePayment,
+      doctorEmail;
   final DateTime? selectDate;
   final bool? isNormal, isVIP;
 
@@ -43,7 +44,8 @@ class PaymentWebView extends StatefulWidget {
       this.endTime,
       this.isNormal = true,
       this.PaymentID = 0,
-      this.TypePayment});
+      this.TypePayment,
+      this.doctorEmail});
 
   @override
   _PaymentWebViewState createState() => _PaymentWebViewState();
@@ -198,8 +200,8 @@ class _PaymentWebViewState extends State<PaymentWebView>
   }
 
   void _handlePaymentAppointment() async {
-    String? transcode =
-        await Paymentapi.UpdatestatusPayment(paymentID: widget.PaymentID!, status: "Đã thanh toán");
+    String? transcode = await Paymentapi.UpdatestatusPayment(
+        paymentID: widget.PaymentID!, status: "Đã thanh toán");
     if (transcode != null) {
       Navigator.pushReplacement(
           context,
@@ -212,15 +214,24 @@ class _PaymentWebViewState extends State<PaymentWebView>
     if (_appointmentCreated) return; // Ngăn gọi hàm nhiều lần
     _appointmentCreated = true;
     if (patientId.isEmpty) return;
+    print("DOCTOREMAIL: ${widget.doctorEmail}");
+    print("Doctor ID: ${widget.selectedDoctorId ?? 0}");
+    print("Specialty: ${widget.selectedSpecialtyName ?? "Không xác định"}");
+    print("Patient Profile ID: ${widget.profileId ?? 0}");
+    print("Start Time: ${widget.startTime ?? ""}");
+    print("End Time: ${widget.endTime ?? ""}");
+    print("Patient ID: ${patientId[0]['id']}");
+    print("Worktime: ${widget.selectDate ?? DateTime.now()}");
+
     int bookingId = await GetAppointmentApi().createVIPAppointment(
-      doctorId: widget.selectedDoctorId ?? 0,
-      specialty: widget.selectedSpecialtyName ?? "Không xác định",
-      patientProfileId: widget.profileId ?? 0,
-      startTime: widget.startTime ?? "",
-      endTime: widget.endTime ?? "",
-      patientID: patientId[0]['id'],
-      worktime: widget.selectDate ?? DateTime.now(),
-    );
+        doctorId: widget.selectedDoctorId ?? 0,
+        specialty: widget.selectedSpecialtyName ?? "Không xác định",
+        patientProfileId: widget.profileId ?? 0,
+        startTime: widget.startTime ?? "",
+        endTime: widget.endTime ?? "",
+        patientID: patientId[0]['id'],
+        worktime: widget.selectDate ?? DateTime.now(),
+        doctorEmail: widget.doctorEmail!);
     if (bookingId == 0) return;
     String? transcode = await Paymentapi.createPayment(
       appointmentid: bookingId,
@@ -253,12 +264,12 @@ class _PaymentWebViewState extends State<PaymentWebView>
     _appointmentCreated = true;
     try {
       int bookingId = await GetAppointmentApi().createAppointment(
-        doctorId: widget.selectedDoctorId!,
-        specialty: widget.selectedSpecialtyName!,
-        worktimeId: widget.selectedWorkTimeId!,
-        patientProfileId: widget.profileId!,
-        patientID: patientId[0]['id'],
-      );
+          doctorId: widget.selectedDoctorId!,
+          specialty: widget.selectedSpecialtyName!,
+          worktimeId: widget.selectedWorkTimeId!,
+          patientProfileId: widget.profileId!,
+          patientID: patientId[0]['id'],
+          doctorEmail: widget.doctorEmail!);
       String? transcode = await Paymentapi.createPayment(
           TypePayment: widget.isNormal == false && widget.isVIP == false
               ? "MOMO"

@@ -26,7 +26,7 @@ class ChoosePaymentScreen extends StatefulWidget {
     this.selectedSpecialtyName,
     this.isVIP,
     this.startTime,
-    this.endTime,
+    this.endTime, this.doctorEmail,
   });
 
   final String specialtyname;
@@ -42,6 +42,7 @@ class ChoosePaymentScreen extends StatefulWidget {
   final String? selectTime;
   final String? startTime;
   final String? endTime;
+  final String? doctorEmail;
 
   @override
   State<ChoosePaymentScreen> createState() => _ChoosePaymentScreenState();
@@ -125,6 +126,7 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
                 isVIP: widget.isVIP,
                 startTime: widget.startTime,
                 endTime: widget.endTime,
+                doctorEmail: widget.doctorEmail,
               ),
             ),
           );
@@ -173,6 +175,8 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
                 startTime: widget.startTime,
                 endTime: widget.endTime,
                 TypePayment: "MOMO",
+                doctorEmail: widget.doctorEmail,
+
               ),
             ),
           );
@@ -201,6 +205,7 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
       print("VIP: ${widget.isVIP}");
       print("TIME: ${formatDate(widget.selectDate!)} - ${widget.selectTime!}");
       print("Patient: ${patientId.isNotEmpty ? patientId[0]['id'] : 'NULL'}");
+      print("doctorEmail: ${widget.doctorEmail}");
       if (widget.selectedDoctorId == null ||
           widget.specialtyname == null ||
           widget.selectedWorkTimeId == null ||
@@ -215,7 +220,8 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
           specialty: widget.specialtyname!,
           worktimeId: widget.selectedWorkTimeId!,
           patientProfileId: widget.profileId!,
-          patientID: patientId[0]['id']);
+          patientID: patientId[0]['id'],
+          doctorEmail: widget.doctorEmail!);
 
       if (bookingId != 0) {
         String? transcode = await Paymentapi.createPayment(

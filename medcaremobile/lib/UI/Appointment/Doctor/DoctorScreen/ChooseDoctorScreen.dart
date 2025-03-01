@@ -101,6 +101,7 @@ class _ChooseDoctorScreenState extends State<ChooseDoctorScreen> {
                                 ? doctor['specialties'][0]['name'] ??
                                     "Không có chuyên khoa"
                                 : "Không có chuyên khoa",
+                            doctorEmail: doctor['account']['email']
                           );
                         } else {
                           return Center(
@@ -122,6 +123,8 @@ class _ChooseDoctorScreenState extends State<ChooseDoctorScreen> {
     required int id,
     required String gender,
     required String specialty,
+    required String doctorEmail,
+
   }) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -140,7 +143,7 @@ class _ChooseDoctorScreenState extends State<ChooseDoctorScreen> {
               alignment: Alignment.centerRight,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context, {'id': id, 'name': name});
+                  Navigator.pop(context, {'id': id, 'name': name, 'email': doctorEmail});
                 },
                 child: Text('Chọn'),
               ),
