@@ -1,8 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:medcaremobile/services/IpNetwork.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class FirestoreService {
+  static const ip = Ipnetwork.ip;
+
+  String url = "http://$ip:8080/api/account/check-email";
   static Future saveUserToken(String token) async {
     User? user = FirebaseAuth.instance.currentUser;
     print("Firestore User: $user");
@@ -16,6 +22,25 @@ class FirestoreService {
       print("Document saved");
     } catch (e) {
       print("FirebaseFirestore error: ${e.toString()}");
+    }
+  }
+
+  Future<bool> checkEmailExists(String email) async {
+    try {
+      final response = await http.get(
+        Uri.parse("$url?email=$email"),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) ==
+            true; // Trả về true nếu email tồn tại
+      } else {
+        print("❌ Lỗi API: ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("❌ Lỗi: $e");
+      return false;
     }
   }
 
@@ -83,11 +108,9 @@ class FirestoreService {
   static Future<String> loginWithEmail(String email, String password) async {
     try {
       FirebaseAuth.instance.setLanguageCode("vi");
-
-      List<String> signInMethods =
-          await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
-        print("KIEM TRA $signInMethods");
-      if (signInMethods.isNotEmpty) {
+      FirestoreService firestoreService = FirestoreService();
+      bool emailExists = await firestoreService.checkEmailExists(email);
+      if (emailExists) {
         print("✅ Email tồn tại trong Firebase");
 
         // Đăng nhập

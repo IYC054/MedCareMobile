@@ -52,6 +52,7 @@ class _HomeState extends State<Home> {
 
   final pages = [
     Homepage(),
+    NotificationPage(),
     NewspagePage(),
     Profilepage(),
   ];
@@ -59,7 +60,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: (pageIndex == 2 && !isLoggedIn) ? VerifyEmailPage() : pages[pageIndex],
+        body: (pageIndex == 3 && !isLoggedIn) ? VerifyEmailPage() : pages[pageIndex],
         bottomNavigationBar: CurvedNavigationBar(
           index: pageIndex < pages.length ? pageIndex : 0,
           onTap: (index) {
@@ -72,6 +73,10 @@ class _HomeState extends State<Home> {
             CurvedNavigationBarItem(
               child: Icon(Icons.home_outlined),
               label: 'Trang chủ',
+            ),
+            CurvedNavigationBarItem(
+              child: Icon(Icons.notifications_outlined),
+              label: 'Thông báo',
             ),
             CurvedNavigationBarItem(
               child: Icon(Icons.newspaper),

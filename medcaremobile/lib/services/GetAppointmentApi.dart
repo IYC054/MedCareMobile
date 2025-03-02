@@ -294,9 +294,9 @@ class GetAppointmentApi {
   }
 
   // ignore: non_constant_identifier_names
-  static Future<bool> UpdateStatusAppointment(int id) async {
+  static Future<bool> UpdateStatusAppointment(int id, String doctorEmail) async {
     try {
-      final url = Uri.parse('$baseUrl/status/$id');
+      final url = Uri.parse('$baseUrl/status/$id?doctorEmail=$doctorEmail');
       final response = await http.put(url,
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({"status": "Đã huỷ"}));
@@ -315,9 +315,9 @@ class GetAppointmentApi {
     }
   }
 
-  static Future<bool> UpdateStatusVIPAppointment(int id) async {
+  static Future<bool> UpdateStatusVIPAppointment(int id, String doctorEmail) async {
     try {
-      final url = Uri.parse('$baseUrlVip/status/$id');
+      final url = Uri.parse('$baseUrlVip/status/$id?doctorEmail=$doctorEmail');
       final response = await http.put(url,
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({"status": "Đã huỷ"}));

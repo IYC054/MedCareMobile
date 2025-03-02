@@ -85,6 +85,7 @@ class _PatientFilePageState extends State<PatientFilePage> {
             "profileID": item["patientprofile"]["id"],
             "doctor_id": item['doctor']['id'],
             "doctor_name": item['doctor']['account']['name'],
+            "doctor_email": item['doctor']['account']['email'],
             "specialty_id":
                 matchedSpecialty != null ? matchedSpecialty['id'] : null,
             "specialty_name":
@@ -176,6 +177,7 @@ class _PatientFilePageState extends State<PatientFilePage> {
               "endTime": item['worktime']['endTime'],
               "doctor_id": item['doctor']['id'],
               "doctor_name": item['doctor']['account']['name'],
+              "doctor_email": item['doctor']['account']['email'],
               "specialty_id":
                   matchedSpecialty != null ? matchedSpecialty['id'] : null,
               "specialty_name":
@@ -205,7 +207,7 @@ class _PatientFilePageState extends State<PatientFilePage> {
   }
 
   void ShowUpdateStatus(BuildContext context, int appId, bool isVIP,
-      int paymentID, String appointmentStatus) {
+      int paymentID, String appointmentStatus, String doctorEmail) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -227,10 +229,11 @@ class _PatientFilePageState extends State<PatientFilePage> {
                 // Gọi API hủy cuộc hẹn
                 if (isVIP) {
                   checkstatus =
-                      await GetAppointmentApi.UpdateStatusVIPAppointment(appId);
+                      await GetAppointmentApi.UpdateStatusVIPAppointment(
+                          appId, doctorEmail);
                 } else {
-                  checkstatus =
-                      await GetAppointmentApi.UpdateStatusAppointment(appId);
+                  checkstatus = await GetAppointmentApi.UpdateStatusAppointment(
+                      appId, doctorEmail);
                 }
 
                 // Chỉ cập nhật trạng thái payment nếu cuộc hẹn đã thanh toán
@@ -272,7 +275,7 @@ class _PatientFilePageState extends State<PatientFilePage> {
   }
 
   void ShowalertPayment(BuildContext context, int appId, bool isvip,
-      int paymentID, String appointmentStatus) {
+      int paymentID, String appointmentStatus, String doctorEmail) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -292,8 +295,8 @@ class _PatientFilePageState extends State<PatientFilePage> {
                 // Navigator.of(context).pop();
                 Future.delayed(Duration(milliseconds: 500), () {
                   if (context.mounted) {
-                    ShowUpdateStatus(
-                        context, appId, isvip, paymentID, appointmentStatus);
+                    ShowUpdateStatus(context, appId, isvip, paymentID,
+                        appointmentStatus, doctorEmail);
                   }
                 });
               },
@@ -713,19 +716,20 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                                 .toString()
                                                 .contains("Chưa thanh toán")) {
                                               ShowUpdateStatus(
-                                                context,
-                                                appointment['id'],
-                                                isVipSelected,
-                                                appointment['paymentId'],
-                                                appointment['status'],
-                                              );
+                                                  context,
+                                                  appointment['id'],
+                                                  isVipSelected,
+                                                  appointment['paymentId'],
+                                                  appointment['status'],
+                                                  appointment['doctor_email']);
                                             } else {
                                               ShowalertPayment(
                                                   context,
                                                   appointment['id'],
                                                   isVipSelected,
                                                   appointment['paymentId'],
-                                                  appointment['status']);
+                                                  appointment['status'],
+                                                  appointment['doctor_email']);
                                             }
                                           },
                                           child: Row(
