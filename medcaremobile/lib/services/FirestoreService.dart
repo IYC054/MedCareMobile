@@ -84,25 +84,28 @@ class FirestoreService {
     try {
       FirebaseAuth.instance.setLanguageCode("vi");
 
-      // Thử đăng nhập
-      await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
-      await saveUserToken2(); //  Lưu device token sau khi đăng nhập
-      return "✅ Login successfully with Firestore";
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
+      List<String> signInMethods =
+          await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+        print("KIEM TRA $signInMethods");
+      if (signInMethods.isNotEmpty) {
+        print("✅ Email tồn tại trong Firebase");
+
+        // Đăng nhập
+        await FirebaseAuth.instance
+            .signInWithEmailAndPassword(email: email, password: password);
+        await saveUserToken2(); // 🛠 Lưu Device Token sau khi đăng nhập
+        return "Login successfully with Firestore";
+      } else {
         print("🚀 Email chưa tồn tại, tạo mới...");
 
-        //  Tạo tài khoản mới nếu chưa tồn tại
+        // Đăng ký tài khoản
         await FirebaseAuth.instance
             .createUserWithEmailAndPassword(email: email, password: password);
-        await saveUserToken2();
-        return "✅ Register and login successfully with Firestore";
-      } else if (e.code == 'wrong-password') {
-        return "❌ Sai mật khẩu!";
-      } else {
-        return "❌ FirebaseAuth Error: ${e.message}";
+        await saveUserToken2(); // 🛠 Lưu Device Token sau khi đăng ký
+        return "Register and login successfully with Firestore";
       }
+    } on FirebaseAuthException catch (e) {
+      return "❌ FirebaseAuth Error: ${e.message}";
     } catch (e) {
       return "⚠️ Unexpected Error: $e";
     }
