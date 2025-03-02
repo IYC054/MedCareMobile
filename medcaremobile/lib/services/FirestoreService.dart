@@ -41,30 +41,41 @@ class FirestoreService {
       return;
     }
 
-    // 🔹 Lấy Device Token từ Firebase Cloud Messaging (FCM)
-    String? deviceToken = await FirebaseMessaging.instance.getToken();
-
-    if (deviceToken == null) {
+    // Lấy Device Token mới
+    String? newDeviceToken = await FirebaseMessaging.instance.getToken();
+    if (newDeviceToken == null) {
       print("❗ Không lấy được Device Token");
       return;
     }
 
-    print("📌 Device Token: $deviceToken");
+    print("📌 New Device Token: $newDeviceToken");
 
-    // 🔹 Lưu email & Device Token vào Firestore
-    Map<String, dynamic> data = {
-      "email": user.email,
-      "token": deviceToken
-    };
+    // 🔍 Kiểm tra token cũ trên Firestore
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection("user_data")
+        .doc(user.uid)
+        .get();
 
-    try {
-      await FirebaseFirestore.instance
-          .collection("user_data")
-          .doc(user.uid)
-          .set(data, SetOptions(merge: true));
-      print("✅ Document saved with Device Token!");
-    } catch (e) {
-      print("❌ FirebaseFirestore error: ${e.toString()}");
+    String? oldDeviceToken = userDoc.data() != null ? userDoc["token"] : null;
+
+    // 🔄 Chỉ cập nhật nếu token thay đổi
+    if (oldDeviceToken != newDeviceToken) {
+      Map<String, dynamic> data = {
+        "email": user.email,
+        "token": newDeviceToken
+      };
+
+      try {
+        await FirebaseFirestore.instance
+            .collection("user_data")
+            .doc(user.uid)
+            .set(data, SetOptions(merge: true));
+        print("✅ Device Token updated!");
+      } catch (e) {
+        print("❌ FirebaseFirestore error: ${e.toString()}");
+      }
+    } else {
+      print("🔄 Device Token không thay đổi, không cần cập nhật.");
     }
   }
 
@@ -73,27 +84,25 @@ class FirestoreService {
     try {
       FirebaseAuth.instance.setLanguageCode("vi");
 
-      List<String> signInMethods =
-          await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
-      if (signInMethods.isNotEmpty) {
-        print("✅ Email tồn tại trong Firebase");
-
-        // Đăng nhập
-        await FirebaseAuth.instance
-            .signInWithEmailAndPassword(email: email, password: password);
-        await saveUserToken2(); // 🛠 Lưu Device Token sau khi đăng nhập
-        return "Login successfully with Firestore";
-      } else {
+      // Thử đăng nhập
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      await saveUserToken2(); //  Lưu device token sau khi đăng nhập
+      return "✅ Login successfully with Firestore";
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
         print("🚀 Email chưa tồn tại, tạo mới...");
 
-        // Đăng ký tài khoản
+        //  Tạo tài khoản mới nếu chưa tồn tại
         await FirebaseAuth.instance
             .createUserWithEmailAndPassword(email: email, password: password);
-        await saveUserToken2(); // 🛠 Lưu Device Token sau khi đăng ký
-        return "Register and login successfully with Firestore";
+        await saveUserToken2();
+        return "✅ Register and login successfully with Firestore";
+      } else if (e.code == 'wrong-password') {
+        return "❌ Sai mật khẩu!";
+      } else {
+        return "❌ FirebaseAuth Error: ${e.message}";
       }
-    } on FirebaseAuthException catch (e) {
-      return "❌ FirebaseAuth Error: ${e.message}";
     } catch (e) {
       return "⚠️ Unexpected Error: $e";
     }

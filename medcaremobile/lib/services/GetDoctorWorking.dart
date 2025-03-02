@@ -9,10 +9,10 @@ class Getdoctorworking {
     try {
       final url = Uri.parse("$baseUrl/doctor/$id");
       final response = await http.get(url);
-
       if (response.statusCode == 200) {
         final utf8Decoded = utf8.decode(response.bodyBytes); // Fix encoding
         final List<dynamic> data = jsonDecode(utf8Decoded);
+        print("WORKING $data");
         return data.isNotEmpty ? data : [];
       } else {
         return [];
