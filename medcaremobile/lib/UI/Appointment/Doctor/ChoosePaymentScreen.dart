@@ -204,7 +204,7 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
       print("PatientProfileId: ${widget.profileId}");
       print("VIP: ${widget.isVIP}");
       print("TIME: ${formatDate(widget.selectDate!)} - ${widget.selectTime!}");
-      print("Patient: ${patientId.isNotEmpty ? patientId[0]['id'] : 'NULL'}");
+      print("Patient: ${patientId[0]['id']}");
       print("doctorEmail: ${widget.doctorEmail}");
       if (widget.selectedDoctorId == null ||
           widget.specialtyname == null ||

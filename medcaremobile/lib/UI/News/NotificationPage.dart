@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 import 'package:medcaremobile/services/IpNetwork.dart';
 
 class NotificationPage extends StatefulWidget {
@@ -12,30 +14,62 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  List<dynamic> newsList = [];
-  bool isLoading = true;
+  List<Map<String, dynamic>> notifications = [];
   static const ip = Ipnetwork.ip;
+  String url = "http://$ip:8080/api/news/noti";
+  bool isLoading = true;
+  String? userId;
 
   @override
   void initState() {
     super.initState();
-    fetchNews();
+    getUserAndFetchNotifications();
   }
 
-  Future<void> fetchNews() async {
+  Future<void> getUserAndFetchNotifications() async {
+    // Lấy ID của người dùng hiện tại từ Firebase Auth
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        userId = user.uid;
+        print("userId: $userId");
+      });
+      fetchNotifications(userId!);
+    } else {
+      print("Người dùng chưa đăng nhập!");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> fetchNotifications(String userId) async {
+    if (userId ==null){
+      getUserAndFetchNotifications();
+      return;
+    }
     try {
-      final response = await http.get(Uri.parse('http://$ip:8080/api/news'));
+      final response = await http.get(Uri.parse("$url/$userId"));
+
+      print("Fetching from: $url/$userId");
       if (response.statusCode == 200) {
+        // Giải mã UTF-8 để tránh lỗi font
+        final utf8Decoded = utf8.decode(response.bodyBytes);
+        final List<dynamic> responseData = jsonDecode(utf8Decoded);
+
         setState(() {
-          final utf8Decoded = utf8.decode(response.bodyBytes);
-          newsList = json.decode(utf8Decoded);
+          notifications =
+              responseData.map((e) => Map<String, dynamic>.from(e)).toList();
           isLoading = false;
         });
       } else {
-        throw Exception('Failed to load news');
+        print("Lỗi khi gọi API: ${response.statusCode}");
+        setState(() {
+          isLoading = false;
+        });
       }
     } catch (e) {
-      print('Error fetching news: $e');
+      print("Lỗi kết nối API: $e");
       setState(() {
         isLoading = false;
       });
@@ -56,30 +90,33 @@ class _NotificationPageState extends State<NotificationPage> {
         title: Text('Danh sách thông báo'),
         actions: [
           IconButton(
-            icon: Icon(Icons.more_vert),
-            onPressed: () {},
+            icon: Icon(Icons.refresh),
+            onPressed: () {
+              if (userId != null) fetchNotifications(userId!);
+            },
           ),
         ],
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
-          : newsList.isEmpty
+          : notifications.isEmpty
               ? Center(child: Text('Không có thông báo'))
               : ListView.builder(
-                  itemCount: newsList.length,
+                  itemCount: notifications.length,
                   itemBuilder: (context, index) {
-                    final news = newsList[index];
+                    final noti = notifications[index];
                     return _buildNotificationItem(
-                      news['title'] ?? 'Không có tiêu đề',
-                      news['description'] ?? 'Không có nội dung',
-                      news['date'] ?? 'Không rõ ngày',
-                    );
+                        noti['title'] ?? 'Không có tiêu đề',
+                        noti['body'] ?? 'Không có nội dung');
                   },
                 ),
     );
   }
 
-  Widget _buildNotificationItem(String title, String description, String date) {
+  Widget _buildNotificationItem(
+    String title,
+    String body,
+  ) {
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: Colors.blue,
@@ -89,9 +126,8 @@ class _NotificationPageState extends State<NotificationPage> {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(description),
-          SizedBox(height: 4),
-          Text(date, style: TextStyle(color: Colors.blue)),
+          Text(body),
+          SizedBox(height: 7),
         ],
       ),
     );

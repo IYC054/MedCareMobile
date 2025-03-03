@@ -12,7 +12,7 @@ class GetAppointmentApi {
   static const String baseUrl = "http://$ip:8080/api/appointment";
   static const String baseUrlVip = "http://$ip:8080/api/vip-appointments";
   static String? token;
-  List<dynamic> patientId = []; // Initialize as an empty list
+  List<dynamic> patientIds = []; // Initialize as an empty list
   static Map<String, dynamic>? user;
 
   // Method to load user data asynchronously
@@ -28,14 +28,7 @@ class GetAppointmentApi {
   // Constructor
 
   // Async method to load patient data
-  Future<void> loadPatientData() async {
-    if (user == null) {
-      loadUserData();
-    }
-    // Wait for the data to be loaded before using it
-    patientId = await Getpatientapi.getPatientbyAccountid(user!['id']);
-    print("Patient ID loaded: $patientId");
-  }
+
 
   static Future<void> init() async {
     token = await StorageService.getToken();
@@ -50,10 +43,6 @@ class GetAppointmentApi {
     required String doctorEmail,
   }) async {
     try {
-      if (patientId.isEmpty) {
-        // Make sure the data is loaded before accessing it
-        await loadPatientData();
-      }
       if (token == null) await init();
       //lấy uid từ firebase
       User? user = FirebaseAuth.instance.currentUser;
@@ -111,10 +100,7 @@ class GetAppointmentApi {
     required String doctorEmail,
   }) async {
     try {
-      if (patientId.isEmpty) {
-        // Make sure the data is loaded before accessing it
-        await loadPatientData();
-      }
+
       if (token == null) await init();
       //lấy uid từ firebase
       User? user = FirebaseAuth.instance.currentUser;
