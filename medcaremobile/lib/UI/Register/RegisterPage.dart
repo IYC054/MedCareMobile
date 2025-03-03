@@ -32,7 +32,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _phoneController = TextEditingController();
   TextEditingController _birthdateController = TextEditingController();
   String _gender = "Male";
-  List<String> _roles = ["PATIENTS"];
   File? _selectedImage;
 
   @override
@@ -151,11 +150,10 @@ class _RegisterPageState extends State<RegisterPage> {
           phone: _phoneController.text,
           gender: _gender!,
           birthdate: _birthdateController.text,
-          roles: _roles,
           avatar: _selectedImage,
         );
         //add account to firestore
-        FirestoreService.createAccountWithEmail(widget.emailController.text, _passwordController.text);
+        // FirestoreService.createAccountWithEmail(widget.emailController.text, _passwordController.text);
         print("API Response: $response");
 
         if (response.containsKey('result') && response['result'] != null) {

@@ -6,7 +6,10 @@ import 'package:medcaremobile/UI/Login/InputWrapper.dart';
 
 class LoginPage extends StatefulWidget {
   final TextEditingController emailController;
-  const LoginPage({super.key, required this.emailController,});
+  const LoginPage({
+    super.key,
+    required this.emailController,
+  });
 
   @override
   State<StatefulWidget> createState() => _LoginPageState();
@@ -75,6 +78,7 @@ class _LoginPageState extends State<LoginPage> {
                   passwordController: _passwordController,
                 ),
               ),
+              
             ],
           ),
         ),

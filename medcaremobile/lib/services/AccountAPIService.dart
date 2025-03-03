@@ -113,7 +113,6 @@ class AccountAPIService {
     required String phone,
     required String gender,
     required String birthdate,
-    required List<String> roles,
     File? avatar, // Avatar có thể null
   }) async {
     try {
@@ -130,8 +129,6 @@ class AccountAPIService {
 
       // Chuyển danh sách roles thành chuỗi
       request.fields["role"] = "PATIENTS";
-      print("ROLES ${jsonEncode(roles)}" );
-
       // Nếu có ảnh đại diện, thêm vào request
       if (avatar != null) {
         var imageStream = http.ByteStream(avatar.openRead());

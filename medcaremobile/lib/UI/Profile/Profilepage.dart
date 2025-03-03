@@ -159,10 +159,7 @@ class _ProfilepageState extends State<Profilepage> {
                   userdata?["name"],
                   style: TextStyle(color: Colors.white, fontSize: 20),
                 ),
-                Text(
-                  userdata?["phone"],
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
+                
                 const SizedBox(height: 40),
                 Expanded(
                   child: Container(

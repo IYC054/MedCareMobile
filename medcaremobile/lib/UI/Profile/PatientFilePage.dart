@@ -140,9 +140,10 @@ class _PatientFilePageState extends State<PatientFilePage> {
   Future<void> fetchAppointments() async {
     if (patientID.isEmpty) {
       print("PatientID rỗng, không thể lấy dữ liệu lịch hẹn.");
+      fetchPatientData();
       return; // Ngăn việc gọi API khi chưa có patientID
-    }
-
+    } 
+    print("PATIENTID ${patientID[0]['id']}");
     String apiUrl =
         "http://$ip:8080/api/appointment/patient/${patientID[0]['id']}";
     try {
@@ -684,7 +685,7 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                       if (!appointment['examination']
                                           .toString()
                                           .trim()
-                                          .contains("Đã huỷ"))
+                                          .contains("Đã huỷ") && isVipSelected == false)
                                         GestureDetector(
                                           onTap: () {
                                             DateTime today = DateTime.now();

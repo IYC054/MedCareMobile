@@ -317,11 +317,11 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
                               "Đã có $countVipAppointments cuộc hẹn vip bị huỷ");
 
                           Color bgColor = Colors.green;
-                          if (countAppointments >= 10 ||
-                              countVipAppointments >= 5) {
+                          if (countAppointments >= 10 && widget.isVIP == false ||
+                              countVipAppointments >= 5 && widget.isVIP == true) {
                             bgColor = Colors.red;
-                          } else if (countAppointments >= 2 ||
-                              countVipAppointments >= 2) {
+                          } else if (countAppointments >= 2 && widget.isVIP == false ||
+                              countVipAppointments >= 2 && widget.isVIP == true) {
                             bgColor = Colors.amber;
                           }
 

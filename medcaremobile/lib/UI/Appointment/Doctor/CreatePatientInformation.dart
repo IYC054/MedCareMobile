@@ -220,7 +220,7 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
               key: _formKey, // Thêm key vào Form
               child: Column(
                 children: [
-                  buildImagePicker(),
+                  // buildImagePicker(),
                   SizedBox(
                     height: 10,
                   ),
@@ -250,7 +250,7 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
                     },
                   ),
                   buildTextField("Email", emailController),
-                  buildTextField("Số CCCD", bhytController, isCCCDUpdated),
+                  // buildTextField("Số CCCD", bhytController, isCCCDUpdated),
                   buildDropdownField(
                     "Tỉnh/Thành",
                     provinces,
