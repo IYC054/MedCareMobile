@@ -25,16 +25,14 @@ class _NewspagePageState extends State<NewspagePage> {
 
   Future<void> fetchNews() async {
     try {
-      final response = await http
-          .get(
-            Uri.parse('http://$ip:8080/api/news'),
-            headers: {"Accept": "application/json"},
-          )
-          .timeout(Duration(seconds: 10));
+      final response = await http.get(
+        Uri.parse('http://$ip:8080/api/news'),
+        headers: {"Accept": "application/json"},
+      ).timeout(Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         setState(() {
-        final utf8Decoded = utf8.decode(response.bodyBytes); // Fix encoding
+          final utf8Decoded = utf8.decode(response.bodyBytes); // Fix encoding
 
           newsList = json.decode(utf8Decoded);
           isLoading = false;
@@ -54,25 +52,24 @@ class _NewspagePageState extends State<NewspagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: Colors.blue,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        // leading: IconButton(
+        //   icon: Icon(Icons.arrow_back),
+        //   onPressed: () {
+        //     Navigator.pop(context);
+        //   },
+        // ),
+        automaticallyImplyLeading: false,
+        title: Text(
+          'Tin tức',
+          style: TextStyle(color: Colors.white),
         ),
-        title: Text('Danh sách thông báo'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.more_vert),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : newsList.isEmpty
-              ? Center(child: Text('Không có thông báo'))
+              ? Center(child: Text('Không có tin tức nào'))
               : ListView.builder(
                   padding: EdgeInsets.all(10),
                   itemCount: newsList.length,
@@ -85,9 +82,12 @@ class _NewspagePageState extends State<NewspagePage> {
                           MaterialPageRoute(
                             builder: (context) => NewDetailpage(
                               title: news['title'] ?? 'Không có tiêu đề',
-                              description: news['description'] ?? 'Không có nội dung',
+                              description:
+                                  news['description'] ?? 'Không có nội dung',
                               date: news['date'] ?? 'Không rõ ngày',
-                              imageUrl: news['images'].replaceAll("localhost", ip) ?? '',
+                              imageUrl:
+                                  news['images'].replaceAll("localhost", ip) ??
+                                      '',
                             ),
                           ),
                         );

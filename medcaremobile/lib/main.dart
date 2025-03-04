@@ -59,7 +59,7 @@ void main() async {
     }
   });
 
-  //handle foreground notifications
+  // handle foreground notifications
   // FirebaseMessaging.onMessage.listen((RemoteMessage message) async{
   //   String payloadData = jsonEncode(message.data);
   //   print("Some notification receive in the foreground!!!");
@@ -103,6 +103,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    print("Current User: ${FirebaseAuth.instance.currentUser}");
+
     return MaterialApp(
       navigatorKey: navigatorKey,
       routes: {

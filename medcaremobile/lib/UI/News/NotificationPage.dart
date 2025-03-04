@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:medcaremobile/services/FirestoreService.dart';
 import 'package:medcaremobile/services/IpNetwork.dart';
 
 class NotificationPage extends StatefulWidget {
@@ -44,7 +45,7 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
   Future<void> fetchNotifications(String userId) async {
-    if (userId ==null){
+    if (userId == null) {
       getUserAndFetchNotifications();
       return;
     }
@@ -80,14 +81,16 @@ class _NotificationPageState extends State<NotificationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: Colors.blue,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Text('Danh sách thông báo'),
+        // leading: IconButton(
+        //   icon: Icon(Icons.arrow_back),
+        //   onPressed: () {
+        //     Navigator.pop(context);
+        //   },
+        // ),
+        automaticallyImplyLeading: false,
+        title: Text('Danh sách thông báo', style: TextStyle(color: Colors.white),),
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
@@ -106,23 +109,31 @@ class _NotificationPageState extends State<NotificationPage> {
                   itemBuilder: (context, index) {
                     final noti = notifications[index];
                     return _buildNotificationItem(
+                        noti['id'] ?? "", // ID của thông báo
+                        noti['body'] ?? 'Không có nội dung',
                         noti['title'] ?? 'Không có tiêu đề',
-                        noti['body'] ?? 'Không có nội dung');
+                        noti['status'] ?? 'unread');
                   },
                 ),
     );
   }
 
   Widget _buildNotificationItem(
-    String title,
-    String body,
-  ) {
+      String notificationId, String title, String body, String status) {
+    bool isRead = status == "read";
+
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: Colors.blue,
+        backgroundColor:
+            isRead ? Colors.blue : Colors.red, // Đổi màu nếu đã đọc
         child: Icon(Icons.notifications, color: Colors.white),
       ),
-      title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: isRead ? FontWeight.normal : FontWeight.bold, // chưa đọc
+        ),
+      ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -130,6 +141,15 @@ class _NotificationPageState extends State<NotificationPage> {
           SizedBox(height: 7),
         ],
       ),
+      onTap: () {
+        if (!isRead) {
+          FirestoreService.markNotificationAsRead(
+              notificationId); // Đánh dấu đã đọc
+          setState(() {
+            getUserAndFetchNotifications();
+          });
+        }
+      },
     );
   }
 }

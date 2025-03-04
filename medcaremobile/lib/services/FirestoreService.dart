@@ -150,10 +150,18 @@ class FirestoreService {
       "userId": userId,
       "title": title,
       "body": body,
+      "status": "unread",
       "timestamp": FieldValue.serverTimestamp()
     });
+    print("lưu thông báo");
   }
-
+static Future<void> markNotificationAsRead(String notificationId) async {
+  print("Cậpnhật: $notificationId");
+  await FirebaseFirestore.instance
+      .collection("notifications")
+      .doc(notificationId)
+      .update({"status": "read"});
+}
   static Stream<QuerySnapshot> getNotifications(String userId) {
     return FirebaseFirestore.instance
         .collection("notifications")
