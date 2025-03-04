@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:medcaremobile/UI/Home/Home.dart';
+import 'package:medcaremobile/services/AccountAPIService.dart';
 import 'package:medcaremobile/services/StorageService.dart'; // Import thư viện để định dạng ngày tháng
+import 'package:medcaremobile/services/FirestoreService.dart';
+import 'package:medcaremobile/services/StorageService.dart';
 
 class PersonalProfile extends StatefulWidget {
   const PersonalProfile({super.key, required this.title});
@@ -16,10 +20,12 @@ class _PersonalProfileState extends State<PersonalProfile> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool? isLoggedIn;
 
   String _gender = "Nam"; // Mặc định là Nam
   DateTime? _selectedDate; // Ngày sinh đã chọn
-
+  late int userId;
   Future<void> _loadUserData() async {
     final user = await StorageService.getUser();
     if (user != null) {
@@ -29,12 +35,70 @@ class _PersonalProfileState extends State<PersonalProfile> {
         _phoneController.text = user["phone"] ?? "";
         _firstNameController.text = user["name"] ?? "";
         _emailController.text = user["email"] ?? "";
-        _gender = user["gender"] == "Male" ? "Nam" : "Nữ";
-        _selectedDate = user["birthdate"] != null
-            ? DateTime.parse(user["birthdate"])
+        _gender = (user["gender"] ?? "Male") == "Male" ? "Nam" : "Nữ";
+        _selectedDate = (user["birthdate"] != null &&
+                user["birthdate"].toString().isNotEmpty)
+            ? DateTime.tryParse(user["birthdate"]) ?? DateTime(2000, 1, 1)
             : null;
         isLoading = false;
+        userId = user["id"];
       });
+    }
+  }
+
+  Future<void> checkLoginStatus() async {
+    String? token =
+        await StorageService.getToken(); // 🔹 Dùng `await` để lấy giá trị thực
+    setState(() {
+      isLoggedIn = token != null && token.isNotEmpty;
+    });
+  }
+
+  Future<void> _updateProfile() async {
+    setState(() => isLoading = true);
+
+    String birthdate = _selectedDate != null
+        ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
+        : "";
+
+    print("=== DỮ LIỆU GỬI LÊN API ===");
+    print("Email: ${_emailController.text}");
+    print("Họ và tên: ${_firstNameController.text}");
+    print("Mật khẩu: ${_passwordController.text}");
+    print("Số điện thoại: ${_phoneController.text}");
+    print("Giới tính: $_gender");
+    print("Ngày sinh: $birthdate");
+    print("User ID: $userId");
+
+    final response = await AccountAPIService().EditAccount(
+        email: _emailController.text,
+        name: _firstNameController.text,
+        phone: _phoneController.text,
+        gender: _gender,
+        birthdate: birthdate,
+        id: userId);
+
+    setState(() => isLoading = false);
+
+    print("API Response: $response");
+
+    if (response.containsKey("error")) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Lỗi: ${response['error']}")),
+      );
+    } else {
+      await StorageService.clearToken(); // Đảm bảo clear token trước
+      checkLoginStatus(); // Gọi lại checkLoginStatus để cập nhật lại trạng thái
+      FirestoreService.logout();
+
+      // Điều hướng về màn hình chính
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Home()),
+      ); // Gọi hàm xử lý đăng xuất
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Cập nhật thông tin thành công, vui lòng đăng nhập lại tài khoản!")),
+      );
     }
   }
 
@@ -47,7 +111,7 @@ class _PersonalProfileState extends State<PersonalProfile> {
 
   @override
   Widget build(BuildContext context) {
-    print("user $userdata");
+    print("userId: $userId");
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
@@ -116,11 +180,7 @@ class _PersonalProfileState extends State<PersonalProfile> {
                 ),
               ),
               onPressed: () {
-                // Xử lý cập nhật thông tin
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text("Cập nhật thông tin thành công!")),
-                );
+                _updateProfile();
               },
               child: const Text("Cập nhật thông tin",
                   style: TextStyle(color: Colors.white, fontSize: 16)),

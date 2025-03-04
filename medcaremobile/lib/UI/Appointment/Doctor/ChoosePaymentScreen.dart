@@ -26,7 +26,8 @@ class ChoosePaymentScreen extends StatefulWidget {
     this.selectedSpecialtyName,
     this.isVIP,
     this.startTime,
-    this.endTime, this.doctorEmail,
+    this.endTime,
+    this.doctorEmail,
   });
 
   final String specialtyname;
@@ -176,7 +177,6 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
                 endTime: widget.endTime,
                 TypePayment: "MOMO",
                 doctorEmail: widget.doctorEmail,
-
               ),
             ),
           );
@@ -282,106 +282,111 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ProgressBar(currentStep: 4),
-            const SizedBox(height: 24),
-            Text(
-              'Vui lòng kiểm tra thông tin đăng ký và chọn phương thức thanh toán.',
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Sau khi thanh toán thành công, bạn vui lòng đợi nhận PHIẾU KHÁM BỆNH, không đóng ứng dụng.',
-              style: TextStyle(fontSize: 16, color: Colors.blue),
-            ),
-            Divider(height: 32),
-            Text(
-              'Chuyên khoa đã chọn (1)',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            ListTile(
-              leading: Icon(Icons.health_and_safety, color: Colors.red),
-              title: Text(widget.specialtyname,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              trailing: Text(widget.isVIP! ? '300.000 đ' : '150.000 đ',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            ),
-            Divider(height: 32),
-            Text(
-              'Phương thức thanh toán',
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue),
-            ),
-            PaymentOption(
-              title: 'Thanh toán VNPAY',
-              imagepath:
-                  "https://vinadesign.vn/uploads/thumbnails/800/2023/05/vnpay-logo-vinadesign-25-12-59-16.jpg",
-              selected: selectedPayment == 'VNPAY',
-              onTap: () => selectPayment('VNPAY'),
-            ),
-            PaymentOption(
-              title: 'Thanh toán MOMO',
-              imagepath:
-                  "https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png?20201011055544",
-              selected: selectedPayment == 'MOMO',
-              onTap: () => selectPayment('MOMO'),
-            ),
-            widget.isVIP ?? false
-                ? SizedBox.shrink()
-                : PaymentOption(
-                    title: 'Thanh toán tại bệnh viện',
-                    imagepath:
-                        "https://img.freepik.com/premium-vector/hospital-logo-vector_1277164-14255.jpg?w=740",
-                    selected: selectedPayment == 'Hospital',
-                    onTap: () => selectPayment('Hospital'),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ProgressBar(currentStep: 4),
+              const SizedBox(height: 24),
+              Text(
+                'Vui lòng kiểm tra thông tin đăng ký và chọn phương thức thanh toán.',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Sau khi thanh toán thành công, bạn vui lòng đợi nhận PHIẾU KHÁM BỆNH, không đóng ứng dụng.',
+                style: TextStyle(fontSize: 16, color: Colors.blue),
+              ),
+              Divider(height: 32),
+              Text(
+                'Chuyên khoa đã chọn (1)',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              ListTile(
+                leading: Icon(Icons.health_and_safety, color: Colors.red),
+                title: Text(widget.specialtyname,
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                trailing: Text(widget.isVIP! ? '300.000 đ' : '150.000 đ',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ),
+              Divider(height: 32),
+              Text(
+                'Phương thức thanh toán',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue),
+              ),
+              PaymentOption(
+                title: 'Thanh toán VNPAY',
+                imagepath:
+                    "https://vinadesign.vn/uploads/thumbnails/800/2023/05/vnpay-logo-vinadesign-25-12-59-16.jpg",
+                selected: selectedPayment == 'VNPAY',
+                onTap: () => selectPayment('VNPAY'),
+              ),
+              PaymentOption(
+                title: 'Thanh toán MOMO',
+                imagepath:
+                    "https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png?20201011055544",
+                selected: selectedPayment == 'MOMO',
+                onTap: () => selectPayment('MOMO'),
+              ),
+              widget.isVIP ?? false
+                  ? SizedBox.shrink()
+                  : PaymentOption(
+                      title: 'Thanh toán tại bệnh viện',
+                      imagepath:
+                          "https://img.freepik.com/premium-vector/hospital-logo-vector_1277164-14255.jpg?w=740",
+                      selected: selectedPayment == 'Hospital',
+                      onTap: () => selectPayment('Hospital'),
+                    ),
+              Spacer(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Tổng:',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-            Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Tổng:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  widget.isVIP! ? '300.000đ' : '150.000đ',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green),
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-                  child: Text('Quay lại'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (selectedPayment == "VNPAY") {
-                      _handlePayment();
-                    } else if (selectedPayment == "Hospital") {
-                      _handlePaymentAtHospital();
-                    } else if (selectedPayment == "MOMO") {
-                      _handlePaymentMomo();
-                    }
-                  },
-                  child: Text('Thanh toán'),
-                ),
-              ],
-            ),
-          ],
+                  Text(
+                    widget.isVIP! ? '300.000đ' : '150.000đ',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                    child: Text('Quay lại'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (selectedPayment == "VNPAY") {
+                        _handlePayment();
+                      } else if (selectedPayment == "Hospital") {
+                        _handlePaymentAtHospital();
+                      } else if (selectedPayment == "MOMO") {
+                        _handlePaymentMomo();
+                      }
+                    },
+                    child: Text('Thanh toán'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

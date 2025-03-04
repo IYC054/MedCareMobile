@@ -219,8 +219,12 @@ class ChoosedatescreenState extends State<Choosedatescreen> {
                       bool isAlreadyBooked = vipappointments.any((vip) =>
                           vip['profileID'] == widget.selectProfileID &&
                           isSameDay(DateTime.parse(vip['date']), selectedDay));
+                      bool isAlreadyBookednormal = appointments.any((vip) =>
+                          vip['profileID'] == widget.selectProfileID &&
+                          isSameDay(DateTime.parse(vip['date']), selectedDay));    
 
                       checkBooking(context, isAlreadyBooked);
+                      checkBooking(context, isAlreadyBookednormal);
                       if (selectedWorkDate.isEmpty) {
                         // Hiển thị thông báo nếu ngày không nằm trong danh sách workDates
                         ScaffoldMessenger.of(context).showSnackBar(

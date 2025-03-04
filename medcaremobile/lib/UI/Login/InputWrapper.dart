@@ -6,7 +6,6 @@ import 'package:medcaremobile/UI/Login/InputField.dart';
 import 'package:medcaremobile/UI/Register/RegisterPage.dart';
 import 'package:medcaremobile/UI/VerifyEmail/VerifyEmailPage.dart';
 import 'package:medcaremobile/UI/VerifyOTP/VerifyOTPPage.dart';
-import 'package:medcaremobile/services/GoogleSignInService.dart';
 
 import '../../services/AuthAPIService.dart';
 

@@ -11,6 +11,10 @@ class AccountAPIService {
   static const ip = Ipnetwork.ip;
   String url = "http://$ip:8080/api/account";
   // final String token = StorageService.getToken() as String;
+  static String? token;
+  static Future<void> init() async {
+    token = await StorageService.getToken();
+  }
 
   Future<Map<String, dynamic>?> checkLogin(
       String email, String password) async {
@@ -180,6 +184,53 @@ class AccountAPIService {
       }
     } catch (error) {
       throw Exception("Lỗi kết nối đến server: $error");
+    }
+  }
+
+  Future<Map<String, dynamic>> EditAccount({
+    required String email,
+    required String name,
+    required String phone,
+    required String gender,
+    required String birthdate,
+    required int id,
+  }) async {
+    try {
+      print("=== DỮ LIỆU GỬI LÊN API ===");
+
+      var uri = Uri.parse("$url/$id");
+
+      var request = http.MultipartRequest("PUT", uri);
+
+      // Thêm headers
+      request.headers.addAll({
+        "Authorization": "Bearer $token",
+        "Content-Type": "multipart/form-data",
+      });
+
+      // Thêm các trường dữ liệu
+      request.fields['email'] = email;
+      request.fields['name'] = name;
+      request.fields['phone'] = phone;
+      request.fields['gender'] = gender;
+      request.fields['birthdate'] = birthdate;
+
+      // Gửi request
+      var response = await request.send();
+
+      // Đọc response
+      var responseBody = await response.stream.bytesToString();
+      var responseJson = jsonDecode(responseBody);
+
+      print("API Response: $responseJson");
+
+      if (response.statusCode == 200) {
+        return responseJson;
+      } else {
+        return {"error": "Failed with status code ${response.statusCode}"};
+      }
+    } catch (e) {
+      return {"error": e.toString()};
     }
   }
 }

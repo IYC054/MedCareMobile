@@ -3,10 +3,6 @@ buildscript {
         google()
         mavenCentral()
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.0'  // Hoặc phiên bản mới nhất
-        classpath 'com.google.gms:google-services:4.3.10'  // ✅ Đặt đúng vị trí
-    }
 }
 allprojects {
     repositories {

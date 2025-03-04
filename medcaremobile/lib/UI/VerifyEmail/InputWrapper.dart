@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:medcaremobile/UI/VerifyEmail/Button.dart';
 import 'package:medcaremobile/UI/VerifyEmail/InputField.dart';
-import 'package:medcaremobile/services/GoogleSignInService.dart';
 
 class InputWrapper extends StatelessWidget {
   final TextEditingController emailController;
@@ -27,18 +26,7 @@ class InputWrapper extends StatelessWidget {
             alignment: Alignment.center,
             child: Button(emailController: emailController), // Đảm bảo nút hiển thị
           ),
-          ElevatedButton(
-            onPressed: () async {
-              final userData = await Googlesigninservice.signInWithGoogle();
-              if (userData != null) {
-                print(
-                    "Đăng nhập thành công: ${userData['name']} - Token: ${userData['token']}");
-              } else {
-                print("Đăng nhập thất bại");
-              }
-            },
-            child: Text("Đăng nhập bằng Google"),
-          ),
+          
         ],
       ),
     );
