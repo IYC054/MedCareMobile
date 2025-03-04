@@ -280,9 +280,9 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -342,51 +342,58 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
                       selected: selectedPayment == 'Hospital',
                       onTap: () => selectPayment('Hospital'),
                     ),
-              Spacer(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Tổng:',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    widget.isVIP! ? '300.000đ' : '150.000đ',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green),
-                  ),
-                ],
-              ),
               SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-                    child: Text('Quay lại'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (selectedPayment == "VNPAY") {
-                        _handlePayment();
-                      } else if (selectedPayment == "Hospital") {
-                        _handlePaymentAtHospital();
-                      } else if (selectedPayment == "MOMO") {
-                        _handlePaymentMomo();
-                      }
-                    },
-                    child: Text('Thanh toán'),
-                  ),
-                ],
-              ),
             ],
           ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Tổng:',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  widget.isVIP! ? '300.000đ' : '150.000đ',
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                  child: Text('Quay lại'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (selectedPayment == "VNPAY") {
+                      _handlePayment();
+                    } else if (selectedPayment == "Hospital") {
+                      _handlePaymentAtHospital();
+                    } else if (selectedPayment == "MOMO") {
+                      _handlePaymentMomo();
+                    }
+                  },
+                  child: Text('Thanh toán'),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
