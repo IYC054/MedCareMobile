@@ -346,7 +346,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             TextFormField(
                               controller: _confirmPasswordController,
                               decoration: InputDecoration(
-                                labelText: 'Mật khẩu',
+                                labelText: 'Xác nhận mật khẩu',
                                 suffixIcon: IconButton(
                                   icon: Icon(_isConfirmPasswordVisible
                                       ? Icons.visibility
@@ -410,12 +410,12 @@ class _RegisterPageState extends State<RegisterPage> {
                                   return null;
                                 }),
                             SizedBox(height: 10),
-                            Text("Gender"),
+                            Text("Giới tính"),
                             Row(
                               children: [
                                 Expanded(
                                   child: RadioListTile<String>(
-                                    title: Text("Male"),
+                                    title: Text("Nữ"),
                                     value: "Male",
                                     groupValue: _gender,
                                     onChanged: (value) {
@@ -427,7 +427,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 ),
                                 Expanded(
                                   child: RadioListTile<String>(
-                                    title: Text("Female"),
+                                    title: Text("Nữ"),
                                     value: "Female",
                                     groupValue: _gender,
                                     onChanged: (value) {

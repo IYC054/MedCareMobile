@@ -161,71 +161,75 @@ class ChooseTimeScreenState extends State<ChooseTimeScreen> {
     }).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Chọn giờ khám',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+        appBar: AppBar(
+          title: Text('Chọn giờ khám',
+              style: TextStyle(fontWeight: FontWeight.bold)),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ProgressBar(currentStep: 2),
-            const SizedBox(height: 24),
-            Text('Chọn giờ khám',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ProgressBar(currentStep: 2),
+                const SizedBox(height: 24),
+                Text('Chọn giờ khám',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                SizedBox(height: 16),
 
-            // Hiển thị buổi sáng
-            if (morningDoctors.isNotEmpty) ...[
-              Text('Buổi sáng', style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Wrap(
-                    spacing: 8.0,
-                    runSpacing: 8.0,
-                    children: morningDoctors.map((doctor) {
-                      return _buildTimeSlot(context, doctor);
-                    }).toList(),
+                // Hiển thị buổi sáng
+                if (morningDoctors.isNotEmpty) ...[
+                  Text('Buổi sáng',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  SizedBox(height: 8),
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Wrap(
+                        spacing: 8.0,
+                        runSpacing: 8.0,
+                        children: morningDoctors.map((doctor) {
+                          return _buildTimeSlot(context, doctor);
+                        }).toList(),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              SizedBox(height: 16),
-            ],
+                  SizedBox(height: 16),
+                ],
 
-            // Hiển thị buổi chiều
-            if (afternoonDoctors.isNotEmpty) ...[
-              Text('Buổi chiều', style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Wrap(
-                    spacing: 8.0,
-                    runSpacing: 8.0,
-                    children: afternoonDoctors.map((doctor) {
-                      return _buildTimeSlot(context, doctor);
-                    }).toList(),
+                // Hiển thị buổi chiều
+                if (afternoonDoctors.isNotEmpty) ...[
+                  Text('Buổi chiều',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  SizedBox(height: 8),
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Wrap(
+                        spacing: 8.0,
+                        runSpacing: 8.0,
+                        children: afternoonDoctors.map((doctor) {
+                          return _buildTimeSlot(context, doctor);
+                        }).toList(),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
+                ],
+              ],
+            ),
+          ),
+        ));
   }
 
   Widget _buildTimeSlot(BuildContext context, Map<String, dynamic> doctor) {

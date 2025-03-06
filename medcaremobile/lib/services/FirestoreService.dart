@@ -75,48 +75,32 @@ class FirestoreService {
 
     print("📌 New Device Token: $newDeviceToken");
 
-    // 🔍 Kiểm tra token cũ trên Firestore
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance
-        .collection("user_data")
-        .doc(user.uid)
-        .get();
+    Map<String, dynamic> data = {"email": user.email, "token": newDeviceToken};
 
-    String? oldDeviceToken = userDoc.data() != null ? userDoc["token"] : null;
-
-    // 🔄 Chỉ cập nhật nếu token thay đổi
-    if (oldDeviceToken != newDeviceToken) {
-      Map<String, dynamic> data = {
-        "email": user.email,
-        "token": newDeviceToken
-      };
-
-      try {
-        await FirebaseFirestore.instance
-            .collection("user_data")
-            .doc(user.uid)
-            .set(data, SetOptions(merge: true));
-        print("✅ Device Token updated!");
-      } catch (e) {
-        print("❌ FirebaseFirestore error: ${e.toString()}");
-      }
-    } else {
-      print("🔄 Device Token không thay đổi, không cần cập nhật.");
+    try {
+      await FirebaseFirestore.instance
+          .collection("user_data")
+          .doc(user.uid)
+          .set(data, SetOptions(merge: true));
+      print("✅ Device Token updated!");
+    } catch (e) {
+      print("❌ FirebaseFirestore error: ${e.toString()}");
     }
   }
 
-  //login with email, password method
   static Future<String> loginWithEmail(String email, String password) async {
     try {
       FirebaseAuth.instance.setLanguageCode("vi");
       FirestoreService firestoreService = FirestoreService();
       bool emailExists = await firestoreService.checkEmailExists(email);
+
       if (emailExists) {
         print("✅ Email tồn tại trong Firebase");
 
         // Đăng nhập
         await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email, password: password);
-        await saveUserToken2(); // 🛠 Lưu Device Token sau khi đăng nhập
+        await saveUserToken2(); // ✅ Luôn cập nhật token sau khi đăng nhập
         return "Login successfully with Firestore";
       } else {
         print("🚀 Email chưa tồn tại, tạo mới...");
@@ -124,7 +108,7 @@ class FirestoreService {
         // Đăng ký tài khoản
         await FirebaseAuth.instance
             .createUserWithEmailAndPassword(email: email, password: password);
-        await saveUserToken2(); // 🛠 Lưu Device Token sau khi đăng ký
+        await saveUserToken2(); // ✅ Lưu token sau khi đăng ký
         return "Register and login successfully with Firestore";
       }
     } on FirebaseAuthException catch (e) {
@@ -155,13 +139,15 @@ class FirestoreService {
     });
     print("lưu thông báo");
   }
-static Future<void> markNotificationAsRead(String notificationId) async {
-  print("Cậpnhật: $notificationId");
-  await FirebaseFirestore.instance
-      .collection("notifications")
-      .doc(notificationId)
-      .update({"status": "read"});
-}
+
+  static Future<void> markNotificationAsRead(String notificationId) async {
+    print("Cậpnhật: $notificationId");
+    await FirebaseFirestore.instance
+        .collection("notifications")
+        .doc(notificationId)
+        .update({"status": "read"});
+  }
+
   static Stream<QuerySnapshot> getNotifications(String userId) {
     return FirebaseFirestore.instance
         .collection("notifications")

@@ -265,9 +265,9 @@ static const ip = Ipnetwork.ip;
 
   // Danh sách lựa chọn
   final List<String> options = [
-    "Tư vấn sức khỏe",
-    "Đặt lịch khám",
-    "Hỗ trợ khẩn cấp"
+    "Healthcare",
+    "Payments",
+    "Technical"
   ];
 
   @override
