@@ -8,11 +8,18 @@ class Getdoctorworking {
   static Future<List<dynamic>> fetchDoctorsWorking(int id) async {
     try {
       final url = Uri.parse("$baseUrl/doctor/$id");
-      final response = await http.get(url);
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+      );
+      print("WORKING Status: ${response.statusCode}");
+      print("WORKING Body: ${response.body}");
       if (response.statusCode == 200) {
         final utf8Decoded = utf8.decode(response.bodyBytes); // Fix encoding
         final List<dynamic> data = jsonDecode(utf8Decoded);
-        print("WORKING $data");
         return data.isNotEmpty ? data : [];
       } else {
         return [];

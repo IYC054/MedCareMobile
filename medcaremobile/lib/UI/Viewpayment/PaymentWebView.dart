@@ -27,7 +27,7 @@ class PaymentWebView extends StatefulWidget {
       doctorEmail;
   final DateTime? selectDate;
   final bool? isNormal, isVIP;
-
+  final bool hasBHYT;
   const PaymentWebView(
       {required this.paymentUrl,
       this.profileId,
@@ -45,7 +45,8 @@ class PaymentWebView extends StatefulWidget {
       this.isNormal = true,
       this.PaymentID = 0,
       this.TypePayment,
-      this.doctorEmail});
+      this.doctorEmail,
+      required this.hasBHYT});
 
   @override
   _PaymentWebViewState createState() => _PaymentWebViewState();
@@ -231,7 +232,8 @@ class _PaymentWebViewState extends State<PaymentWebView>
         endTime: widget.endTime ?? "",
         patientID: patientId[0]['id'],
         worktime: widget.selectDate ?? DateTime.now(),
-        doctorEmail: widget.doctorEmail!);
+        doctorEmail: widget.doctorEmail!,
+        hasBHYT: widget.hasBHYT);
     if (bookingId == 0) return;
     String? transcode = await Paymentapi.createPayment(
       appointmentid: bookingId,
@@ -269,7 +271,8 @@ class _PaymentWebViewState extends State<PaymentWebView>
           worktimeId: widget.selectedWorkTimeId!,
           patientProfileId: widget.profileId!,
           patientID: patientId[0]['id'],
-          doctorEmail: widget.doctorEmail!);
+          doctorEmail: widget.doctorEmail!,
+          hasBHYT: widget.hasBHYT);
       String? transcode = await Paymentapi.createPayment(
           TypePayment: widget.isNormal == false && widget.isVIP == false
               ? "MOMO"

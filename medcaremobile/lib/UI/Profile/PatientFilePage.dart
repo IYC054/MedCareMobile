@@ -123,6 +123,7 @@ class _PatientFilePageState extends State<PatientFilePage> {
                 paymentUrl: paymentUrl,
                 isNormal: false,
                 PaymentID: paymentID,
+                hasBHYT: false,
               ),
             ),
           );
@@ -142,7 +143,7 @@ class _PatientFilePageState extends State<PatientFilePage> {
       print("PatientID rỗng, không thể lấy dữ liệu lịch hẹn.");
       fetchPatientData();
       return; // Ngăn việc gọi API khi chưa có patientID
-    } 
+    }
     print("PATIENTID ${patientID[0]['id']}");
     String apiUrl =
         "http://$ip:8080/api/appointment/patient/${patientID[0]['id']}";
@@ -683,9 +684,13 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                         height: 10,
                                       ),
                                       if (!appointment['examination']
-                                          .toString()
-                                          .trim()
-                                          .contains("Đã huỷ") && isVipSelected == false)
+                                              .toString()
+                                              .trim()
+                                              .contains("Đã huỷ") &&
+                                          isVipSelected == false && !appointment['examination']
+                                              .toString()
+                                              .trim()
+                                              .contains("Hoàn thành") )
                                         GestureDetector(
                                           onTap: () {
                                             DateTime today = DateTime.now();
@@ -714,8 +719,9 @@ class _PatientFilePageState extends State<PatientFilePage> {
                                               return;
                                             }
                                             if (appointment['status']
-                                                .toString()
-                                                .contains("Chưa thanh toán")) {
+                                                    .toString()
+                                                    .contains(
+                                                        "Chưa thanh toán")) {
                                               ShowUpdateStatus(
                                                   context,
                                                   appointment['id'],

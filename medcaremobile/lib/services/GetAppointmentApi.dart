@@ -29,7 +29,6 @@ class GetAppointmentApi {
 
   // Async method to load patient data
 
-
   static Future<void> init() async {
     token = await StorageService.getToken();
   }
@@ -41,6 +40,7 @@ class GetAppointmentApi {
     required int patientProfileId,
     required int patientID,
     required String doctorEmail,
+    required bool hasBHYT,
   }) async {
     try {
       if (token == null) await init();
@@ -67,7 +67,8 @@ class GetAppointmentApi {
           "worktimeId": worktimeId,
           "patientProfileId": patientProfileId,
           "firestoreUserId": userIdFirestore,
-          "doctorEmail": doctorEmail
+          "doctorEmail": doctorEmail,
+          "bhyt": hasBHYT
         }),
       );
 
@@ -98,9 +99,9 @@ class GetAppointmentApi {
     required int patientProfileId,
     required int patientID,
     required String doctorEmail,
+    required bool hasBHYT,
   }) async {
     try {
-
       if (token == null) await init();
       //lấy uid từ firebase
       User? user = FirebaseAuth.instance.currentUser;
@@ -130,6 +131,7 @@ class GetAppointmentApi {
           "amount": 300000,
           "firestoreUserId": userIdFirestore,
           "doctorEmail": doctorEmail,
+          "bhyt": hasBHYT
         }),
       );
 
@@ -280,7 +282,8 @@ class GetAppointmentApi {
   }
 
   // ignore: non_constant_identifier_names
-  static Future<bool> UpdateStatusAppointment(int id, String doctorEmail) async {
+  static Future<bool> UpdateStatusAppointment(
+      int id, String doctorEmail) async {
     try {
       final url = Uri.parse('$baseUrl/status/$id?doctorEmail=$doctorEmail');
       final response = await http.put(url,
@@ -301,7 +304,8 @@ class GetAppointmentApi {
     }
   }
 
-  static Future<bool> UpdateStatusVIPAppointment(int id, String doctorEmail) async {
+  static Future<bool> UpdateStatusVIPAppointment(
+      int id, String doctorEmail) async {
     try {
       final url = Uri.parse('$baseUrlVip/status/$id?doctorEmail=$doctorEmail');
       final response = await http.put(url,

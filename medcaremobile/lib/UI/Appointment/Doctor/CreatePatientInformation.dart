@@ -108,10 +108,11 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
   ];
 
   List<Map<String, String>> jobs = [
-    {'id': '1', 'name': 'Bác sĩ'},
+    {'id': '1', 'name': 'Nhân viên'},
     {'id': '2', 'name': 'Kỹ sư'},
     {'id': '3', 'name': 'Giáo viên'},
     {'id': '4', 'name': 'Sinh viên'},
+    {'id': '5', 'name': 'Khác...'},
   ];
   List<Map<String, String>> provinces = [];
   List<Map<String, String>> districts = [];
@@ -328,7 +329,7 @@ class _CreatePatientInformationState extends State<CreatePatientInformation> {
                         phone: phoneController.text,
                         gender: gender ?? "",
                         codeBhyt: bhytController.text,
-                        nation: ethnicityController.text,
+                        nation: selectedEthnicity.toString(),
                         address: formattedAddress,
                       );
 

@@ -27,7 +27,7 @@ class ChoosePaymentScreen extends StatefulWidget {
     this.isVIP,
     this.startTime,
     this.endTime,
-    this.doctorEmail,
+    this.doctorEmail, required this.hasBHYT,
   });
 
   final String specialtyname;
@@ -44,6 +44,7 @@ class ChoosePaymentScreen extends StatefulWidget {
   final String? startTime;
   final String? endTime;
   final String? doctorEmail;
+  final bool hasBHYT;
 
   @override
   State<ChoosePaymentScreen> createState() => _ChoosePaymentScreenState();
@@ -128,6 +129,7 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
                 startTime: widget.startTime,
                 endTime: widget.endTime,
                 doctorEmail: widget.doctorEmail,
+                hasBHYT: widget.hasBHYT,
               ),
             ),
           );
@@ -177,6 +179,8 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
                 endTime: widget.endTime,
                 TypePayment: "MOMO",
                 doctorEmail: widget.doctorEmail,
+                hasBHYT: widget.hasBHYT,
+
               ),
             ),
           );
@@ -221,7 +225,9 @@ class _ChoosePaymentScreenState extends State<ChoosePaymentScreen> {
           worktimeId: widget.selectedWorkTimeId!,
           patientProfileId: widget.profileId!,
           patientID: patientId[0]['id'],
-          doctorEmail: widget.doctorEmail!);
+          doctorEmail: widget.doctorEmail!,
+          hasBHYT: widget.hasBHYT!
+          );
 
       if (bookingId != 0) {
         String? transcode = await Paymentapi.createPayment(

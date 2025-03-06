@@ -125,6 +125,7 @@ class UpdatedoctorvipState extends State<Updatedoctorvip> {
                 selectedDate: selectDate!,
                 isVIP: isVIP!,
                 id: 1,
+                doctorId: selectedDoctorId!,
               )),
     );
 

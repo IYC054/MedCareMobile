@@ -41,6 +41,7 @@ class ChoosedoctorvipState extends State<Choosedoctorvip> {
   String? startTime;
   String? endTime;
   String? doctorEmail;
+  bool? hasBHYT = false;
 
   // Thêm phương thức này để gán cho CustomCheckbox
   @override
@@ -125,6 +126,8 @@ class ChoosedoctorvipState extends State<Choosedoctorvip> {
                 selectedDate: selectDate!,
                 isVIP: widget.isVIP,
                 id: selectedWorkId!,
+                doctorId: selectedDoctorId!,
+
               )),
     );
 
@@ -221,6 +224,38 @@ class ChoosedoctorvipState extends State<Choosedoctorvip> {
                         ? selectDate != null
                         : selectedWorkId != null,
                   ),
+                  // Container(
+                  //   child: Text(
+                  //     "Chọn bảo hiểm ý tế",
+                  //     style: TextStyle(
+                  //       fontSize: 20,
+                  //       fontWeight: FontWeight.bold,
+                  //     ),
+                  //   ),
+                  // ),
+                  // SizedBox(
+                  //   height: 16,
+                  // ),
+                  // RadioListTile<bool>(
+                  //   title: const Text("Có"),
+                  //   value: true,
+                  //   groupValue: hasBHYT,
+                  //   onChanged: (value) {
+                  //     setState(() {
+                  //       hasBHYT = value;
+                  //     });
+                  //   },
+                  // ),
+                  // RadioListTile<bool>(
+                  //   title: const Text("Không"),
+                  //   value: false,
+                  //   groupValue: hasBHYT,
+                  //   onChanged: (value) {
+                  //     setState(() {
+                  //       hasBHYT = value;
+                  //     });
+                  //   },
+                  // ),
                 ],
               ),
             ),
@@ -255,6 +290,7 @@ class ChoosedoctorvipState extends State<Choosedoctorvip> {
                                   startTime: startTime,
                                   endTime: endTime,
                                   doctorEmail: doctorEmail,
+                                  hasBHYT: hasBHYT!,
                                 )));
                   },
                   child: const Text('Tiếp theo'),

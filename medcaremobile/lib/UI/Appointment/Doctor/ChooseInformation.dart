@@ -16,7 +16,7 @@ class Chooseinformation extends StatefulWidget {
       this.selectDate,
       this.selectTime,
       this.Doctorname,
-      this.selectedSpecialtyName, this.isVIP, this.startTime, this.endTime, this.doctorEmail});
+      this.selectedSpecialtyName, this.isVIP, this.startTime, this.endTime, this.doctorEmail, required this.hasBHYT});
   final String specialtyname;
   final DateTime exminationdate;
   final String clinicdate;
@@ -33,6 +33,8 @@ class Chooseinformation extends StatefulWidget {
   final String? startTime;
   final String? endTime;
   final String? doctorEmail;
+  final bool hasBHYT;
+
   @override
   State<StatefulWidget> createState() => ChooseinformationState();
 }
@@ -203,6 +205,7 @@ class ChooseinformationState extends State<Chooseinformation> {
                               startTime: widget.startTime,
                               endTime: widget.endTime,
                               doctorEmail: widget.doctorEmail,
+                              hasBHYT: widget.hasBHYT,
                             )),
                   );
                 },

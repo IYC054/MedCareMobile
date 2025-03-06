@@ -90,6 +90,7 @@ class _ProfileappointmentState extends State<Profileappointment> {
                 paymentUrl: paymentUrl,
                 isNormal: false,
                 PaymentID: paymentID,
+                hasBHYT: false,
               ),
             ),
           );

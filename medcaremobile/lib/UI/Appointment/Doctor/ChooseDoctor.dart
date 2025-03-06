@@ -42,7 +42,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
   String? doctorEmail;
 
   bool isVIP = false;
-
+  bool? hasBHYT;
   // Thêm phương thức này để gán cho CustomCheckbox
   void _toggleVIP(bool value) {
     setState(() {
@@ -195,6 +195,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
                 selectedDate: selectDate!,
                 isVIP: isVIP,
                 id: selectedWorkId!,
+                doctorId: selectedDoctorId!,
               )),
     );
 
@@ -292,9 +293,42 @@ class ChoosedoctorState extends State<Choosedoctor> {
                     enabled:
                         isVIP ? selectDate != null : selectedWorkId != null,
                   ),
+                  Container(
+                    child: Text(
+                      "Chọn bảo hiểm ý tế",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  RadioListTile<bool>(
+                    title: const Text("Có"),
+                    value: true,
+                    groupValue: hasBHYT,
+                    onChanged: (value) {
+                      setState(() {
+                        hasBHYT = value;
+                      });
+                    },
+                  ),
+                  RadioListTile<bool>(
+                    title: const Text("Không"),
+                    value: false,
+                    groupValue: hasBHYT,
+                    onChanged: (value) {
+                      setState(() {
+                        hasBHYT = value;
+                      });
+                    },
+                  ),
                 ],
               ),
             ),
+
             const SizedBox(height: 16),
             // Next button
             if (selectDate != null &&
@@ -326,6 +360,7 @@ class ChoosedoctorState extends State<Choosedoctor> {
                                   startTime: startTime,
                                   endTime: endTime,
                                   doctorEmail: doctorEmail,
+                                  hasBHYT: hasBHYT!,
                                 )));
                   },
                   child: const Text('Tiếp theo'),
@@ -380,6 +415,42 @@ class ChoosedoctorState extends State<Choosedoctor> {
       ),
     );
   }
+  // Widget buildGenderField() {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Text("Giới tính"),
+  //       Row(
+  //         children: [
+  //           Expanded(
+  //             child: RadioListTile<String>(
+  //               title: Text("Nam"),
+  //               value: "NAM",
+  //               groupValue: gender,
+  //               onChanged: (value) {
+  //                 setState(() {
+  //                   gender = value;
+  //                 });
+  //               },
+  //             ),
+  //           ),
+  //           Expanded(
+  //             child: RadioListTile<String>(
+  //               title: Text("Nữ"),
+  //               value: "NỮ",
+  //               groupValue: gender,
+  //               onChanged: (value) {
+  //                 setState(() {
+  //                   gender = value;
+  //                 });
+  //               },
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ],
+  //   );
+  // }
 }
 
 class CustomCheckbox extends StatefulWidget {

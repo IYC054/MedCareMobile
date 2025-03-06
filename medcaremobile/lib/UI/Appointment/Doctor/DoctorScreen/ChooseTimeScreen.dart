@@ -8,10 +8,12 @@ class ChooseTimeScreen extends StatefulWidget {
       {super.key,
       required this.id,
       required this.isVIP,
-      required this.selectedDate});
+      required this.selectedDate,
+      this.doctorId});
   final int id;
   final bool isVIP;
   final DateTime selectedDate;
+  final int? doctorId;
   @override
   State<StatefulWidget> createState() => ChooseTimeScreenState();
 }
@@ -58,32 +60,53 @@ class ChooseTimeScreenState extends State<ChooseTimeScreen> {
     if (widget.isVIP) {
       setState(() {
         doctors = [
-          {"id": 1, "startTime": "06:00", "endTime": "06:30"},
-          {"id": 2, "startTime": "06:30", "endTime": "07:00"},
-          {"id": 3, "startTime": "07:00", "endTime": "07:30"},
-          {"id": 4, "startTime": "07:30", "endTime": "08:00"},
-          {"id": 5, "startTime": "08:00", "endTime": "08:30"},
-          {"id": 6, "startTime": "08:30", "endTime": "09:00"},
-          {"id": 7, "startTime": "09:00", "endTime": "09:30"},
-          {"id": 8, "startTime": "09:30", "endTime": "10:00"},
-          {"id": 9, "startTime": "10:00", "endTime": "10:30"},
-          {"id": 10, "startTime": "10:30", "endTime": "11:00"},
-          {"id": 11, "startTime": "11:00", "endTime": "11:30"},
-          {"id": 12, "startTime": "11:30", "endTime": "12:00"},
-          {"id": 13, "startTime": "13:00", "endTime": "13:30"},
-          {"id": 14, "startTime": "13:30", "endTime": "14:00"},
-          {"id": 15, "startTime": "14:00", "endTime": "14:30"},
-          {"id": 16, "startTime": "14:30", "endTime": "15:00"},
-          {"id": 17, "startTime": "15:00", "endTime": "15:30"},
-          {"id": 18, "startTime": "15:30", "endTime": "16:00"},
-          {"id": 19, "startTime": "16:00", "endTime": "16:30"},
-          {"id": 20, "startTime": "16:30", "endTime": "17:00"},
+          {"id": 1, "startTime": "06:00", "endTime": "06:15"},
+          {"id": 2, "startTime": "06:15", "endTime": "06:30"},
+          {"id": 3, "startTime": "06:30", "endTime": "06:45"},
+          {"id": 4, "startTime": "06:45", "endTime": "07:00"},
+          {"id": 5, "startTime": "07:00", "endTime": "07:15"},
+          {"id": 6, "startTime": "07:15", "endTime": "07:30"},
+          {"id": 7, "startTime": "07:30", "endTime": "07:45"},
+          {"id": 8, "startTime": "07:45", "endTime": "08:00"},
+          {"id": 9, "startTime": "08:00", "endTime": "08:15"},
+          {"id": 10, "startTime": "08:15", "endTime": "08:30"},
+          {"id": 11, "startTime": "08:30", "endTime": "08:45"},
+          {"id": 12, "startTime": "08:45", "endTime": "09:00"},
+          {"id": 13, "startTime": "09:00", "endTime": "09:15"},
+          {"id": 14, "startTime": "09:15", "endTime": "09:30"},
+          {"id": 15, "startTime": "09:30", "endTime": "09:45"},
+          {"id": 16, "startTime": "09:45", "endTime": "10:00"},
+          {"id": 17, "startTime": "10:00", "endTime": "10:15"},
+          {"id": 18, "startTime": "10:15", "endTime": "10:30"},
+          {"id": 19, "startTime": "10:30", "endTime": "10:45"},
+          {"id": 20, "startTime": "10:45", "endTime": "11:00"},
+          {"id": 21, "startTime": "11:00", "endTime": "11:15"},
+          {"id": 22, "startTime": "11:15", "endTime": "11:30"},
+          {"id": 23, "startTime": "11:30", "endTime": "11:45"},
+          {"id": 24, "startTime": "11:45", "endTime": "12:00"},
+          {"id": 25, "startTime": "13:00", "endTime": "13:15"},
+          {"id": 26, "startTime": "13:15", "endTime": "13:30"},
+          {"id": 27, "startTime": "13:30", "endTime": "13:45"},
+          {"id": 28, "startTime": "13:45", "endTime": "14:00"},
+          {"id": 29, "startTime": "14:00", "endTime": "14:15"},
+          {"id": 30, "startTime": "14:15", "endTime": "14:30"},
+          {"id": 31, "startTime": "14:30", "endTime": "14:45"},
+          {"id": 32, "startTime": "14:45", "endTime": "15:00"},
+          {"id": 33, "startTime": "15:00", "endTime": "15:15"},
+          {"id": 34, "startTime": "15:15", "endTime": "15:30"},
+          {"id": 35, "startTime": "15:30", "endTime": "15:45"},
+          {"id": 36, "startTime": "15:45", "endTime": "16:00"},
+          {"id": 37, "startTime": "16:00", "endTime": "16:15"},
+          {"id": 38, "startTime": "16:15", "endTime": "16:30"},
+          {"id": 39, "startTime": "16:30", "endTime": "16:45"},
+          {"id": 40, "startTime": "16:45", "endTime": "17:00"}
         ];
 
         isLoading = false;
       });
     } else {
-      final fetchedDoctors = await Getdoctorworking.fetchDoctorsTime(widget.id);
+      final fetchedDoctors =
+          await Getdoctorworking.fetchDoctorsWorking(widget.doctorId!);
 
       if (fetchedDoctors is List) {
         setState(() {
@@ -91,6 +114,7 @@ class ChooseTimeScreenState extends State<ChooseTimeScreen> {
             return {
               "id": doctor["id"],
               "startTime": doctor["startTime"] ?? "00:00",
+              "workDate": doctor["workDate"] ?? "00:00",
               "endTime": doctor["endTime"] ?? "00:00",
             };
           }).toList();
@@ -107,13 +131,31 @@ class ChooseTimeScreenState extends State<ChooseTimeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<dynamic> filteredDoctors = widget.isVIP
+        ? doctors
+        : doctors.where((doctor) {
+            return doctor['workDate'] ==
+                widget.selectedDate.toIso8601String().split('T')[0];
+          }).toList();
     // Lọc danh sách giờ theo buổi
-    List<dynamic> morningDoctors = doctors.where((doctor) {
+    List<dynamic> morningDoctors = (widget.isVIP
+            ? doctors
+            : doctors.where((doctor) {
+                return doctor['workDate'] ==
+                    widget.selectedDate.toIso8601String().split('T')[0];
+              }).toList())
+        .where((doctor) {
       int hour = int.parse(doctor["startTime"].split(":")[0]);
       return hour >= 6 && hour < 12;
     }).toList();
 
-    List<dynamic> afternoonDoctors = doctors.where((doctor) {
+    List<dynamic> afternoonDoctors = (widget.isVIP
+            ? doctors
+            : doctors.where((doctor) {
+                return doctor['workDate'] ==
+                    widget.selectedDate.toIso8601String().split('T')[0];
+              }).toList())
+        .where((doctor) {
       int hour = int.parse(doctor["startTime"].split(":")[0]);
       return hour >= 13 && hour < 17;
     }).toList();
